@@ -4,7 +4,7 @@ steps:
     args:
       - build
       - -t
-      - europe-west4-docker.pkg.dev/${PROJECT_ID}/rutgertuit/web:${SHORT_SHA}
+      - europe-west4-docker.pkg.dev/${PROJECT_ID}/rutgertuit/web:${BUILD_ID}
       - -t
       - europe-west4-docker.pkg.dev/${PROJECT_ID}/rutgertuit/web:latest
       - -f
@@ -12,7 +12,10 @@ steps:
       - .
   - id: push
     name: gcr.io/cloud-builders/docker
-    args: [push, --all-tags, europe-west4-docker.pkg.dev/${PROJECT_ID}/rutgertuit/web]
+    args:
+      - push
+      - --all-tags
+      - europe-west4-docker.pkg.dev/${PROJECT_ID}/rutgertuit/web
   - id: deploy
     name: gcr.io/google.com/cloudsdktool/cloud-sdk
     entrypoint: gcloud
@@ -20,7 +23,7 @@ steps:
       - run
       - deploy
       - rutgertuit-web
-      - --image=europe-west4-docker.pkg.dev/${PROJECT_ID}/rutgertuit/web:${SHORT_SHA}
+      - --image=europe-west4-docker.pkg.dev/${PROJECT_ID}/rutgertuit/web:${BUILD_ID}
       - --region=europe-west4
       - --platform=managed
       - --allow-unauthenticated
