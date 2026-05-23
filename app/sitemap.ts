@@ -39,19 +39,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
-      url: `${BASE}/business/equal-opportunity`,
+      url: `${BASE}/business/multiplier-myth`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.9,
     },
     {
-      url: `${BASE}/business/beyond-clean`,
+      url: `${BASE}/business/thirty-minute-kitchen`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.9,
     },
     {
-      url: `${BASE}/business/llms-listening`,
+      url: `${BASE}/business/agent-inclusive`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.9,
