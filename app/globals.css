@@ -1,0 +1,8 @@
+/*
+ * globals.css — Next.js global stylesheet entry.
+ * Import order matters: tokens first, base reset second, component CSS last.
+ */
+
+@import "../styles/variables.css";
+@import "../styles/base.css";
+@import "../styles/components.css";

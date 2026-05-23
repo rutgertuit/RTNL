@@ -1,0 +1,462 @@
+/* ============================================================
+   Rutger Tuit Design System — Tokens
+   Industrial-luxury × gradient-to-black × Swing motion
+   ============================================================ */
+
+/* ---------- Fonts (Google Fonts) ---------- */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@300;400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+
+:root {
+  /* ========================================================
+     COLOR — Background ladder (gradient-to-black, never grey-grey)
+     The four backgrounds form a vertical "stage" with warm-black bias.
+     ======================================================== */
+  --color-bg-sunken:   #050507;  /* deepest — behind cortex, under hero */
+  --color-bg-base:     #0B0B0C;  /* default body background */
+  --color-bg-surface:  #141416;  /* article surfaces, technical section */
+  --color-bg-raised:   #1D1D20;  /* hover lifts, raised cards, inputs */
+
+  /* ========================================================
+     COLOR — Foreground ladder (warm off-white, never pure #FFF)
+     Aged-paper warmth. Used for type on dark backgrounds.
+     ======================================================== */
+  --color-fg-1: #F2EEE5;  /* primary type — headings, lead body */
+  --color-fg-2: #B8B2A4;  /* secondary — body, captions */
+  --color-fg-3: #6E6A60;  /* muted — meta, timestamps, hairlines bright */
+  --color-fg-4: #2A2A2C;  /* subtle — hairline borders, dividers */
+
+  /* ========================================================
+     COLOR — Accents (sparse, single warm + single cool)
+     Used as lines and eyebrows, almost never as button fills.
+     ======================================================== */
+  --color-accent-warm:        #C8553D;  /* Rotterdam-brick rust */
+  --color-accent-warm-strong: #E8623E;  /* hot-rust — used for one focus line at a time */
+  --color-accent-cool:        #4A6FA5;  /* steel blue — technical zone */
+  --color-accent-cool-strong: #5B85C4;  /* edge-hover, dot-flow on cortex */
+
+  /* ========================================================
+     COLOR — Semantic
+     ======================================================== */
+  --color-link:        var(--color-fg-1);
+  --color-link-hover:  var(--color-accent-warm-strong);
+  --color-focus-ring:  var(--color-accent-cool-strong);
+  --color-selection:   rgba(200, 85, 61, 0.32);
+
+  /* ========================================================
+     GRADIENT recipes
+     The signature "gradient-to-black" sweep for section transitions
+     and protection gradients beneath imagery.
+     ======================================================== */
+  --gradient-sweep-down:
+    linear-gradient(
+      180deg,
+      var(--color-bg-surface) 0%,
+      var(--color-bg-base) 50%,
+      var(--color-bg-sunken) 100%
+    );
+  --gradient-sweep-up:
+    linear-gradient(
+      0deg,
+      var(--color-bg-surface) 0%,
+      var(--color-bg-base) 50%,
+      var(--color-bg-sunken) 100%
+    );
+  --gradient-protection:
+    linear-gradient(
+      0deg,
+      rgba(5, 5, 7, 0.95) 0%,
+      rgba(5, 5, 7, 0.6) 30%,
+      rgba(5, 5, 7, 0) 60%
+    );
+  --gradient-vignette:
+    radial-gradient(
+      ellipse at center,
+      transparent 50%,
+      rgba(5, 5, 7, 0.6) 100%
+    );
+
+  /* ========================================================
+     TYPOGRAPHY — Families
+     ======================================================== */
+  --font-display: "Instrument Serif", "GT Sectra", "Reckless Neue", "Times New Roman", Georgia, serif;
+  --font-body:    "IBM Plex Sans", "Söhne", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono:    "IBM Plex Mono", "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* ========================================================
+     TYPOGRAPHY — Scale (1.25 major-third ratio)
+     Step naming follows the brief's 8-step scale.
+     ======================================================== */
+  --fs-50: 0.8125rem;  /* 13px  — meta, footnote */
+  --fs-100: 1rem;      /* 16px  — small body */
+  --fs-200: 1.0625rem; /* 17px  — base body */
+  --fs-300: 1.25rem;   /* 20px  — lead paragraph */
+  --fs-400: 1.5625rem; /* 25px  — h4 */
+  --fs-500: 1.953rem;  /* ~31px — h3 */
+  --fs-600: 2.441rem;  /* ~39px — h2 */
+  --fs-700: 3.05rem;   /* ~49px — h1 article */
+  --fs-800: 3.815rem;  /* ~61px — section opener */
+  --fs-900: 4.768rem;  /* ~76px — hero secondary */
+  --fs-1000: 6rem;     /* 96px  — hero primary */
+  --fs-billboard: 10rem; /* 160px — homepage out-of-home moment */
+
+  /* ========================================================
+     TYPOGRAPHY — Line height, weight, tracking
+     ======================================================== */
+  --lh-display: 1.05;
+  --lh-heading: 1.15;
+  --lh-lead:    1.35;
+  --lh-body:    1.55;
+  --lh-tight:   1.1;
+
+  --fw-light:    300;
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+  --fw-bold:     700;
+  --fw-black:    800;
+
+  --tracking-tight:     -0.015em;
+  --tracking-display:   -0.02em;   /* serif sits tighter than grotesque */
+  --tracking-normal:    0;
+  --tracking-eyebrow:   0.16em;    /* mono eyebrow labels */
+  --tracking-billboard: -0.025em;
+
+  /* ========================================================
+     SPACING (4px base; long-scroll uses 192px section margins)
+     ======================================================== */
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   24px;
+  --space-6:   32px;
+  --space-7:   48px;
+  --space-8:   64px;
+  --space-9:   96px;
+  --space-10: 128px;
+  --space-11: 192px;
+  --space-12: 256px;
+
+  /* ========================================================
+     LAYOUT
+     ======================================================== */
+  --container-max: 1440px;
+  --container-gutter: 32px;
+  --reading-column: 720px;
+  --editorial-sidebar: 280px;
+  --grid-cols: 12;
+  --grid-gap: 24px;
+
+  /* ========================================================
+     RADII (industrial — hard-squared default)
+     ======================================================== */
+  --radius-0: 0;        /* default everything */
+  --radius-1: 2px;      /* chips, input fields */
+  --radius-2: 4px;      /* audio player, cortex node containers */
+
+  /* ========================================================
+     BORDERS (hairlines only)
+     ======================================================== */
+  --border-hairline: 1px solid var(--color-fg-4);
+  --border-bright:   1px solid var(--color-fg-3);
+  --border-accent:   1px solid var(--color-accent-warm);
+
+  /* ========================================================
+     ELEVATION (background-tone ladder, NOT box-shadow)
+     ======================================================== */
+  --elev-1: var(--color-bg-base);
+  --elev-2: var(--color-bg-surface);
+  --elev-3: var(--color-bg-raised);
+  --elev-4: var(--color-bg-raised); /* combined with -2px y-translate on hover */
+
+  /* No drop shadows. The only allowed shadows: */
+  --shadow-inset-input:  inset 0 1px 0 rgba(0, 0, 0, 0.4);
+  --shadow-inset-node:   inset 0 1px 2px rgba(0, 0, 0, 0.6);
+
+  /* ========================================================
+     MOTION — Swing easing + named durations
+     ======================================================== */
+  --ease-swing:        cubic-bezier(0.34, 0.05, 0.18, 1);
+  --ease-swing-in:     cubic-bezier(0.62, 0.05, 0.6, 0.4);
+  --ease-linear:       linear;   /* cortex rotation only */
+
+  --duration-ui:       200ms;    /* hover, press, micro */
+  --duration-trans:    480ms;    /* UI transitions */
+  --duration-hero:     720ms;    /* hero element entrances */
+  --duration-reveal:   1200ms;   /* section reveals */
+  --duration-cortex:   2400ms;   /* cortex slow rotation cycle */
+
+  /* ========================================================
+     Z-INDEX
+     ======================================================== */
+  --z-base:     0;
+  --z-content:  10;
+  --z-sticky:   100;
+  --z-nav:      500;
+  --z-overlay:  900;
+  --z-modal:    1000;
+}
+
+/* ============================================================
+   Reduced motion — everything degrades gracefully
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-ui:     0ms;
+    --duration-trans:  0ms;
+    --duration-hero:   200ms;
+    --duration-reveal: 200ms;
+    --duration-cortex: 0ms; /* cortex falls back to static SVG */
+  }
+}
+
+/* ============================================================
+   Semantic element styles
+   Use these for `h1` through `p`, `code`, etc.
+   ============================================================ */
+
+html, body {
+  background: var(--color-bg-base);
+  color: var(--color-fg-1);
+  font-family: var(--font-body);
+  font-size: var(--fs-200);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-selection);
+  color: var(--color-fg-1);
+}
+
+/* ---------- Display / billboard ---------- */
+.t-billboard {
+  font-family: var(--font-display);
+  font-size: var(--fs-billboard);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-display);
+  letter-spacing: var(--tracking-billboard);
+  color: var(--color-fg-1);
+}
+
+.t-hero {
+  font-family: var(--font-display);
+  font-size: var(--fs-1000);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-display);
+  letter-spacing: var(--tracking-display);
+}
+
+.t-hero-secondary {
+  font-family: var(--font-display);
+  font-size: var(--fs-900);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-display);
+  letter-spacing: var(--tracking-display);
+}
+
+/* ---------- Headings ---------- */
+h1, .h1 {
+  font-family: var(--font-display);
+  font-size: var(--fs-700);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-fg-1);
+  margin: 0;
+}
+
+h2, .h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-600);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-fg-1);
+  margin: 0;
+}
+
+h3, .h3 {
+  font-family: var(--font-display);
+  font-size: var(--fs-500);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-fg-1);
+  margin: 0;
+}
+
+h4, .h4 {
+  font-family: var(--font-display);
+  font-size: var(--fs-400);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-heading);
+  color: var(--color-fg-1);
+  margin: 0;
+}
+
+/* ---------- Body ---------- */
+.lead, p.lead {
+  font-family: var(--font-body);
+  font-size: var(--fs-300);
+  line-height: var(--lh-lead);
+  font-weight: var(--fw-regular);
+  color: var(--color-fg-1);
+}
+
+p, .body {
+  font-family: var(--font-body);
+  font-size: var(--fs-200);
+  line-height: var(--lh-body);
+  font-weight: var(--fw-regular);
+  color: var(--color-fg-2);
+  text-wrap: pretty;
+}
+
+.meta, .caption, small {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  line-height: var(--lh-body);
+  color: var(--color-fg-3);
+  letter-spacing: var(--tracking-normal);
+}
+
+/* ---------- Eyebrow / section label ---------- */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  font-weight: var(--fw-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-eyebrow);
+  color: var(--color-fg-3);
+}
+
+.eyebrow--warm {
+  color: var(--color-accent-warm);
+}
+
+/* ---------- Mono / code ---------- */
+code, .code, pre {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  color: var(--color-fg-1);
+  background: var(--color-bg-surface);
+  border: var(--border-hairline);
+  padding: 0.05em 0.35em;
+  border-radius: var(--radius-1);
+}
+
+pre {
+  padding: var(--space-5);
+  overflow-x: auto;
+  line-height: var(--lh-body);
+}
+
+pre code {
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+
+/* ---------- Links ---------- */
+a {
+  color: var(--color-link);
+  text-decoration: underline;
+  text-decoration-color: var(--color-fg-3);
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1px;
+  transition:
+    color var(--duration-ui) var(--ease-swing),
+    text-decoration-color var(--duration-ui) var(--ease-swing);
+}
+
+a:hover {
+  color: var(--color-link-hover);
+  text-decoration-color: var(--color-accent-warm-strong);
+}
+
+a:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 3px;
+  border-radius: var(--radius-1);
+}
+
+/* ---------- Rules ---------- */
+hr {
+  border: 0;
+  border-top: var(--border-hairline);
+  margin: var(--space-8) 0;
+}
+
+/* ============================================================
+   Utilities
+   ============================================================ */
+.container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--container-gutter);
+}
+
+.reading-column {
+  max-width: var(--reading-column);
+  margin: 0 auto;
+}
+
+.section {
+  padding: var(--space-11) 0;
+}
+
+.section--sweep {
+  background: var(--gradient-sweep-down);
+}
+
+.hairline {
+  border-top: var(--border-hairline);
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-eyebrow);
+  color: var(--color-fg-1);
+  border: var(--border-bright);
+  background: transparent;
+  padding: var(--space-3) var(--space-5);
+  /* Organic blob radius — each instance can override --blob-r for varied shapes */
+  --blob-r: 42% 58% 48% 52% / 52% 44% 56% 48%;
+  border-radius: var(--blob-r);
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background var(--duration-trans) var(--ease-swing),
+    border-color var(--duration-trans) var(--ease-swing),
+    border-radius var(--duration-trans) var(--ease-swing),
+    transform var(--duration-ui) var(--ease-swing);
+}
+
+.button:hover {
+  background: rgba(242, 238, 229, 0.04);
+  border-color: var(--color-fg-1);
+  /* Subtly re-mould the blob on hover */
+  border-radius: 56% 44% 60% 40% / 48% 56% 44% 52%;
+}
+
+.button:active {
+  transform: scale(0.98);
+}
+
+.button--warm {
+  border-color: var(--color-accent-warm);
+  color: var(--color-accent-warm);
+}
+
+.button--warm:hover {
+  color: var(--color-accent-warm-strong);
+  border-color: var(--color-accent-warm-strong);
+  background: rgba(200, 85, 61, 0.06);
+}

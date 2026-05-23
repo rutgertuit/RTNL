@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rutgertuit.nl/schemas/registry.schema.json",
+  "title": "rutgertuit.nl content registry",
+  "description": "Central metadata registry for all site content. Markdown files hold prose only; this file holds the link graph, model attribution, alignment-check state, and review queue state.",
+  "type": "object",
+  "required": ["version", "items"],
+  "properties": {
+    "version": { "type": "string", "description": "Schema version, semver" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "items": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/registryItem" }
+    }
+  },
+  "$defs": {
+    "registryItem": {
+      "type": "object",
+      "required": [
+        "id",
+        "collection",
+        "slug",
+        "title",
+        "model_used",
+        "model_version",
+        "created_at",
+        "last_reviewed",
+        "publish_state"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+          "description": "Stable kebab-case identifier. Never renamed."
+        },
+        "collection": {
+          "enum": ["business", "creative", "technical", "media-kit"]
+        },
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+          "description": "URL slug. Can change with a redirect; id cannot."
+        },
+        "title": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string" },
+        "body_path": {
+          "type": "string",
+          "description": "Path to markdown body relative to content/",
+          "pattern": "^[a-z0-9/_-]+\\.md$"
+        },
+        "topic_tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "model_used": {
+          "type": "string",
+          "description": "Primary model that produced this artifact"
+        },
+        "model_version": { "type": "string" },
+        "models_secondary": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "created_by_role": {
+          "enum": ["claude-code", "vibe-coded", "human-only", "hybrid"]
+        },
+        "created_at": { "type": "string", "format": "date-time" },
+        "last_reviewed": { "type": "string", "format": "date-time" },
+        "related_items": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Array of other item ids"
+        },
+        "external_links": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/externalLink" }
+        },
+        "media": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/mediaRef" }
+        },
+        "corporate_alignment_check": {
+          "$ref": "#/$defs/alignmentCheck"
+        },
+        "publish_state": {
+          "enum": ["draft", "review-queue", "approved", "live", "archived"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "externalLink": {
+      "type": "object",
+      "required": ["url", "label"],
+      "properties": {
+        "url": { "type": "string", "format": "uri" },
+        "label": { "type": "string" },
+        "type": {
+          "enum": ["github", "article", "talk", "interview", "demo", "press", "other"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "mediaRef": {
+      "type": "object",
+      "required": ["cdn_url", "type"],
+      "properties": {
+        "cdn_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Must be a CDN URL (media.rutgertuit.nl or storage.googleapis.com/rutgertuit-media/...). Never a Cloud Run origin."
+        },
+        "type": { "enum": ["image", "video", "audio", "pdf"] },
+        "alt": { "type": "string" },
+        "caption": { "type": "string" },
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 },
+        "duration_seconds": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "alignmentCheck": {
+      "type": "object",
+      "required": ["last_checked", "verdict"],
+      "properties": {
+        "last_checked": { "type": "string", "format": "date-time" },
+        "verdict": {
+          "enum": ["aligned", "needs-review", "drift-flagged", "never-checked"]
+        },
+        "diff_summary": { "type": "string" },
+        "inputs_version": {
+          "type": "string",
+          "description": "Hash or version tag of the corporate_inputs corpus at check time"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "version": "0.1.0",
+  "thresholds": {
+    "similarity_min_aligned": 0.55,
+    "similarity_min_needs_review": 0.40,
+    "claim_contradiction_max_aligned": 0,
+    "claim_contradiction_max_needs_review": 1
+  },
+  "embedding_model": "text-embedding-005",
+  "claim_extractor_model": "gemini-2.5-flash",
+  "inputs_path": "/maintenance/corporate_inputs"
+}

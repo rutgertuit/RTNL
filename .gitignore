@@ -1,0 +1,21 @@
+node_modules/
+.next/
+out/
+build/
+.DS_Store
+*.log
+.env*.local
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+
+# Playwright + dev screenshots (local only)
+.playwright-mcp/
+hero*.png
+sec-*.png
+pass*.png
+technical-*.png
+phase0-*.png
+*-current-state.png
+*-cortex-*.png
+*-index-*.png

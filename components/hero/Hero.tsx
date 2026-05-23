@@ -1,0 +1,189 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { Cortex } from "@/components/cortex/Cortex";
+
+const PORTRAITS = [
+  { id: "01-studio", label: "Studio", mood: "The executive" },
+  { id: "02-warehouse", label: "Warehouse", mood: "The tinkerer" },
+  { id: "03-cinematic", label: "Cinematic", mood: "The translator" },
+  { id: "04-profile", label: "Profile", mood: "The musician" },
+  { id: "05-mid-shot", label: "Mid-shot", mood: "The polymath" },
+  { id: "06-stage", label: "Stage", mood: "The conductor" },
+];
+
+const CYCLE_MS = 4800;
+
+export function Hero() {
+  const [idx, setIdx] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [userStopped, setUserStopped] = useState(false);
+  const wrapRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (paused || userStopped) return;
+    const id = setTimeout(() => setIdx((i) => (i + 1) % PORTRAITS.length), CYCLE_MS);
+    return () => clearTimeout(id);
+  }, [idx, paused, userStopped]);
+
+  useEffect(() => {
+    const mq = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+    if (mq?.matches) setUserStopped(true);
+  }, []);
+
+  useEffect(() => {
+    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) return;
+    let raf: number | null = null;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = null;
+        const el = wrapRef.current;
+        if (!el) return;
+        const y = window.scrollY;
+        const fade = Math.max(0, 1 - y / 700);
+        el.style.setProperty("--hero-scroll", String(y));
+        el.style.setProperty("--hero-fade", String(fade));
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  const cur = PORTRAITS[idx]!;
+
+  return (
+    <section
+      ref={wrapRef}
+      className="rt-hero rt-hero--v2"
+      id="top"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) setPaused(false);
+      }}
+    >
+      <div className="rt-hero__cortex rt-hero__cortex--orbit" aria-hidden>
+        <div className="rt-hero__orbit">
+          <Cortex width={1100} height={900} rotate={true} interactive={false} />
+        </div>
+      </div>
+
+      <div className="rt-hero__vignette" aria-hidden />
+
+      <div className="rt-hero__portrait-stage" aria-live="polite">
+        {PORTRAITS.map((p, i) => (
+          <figure
+            key={p.id}
+            className={`rt-hero__portrait-card ${i === idx ? "is-active" : ""}`}
+          >
+            <img
+              src={`/assets/portraits/${p.id}.png`}
+              alt={`Rutger Tuit — ${p.label.toLowerCase()}`}
+            />
+            <div className="rt-hero__portrait-protection" aria-hidden />
+          </figure>
+        ))}
+        <div className="rt-hero__portrait-cap">
+          <div className="rt-hero__portrait-cap-num">
+            PORTRAIT · {String(idx + 1).padStart(2, "0")} / 06
+          </div>
+          <div className="rt-hero__portrait-cap-mood">{cur.mood}</div>
+          <div className="rt-hero__portrait-cap-meta">
+            AI · CONSISTENT CHARACTER LIBRARY · NANO BANANA
+          </div>
+        </div>
+        <div className="rt-hero__portrait-dots" role="tablist" aria-label="Portrait sequence">
+          {PORTRAITS.map((p, i) => (
+            <button
+              key={p.id}
+              role="tab"
+              aria-selected={i === idx}
+              aria-label={`Show portrait ${i + 1}: ${p.label}`}
+              className={`rt-hero__portrait-dot ${i === idx ? "is-active" : ""}`}
+              onClick={() => {
+                setIdx(i);
+                setUserStopped(true);
+              }}
+            />
+          ))}
+        </div>
+        <button
+          className="rt-hero__pause"
+          aria-pressed={userStopped}
+          aria-label={userStopped ? "Resume portrait sequence" : "Pause portrait sequence"}
+          onClick={() => setUserStopped((s) => !s)}
+        >
+          {userStopped ? "▷ PLAY" : "⏸ PAUSE"}
+        </button>
+      </div>
+
+      <div className="rt-hero__content container">
+        <div className="rt-hero__brow">
+          <span className="rt-hero__brow-tick" aria-hidden />
+          <span className="eyebrow eyebrow--warm">RUTGER TUIT · NOTES FROM THE SEAM</span>
+          <span className="rt-hero__brow-sep" aria-hidden>·</span>
+          <span className="eyebrow">ROTTERDAM / AMSTERDAM</span>
+        </div>
+
+        <h1 className="rt-hero__headline">
+          <span className="rt-hero__line rt-hero__line--1">I help leaders</span>
+          <span className="rt-hero__line rt-hero__line--2">see the collision</span>
+          <span className="rt-hero__line rt-hero__line--3">
+            <em>before</em> it
+          </span>
+          <span className="rt-hero__line rt-hero__line--4">hits them.</span>
+        </h1>
+
+        <div className="rt-hero__sub">
+          <p className="rt-hero__lead">
+            Marketing AI at Google by day, a homelab full of agents at night. The site is where the
+            two halves of that talk to each other.
+          </p>
+        </div>
+
+        <nav className="rt-hero__index" aria-label="Section index">
+          <a href="#business" className="rt-hero__index-item">
+            <span className="rt-hero__index-num">01</span>
+            <span className="rt-hero__index-label">
+              Business &amp; Leadership
+              <span className="rt-hero__index-arrow" aria-hidden>→</span>
+            </span>
+          </a>
+          <a href="#creative" className="rt-hero__index-item">
+            <span className="rt-hero__index-num">02</span>
+            <span className="rt-hero__index-label">
+              Creative Playground
+              <span className="rt-hero__index-arrow" aria-hidden>→</span>
+            </span>
+          </a>
+          <a href="#technical" className="rt-hero__index-item">
+            <span className="rt-hero__index-num">03</span>
+            <span className="rt-hero__index-label">
+              Technical · Deep End
+              <span className="rt-hero__index-arrow" aria-hidden>→</span>
+            </span>
+          </a>
+          <a href="#media-kit" className="rt-hero__index-item">
+            <span className="rt-hero__index-num">04</span>
+            <span className="rt-hero__index-label">
+              Media Kit
+              <span className="rt-hero__index-arrow" aria-hidden>→</span>
+            </span>
+          </a>
+        </nav>
+
+        <div className="rt-hero__scroll-hint" aria-hidden>
+          <span>SCROLL · THE HOOK BEGINS</span>
+          <span className="rt-hero__scroll-line" />
+        </div>
+      </div>
+    </section>
+  );
+}

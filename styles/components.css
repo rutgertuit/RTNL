@@ -1,0 +1,1085 @@
+/* ============================================================
+   rutgertuit.nl — v2 polish extensions
+   Layers on top of styles-base.css.
+   Focus: depth via cortex orbit + section-edge gradient sweeps,
+   committed photography, sticky-light nav, scroll progress.
+   ============================================================ */
+
+html { scroll-behavior: smooth; }
+html, body { background: var(--color-bg-base); }
+body { overflow-x: hidden; }
+
+/* ============================================================
+   GRAIN — site-wide hyperrealistic film grain
+   Fixed full-viewport SVG turbulence, rendered into a tiled
+   noise frame. Two layers: a static base + a slow-drift layer
+   to mimic film stock movement. Pure CSS, no image asset.
+   ============================================================ */
+.rt-grain {
+  position: fixed;
+  inset: -2vh;
+  /* Sit between content (z-content 10) and fixed UI (z-nav 500) so the grain
+     films the page but never noises-over nav chrome / focus rings / dialogs. */
+  z-index: 400;
+  pointer-events: none;
+  opacity: 0.18;
+  mix-blend-mode: overlay;
+}
+.rt-grain__layer {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='2'/><feColorMatrix values='0 0 0 0 0.95  0 0 0 0 0.92  0 0 0 0 0.85  0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-repeat: repeat;
+}
+.rt-grain__layer--drift {
+  opacity: 0.6;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='280' height='280'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch' seed='5'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 0.98  0 0 0 0 0.9  0 0 0 0.4 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  animation: grain-drift 1.6s steps(8) infinite;
+}
+@keyframes grain-drift {
+  0%   { transform: translate3d(0,0,0); }
+  10%  { transform: translate3d(-2%,-3%,0); }
+  20%  { transform: translate3d(-5%,2%,0); }
+  30%  { transform: translate3d(3%,-4%,0); }
+  40%  { transform: translate3d(-3%,5%,0); }
+  50%  { transform: translate3d(2%,2%,0); }
+  60%  { transform: translate3d(4%,-2%,0); }
+  70%  { transform: translate3d(-4%,-1%,0); }
+  80%  { transform: translate3d(1%,4%,0); }
+  90%  { transform: translate3d(-1%,-3%,0); }
+  100% { transform: translate3d(0,0,0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rt-grain__layer--drift { animation: none; }
+}
+
+/* ============================================================
+   STICKY-LIGHT NAV — sits at top, blurs to base on scroll
+   ============================================================ */
+.rt-nav--sticky {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  background: rgba(11, 11, 12, 0);
+  border-bottom-color: transparent;
+  padding: var(--space-4) var(--container-gutter);
+  transition: background var(--duration-trans) var(--ease-swing),
+              border-color var(--duration-trans) var(--ease-swing),
+              padding var(--duration-trans) var(--ease-swing);
+}
+.rt-nav--sticky.is-scrolled {
+  background: rgba(11, 11, 12, 0.82);
+  border-bottom: var(--border-hairline);
+  padding: var(--space-3) var(--container-gutter);
+}
+.rt-nav--sticky .rt-nav__items { gap: var(--space-6); }
+.rt-nav--sticky .rt-nav__item { white-space: nowrap; position: relative; }
+
+/* Compact nav at narrower viewports — show short labels, tighter gap */
+@media (max-width: 1280px) {
+  .rt-nav--sticky .rt-nav__items { gap: var(--space-5); }
+  .rt-nav__item .rt-nav__item-long { display: none; }
+  .rt-nav__item .rt-nav__item-short { display: inline; }
+}
+@media (min-width: 1281px) {
+  .rt-nav__item .rt-nav__item-long { display: inline; }
+  .rt-nav__item .rt-nav__item-short { display: none; }
+}
+@media (max-width: 1100px) {
+  .rt-nav--sticky .rt-nav__cta { display: none; }
+  .rt-nav--sticky { grid-template-columns: auto 1fr; }
+}
+.rt-nav__item.is-active {
+  color: var(--color-fg-1);
+}
+.rt-nav__item.is-active::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  bottom: -8px;
+  height: 1px;
+  background: var(--color-accent-warm-strong);
+}
+.rt-nav__progress {
+  position: absolute;
+  left: 0; right: 0; bottom: -1px;
+  height: 1px;
+  background: transparent;
+  pointer-events: none;
+}
+.rt-nav__progress-fill {
+  position: absolute;
+  left: 0; top: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--color-accent-warm);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 80ms linear;
+}
+
+/* Push everything below the fixed nav */
+body { padding-top: 0; }
+
+/* ============================================================
+   HERO v2 — orbiting cortex + cycling portrait + billboard type
+   With slow 3D rotation: the hero becomes a 3D stage; the cortex
+   layer tilts on Y and X, the portrait layer breathes on Z.
+   ============================================================ */
+.rt-hero--v2 {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background: var(--color-bg-sunken);
+  padding: 0;
+  isolation: isolate;
+  perspective: 1800px;
+  perspective-origin: 65% 50%;
+}
+
+/* The cortex sits behind the portrait as atmospheric depth — heavily blurred,
+   low opacity, constrained to the right portrait column only so it never reads
+   as a literal network diagram bleeding into the headline column. */
+.rt-hero__cortex--orbit {
+  position: absolute;
+  inset: -10% -10% -10% 55%;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0.14;
+  z-index: 1;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  transform-style: preserve-3d;
+  filter: blur(4px);
+  animation: cortex-tilt 24s ease-in-out infinite;
+}
+.rt-hero__orbit {
+  position: relative;
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  animation: cortex-orbit 36s linear infinite;
+  transform-style: preserve-3d;
+  transform-origin: 60% 50%;
+}
+.rt-hero__orbit svg {
+  width: 1100px; max-width: 130%;
+  height: auto;
+  filter: blur(2px);
+}
+@keyframes cortex-orbit {
+  0%   { transform: rotate(0deg)   translateX(0)    rotate(0deg); }
+  100% { transform: rotate(360deg) translateX(0)    rotate(-360deg); }
+}
+/* Slow Y-axis tilt for genuine 3D depth on the cortex */
+@keyframes cortex-tilt {
+  0%   { transform: rotateY(-12deg) rotateX(6deg)  translateZ(-40px); }
+  50%  { transform: rotateY(14deg)  rotateX(-4deg) translateZ(20px); }
+  100% { transform: rotateY(-12deg) rotateX(6deg)  translateZ(-40px); }
+}
+
+/* Multi-layer vignette: warm-black sweep from left for type legibility +
+   black radial vignette to push corners back. */
+.rt-hero__vignette {
+  position: absolute; inset: 0;
+  z-index: 2;
+  background:
+    linear-gradient(90deg,
+      rgba(5,5,7,0.95) 0%,
+      rgba(5,5,7,0.85) 30%,
+      rgba(5,5,7,0.45) 55%,
+      rgba(5,5,7,0.2) 75%,
+      rgba(5,5,7,0.55) 100%),
+    radial-gradient(ellipse at 30% 50%, transparent 40%, rgba(5,5,7,0.6) 85%),
+    linear-gradient(180deg,
+      rgba(5,5,7,0.6) 0%,
+      rgba(5,5,7,0) 25%,
+      rgba(5,5,7,0) 75%,
+      rgba(5,5,7,0.92) 100%);
+  pointer-events: none;
+}
+
+/* Portrait stage: full-bleed right column, cycling stack.
+   Also tilts subtly on Y/X — same 3D stage as the cortex, slightly
+   counter-phased so the layers feel like real planes in space. */
+.rt-hero__portrait-stage {
+  position: absolute;
+  top: 0; bottom: 0; right: 0;
+  width: 48vw;
+  max-width: 720px;
+  z-index: 3;
+  pointer-events: none;
+  transform-style: preserve-3d;
+  animation: portrait-breath 18s ease-in-out infinite;
+}
+@keyframes portrait-breath {
+  /* Tone down the swing so it cannot push the portrait into the headline zone */
+  0%   { transform: rotateY(2deg)  rotateX(-0.5deg) translateZ(0); }
+  50%  { transform: rotateY(-2.5deg) rotateX(1deg) translateZ(15px); }
+  100% { transform: rotateY(2deg)  rotateX(-0.5deg) translateZ(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rt-hero__cortex--orbit,
+  .rt-hero__orbit,
+  .rt-hero__portrait-stage { animation: none; }
+}
+.rt-hero__portrait-card {
+  position: absolute;
+  inset: 8vh 0 12vh 0;
+  margin: 0;
+  opacity: 0;
+  transform: scale(1.04);
+  transition:
+    opacity var(--duration-reveal) var(--ease-swing),
+    transform 6s var(--ease-swing);
+  pointer-events: none;
+}
+.rt-hero__portrait-card.is-active {
+  opacity: 1;
+  transform: scale(1);
+}
+.rt-hero__portrait-card img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: contrast(1.08) saturate(0.92);
+}
+/* Strengthen the portrait protection — the left HALF of the portrait card is
+   near-opaque dark, fading to clear across the right half. Combined with the
+   headline backdrop scrim, this creates a continuous dark zone the headline
+   reads against, while the right of the portrait still shows the photo. */
+.rt-hero__portrait-protection {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(270deg,
+      rgba(5,5,7,0) 15%,
+      rgba(5,5,7,0.25) 35%,
+      rgba(5,5,7,0.65) 55%,
+      rgba(5,5,7,0.9) 75%,
+      rgba(5,5,7,0.98) 100%),
+    linear-gradient(180deg,
+      rgba(5,5,7,0.4) 0%, rgba(5,5,7,0) 18%,
+      rgba(5,5,7,0) 70%, rgba(5,5,7,0.85) 100%);
+}
+
+.rt-hero__portrait-cap {
+  position: absolute;
+  bottom: var(--space-9);
+  left: var(--space-6);
+  right: var(--space-7);
+  z-index: 4;
+  pointer-events: none;
+  display: flex; flex-direction: column;
+  gap: var(--space-1);
+}
+.rt-hero__portrait-cap-num {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: var(--tracking-eyebrow);
+  color: var(--color-accent-warm);
+}
+.rt-hero__portrait-cap-mood {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--fs-500);
+  color: var(--color-fg-1);
+  line-height: 1.1;
+}
+.rt-hero__portrait-cap-meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-eyebrow);
+  color: var(--color-fg-3);
+  margin-top: var(--space-2);
+}
+
+.rt-hero__portrait-dots {
+  position: absolute;
+  right: var(--space-6);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex; flex-direction: column;
+  gap: var(--space-3);
+  z-index: 5;
+}
+.rt-hero__portrait-dot {
+  width: 28px; height: 1px;
+  background: var(--color-fg-3);
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  transition: background var(--duration-ui) var(--ease-swing),
+              width var(--duration-trans) var(--ease-swing);
+  pointer-events: auto;
+}
+.rt-hero__portrait-dot.is-active {
+  background: var(--color-accent-warm-strong);
+  width: 42px;
+}
+.rt-hero__portrait-dot:hover { background: var(--color-fg-1); }
+
+/* Hero content (headline locked, billboard) */
+.rt-hero__content {
+  position: relative;
+  z-index: 4;
+  padding-top: 18vh;
+  padding-bottom: var(--space-8);
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  justify-content: flex-start;
+  /* Override the legacy v1 hero's max-width: 980px so the v2 layout can
+     stretch to the full container. Without this, the section-index nav
+     gets squeezed into a narrow column and bleeds behind the portrait. */
+  max-width: none;
+  /* small fade-out as you scroll */
+  opacity: calc(0.35 + var(--hero-fade, 1) * 0.65);
+  transform: translateY(calc(var(--hero-scroll, 0) * -0.12px));
+}
+
+.rt-hero__brow {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  margin-bottom: var(--space-7);
+}
+.rt-hero__brow-tick {
+  display: inline-block;
+  width: 22px; height: 1px;
+  background: var(--color-accent-warm-strong);
+}
+.rt-hero__brow-sep {
+  color: var(--color-fg-3);
+  font-family: var(--font-mono);
+}
+
+.rt-hero__headline {
+  font-family: var(--font-display);
+  font-size: clamp(44px, 8vw, 128px);
+  font-weight: var(--fw-bold);
+  line-height: 0.96;
+  letter-spacing: var(--tracking-billboard);
+  color: var(--color-fg-1);
+  margin: 0;
+  display: flex; flex-direction: column;
+  text-wrap: balance;
+  /* Width is intrinsic — each line is white-space: nowrap and the headline
+     extends as wide as its widest natural line. The dark backdrop + portrait
+     protection cover any overlap into the portrait. */
+  width: max-content;
+  max-width: 100%;
+  position: relative;
+  /* Push the headline forward in 3D space so it literally sits in front of
+     the cortex and portrait planes. The hero's perspective makes this real. */
+  transform: translateZ(80px);
+  /* Multi-layer carved-out-of-dark shadow so the type always reads against
+     the portrait breath, regardless of where the portrait swings to. */
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.95),
+    0 2px 8px rgba(0, 0, 0, 0.85),
+    0 12px 32px rgba(5, 5, 7, 0.7),
+    0 32px 80px rgba(5, 5, 7, 0.55);
+}
+/* Atmospheric dark backdrop behind the headline — a diagonal scrim that
+   matches the headline-to-portrait flow. Strongest at top-left where the
+   type lives, fading to transparent past where the portrait imagery should
+   show. Generous blur so the edge feels atmospheric, not boxy. */
+.rt-hero__headline::before {
+  content: "";
+  position: absolute;
+  inset: -25% -20% -25% -10%;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 110% 90% at 30% 50%,
+      rgba(5, 5, 7, 0.92) 0%,
+      rgba(5, 5, 7, 0.78) 35%,
+      rgba(5, 5, 7, 0.45) 65%,
+      rgba(5, 5, 7, 0) 90%);
+  filter: blur(28px);
+  pointer-events: none;
+}
+.rt-hero__line {
+  display: block;
+  position: relative;
+  white-space: nowrap;
+}
+.rt-hero__line--3,
+.rt-hero__line--4 {
+  /* Slight rightward indent on the last two lines for a syncopated, musical
+     descending rhythm — each line of the headline lands one step right. */
+  padding-left: clamp(12px, 2vw, 36px);
+}
+.rt-hero__line--4 {
+  padding-left: clamp(28px, 4vw, 72px);
+}
+.rt-hero__headline em {
+  font-style: italic;
+  color: var(--color-accent-warm-strong);
+  font-weight: var(--fw-semibold);
+}
+/* The .rt-hero__content opacity/transform are tied to scroll position. */
+
+.rt-hero__sub {
+  margin-top: var(--space-7);
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  gap: var(--space-4);
+  /* Never overlap the portrait stage to the right */
+  max-width: clamp(360px, 40vw, 480px);
+  align-items: start;
+}
+.rt-hero__sub::before {
+  content: "";
+  display: block;
+  width: 30px; height: 1px;
+  background: var(--color-fg-3);
+  margin-top: 14px;
+}
+.rt-hero__lead {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--fs-300);
+  line-height: var(--lh-lead);
+  color: var(--color-fg-1);
+}
+
+/* ============================================================
+   HERO INDEX (formerly "strip") — typographic, no boxes.
+   Reads like a magazine contents page: large display numerals
+   over confident lowercase labels. A hairline grows under each
+   item on hover. The whole row inhabits the same air as the lead.
+   ============================================================ */
+.rt-hero__index {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(28px, 3vw, 56px) clamp(28px, 3.5vw, 56px);
+  align-items: flex-end;
+  padding-top: var(--space-7);
+  /* Stay LEFT of the absolute-positioned portrait stage (right: 0; width: 48vw, max 720px).
+     Without this cap, items 03 + 04 slide behind the portrait card on viewports
+     between ~1100px and ~1700px. */
+  max-width: min(640px, calc(100vw - 720px - var(--container-gutter) * 2));
+  position: relative;
+}
+.rt-hero__index::before {
+  content: "READ ON";
+  position: absolute;
+  top: 0; left: 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: var(--tracking-eyebrow);
+  color: var(--color-fg-3);
+  text-transform: uppercase;
+}
+.rt-hero__index::after {
+  content: "";
+  position: absolute;
+  top: 12px;
+  left: 70px;
+  right: 0;
+  height: 1px;
+  background: var(--color-fg-4);
+}
+
+.rt-hero__index-item {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  text-decoration: none;
+  padding-bottom: var(--space-3);
+  color: var(--color-fg-2);
+  transition: color var(--duration-ui) var(--ease-swing);
+}
+.rt-hero__index-item::after {
+  content: "";
+  position: absolute;
+  left: 0; right: auto; bottom: 0;
+  width: 0;
+  height: 1px;
+  background: var(--color-accent-warm);
+  transition: width var(--duration-trans) var(--ease-swing);
+}
+.rt-hero__index-item:hover { color: var(--color-fg-1); }
+.rt-hero__index-item:hover::after { width: 100%; }
+.rt-hero__index-item:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 6px;
+}
+
+.rt-hero__index-num {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 4.5vw, 72px);
+  font-weight: var(--fw-bold);
+  line-height: 0.95;
+  letter-spacing: var(--tracking-display);
+  color: var(--color-fg-3);
+  transition: color var(--duration-ui) var(--ease-swing);
+}
+.rt-hero__index-item:hover .rt-hero__index-num {
+  color: var(--color-accent-warm-strong);
+}
+
+.rt-hero__index-label {
+  font-family: var(--font-body);
+  font-size: var(--fs-100);
+  font-weight: var(--fw-regular);
+  letter-spacing: -0.005em;
+  color: inherit;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+.rt-hero__index-arrow {
+  font-family: var(--font-mono);
+  color: var(--color-accent-warm);
+  font-size: 11px;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity var(--duration-ui) var(--ease-swing),
+              transform var(--duration-trans) var(--ease-swing);
+}
+.rt-hero__index-item:hover .rt-hero__index-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.rt-hero__scroll-hint {
+  position: absolute;
+  bottom: var(--space-6);
+  right: var(--container-gutter);
+  z-index: 5;
+}
+.rt-hero__scroll-hint span:first-child {
+  color: var(--color-fg-2);
+}
+
+/* ============================================================
+   SECTION-EDGE GRADIENT TRANSITIONS
+   Sweep-down on enter, sweep-up on exit.
+   ============================================================ */
+.rt-transit {
+  position: relative;
+  height: 192px;
+  width: 100%;
+  pointer-events: none;
+}
+.rt-transit--down {
+  background: linear-gradient(180deg,
+    var(--color-bg-sunken) 0%,
+    var(--color-bg-base) 50%,
+    var(--color-bg-surface) 100%);
+}
+.rt-transit--up {
+  background: linear-gradient(0deg,
+    var(--color-bg-sunken) 0%,
+    var(--color-bg-base) 50%,
+    var(--color-bg-surface) 100%);
+}
+.rt-transit--into-surface {
+  background: linear-gradient(180deg,
+    var(--color-bg-base) 0%,
+    var(--color-bg-surface) 100%);
+}
+.rt-transit--into-base {
+  background: linear-gradient(180deg,
+    var(--color-bg-surface) 0%,
+    var(--color-bg-base) 100%);
+}
+.rt-transit--into-sunken {
+  background: linear-gradient(180deg,
+    var(--color-bg-base) 0%,
+    var(--color-bg-sunken) 100%);
+}
+.rt-transit--from-sunken {
+  background: linear-gradient(180deg,
+    var(--color-bg-sunken) 0%,
+    var(--color-bg-base) 100%);
+}
+
+/* A subtle moving accent line embedded in the transition */
+.rt-transit::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0; bottom: 0;
+  width: 1px;
+  background: linear-gradient(180deg,
+    transparent 0%,
+    var(--color-fg-4) 30%,
+    var(--color-accent-warm) 50%,
+    var(--color-fg-4) 70%,
+    transparent 100%);
+  opacity: 0.6;
+  transform: translateX(-0.5px);
+}
+
+/* ============================================================
+   ANECDOTAL HOOK — the conceptual swing between hero & editorial
+   ============================================================ */
+.rt-hook {
+  position: relative;
+  background: var(--color-bg-base);
+  padding: var(--space-11) 0;
+}
+.rt-hook__inner {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 var(--container-gutter);
+}
+.rt-hook__brow {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+  margin-bottom: var(--space-8);
+}
+.rt-hook__brow-num {
+  font-family: var(--font-display);
+  font-size: var(--fs-500);
+  font-weight: var(--fw-bold);
+  color: var(--color-accent-warm);
+  line-height: 1;
+}
+.rt-hook__pull {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 5.5vw, 76px);
+  font-weight: var(--fw-bold);
+  line-height: 1.05;
+  letter-spacing: var(--tracking-display);
+  color: var(--color-fg-1);
+  margin: 0 0 var(--space-7);
+  text-wrap: balance;
+}
+.rt-hook__pull em {
+  font-style: italic;
+  color: var(--color-accent-warm-strong);
+  font-weight: var(--fw-semibold);
+}
+.rt-hook__body {
+  font-family: var(--font-body);
+  font-size: var(--fs-300);
+  line-height: var(--lh-lead);
+  color: var(--color-fg-2);
+  max-width: 640px;
+  margin: 0 0 var(--space-9);
+}
+.rt-hook__signature {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+.rt-hook__sig-line {
+  width: 60px; height: 1px;
+  background: var(--color-accent-warm);
+}
+.rt-hook__sig-text {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: var(--tracking-eyebrow);
+  color: var(--color-fg-2);
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   EDITORIAL ENHANCEMENT — full-bleed event photo behind header
+   ============================================================ */
+.rt-editorial {
+  background: var(--color-bg-surface);
+  position: relative;
+  padding-top: var(--space-11);
+}
+.rt-editorial__head {
+  position: relative;
+  padding-bottom: var(--space-8);
+  border-bottom: var(--border-hairline);
+}
+.rt-editorial__title em {
+  font-style: italic;
+  color: var(--color-accent-warm-strong);
+  font-weight: var(--fw-semibold);
+}
+
+/* Add a small "filed in" rail above the article list */
+.rt-editorial__rail {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: var(--space-5) 0;
+  border-bottom: var(--border-hairline);
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: var(--tracking-eyebrow);
+  color: var(--color-fg-3);
+  text-transform: uppercase;
+  margin-bottom: var(--space-7);
+}
+
+/* Articles get a cinematic eyebrow event-photo backdrop */
+.rt-editorial__article {
+  padding-top: var(--space-7);
+}
+.rt-editorial__article:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+.rt-editorial__article-photo {
+  position: relative;
+  margin: 0 0 var(--space-6);
+  aspect-ratio: 21 / 9;
+  overflow: hidden;
+  background: var(--color-bg-sunken);
+}
+.rt-editorial__article-photo img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: contrast(1.05) saturate(0.85);
+}
+.rt-editorial__article-photo::after {
+  content: "";
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, rgba(20,20,22,0.2) 0%, rgba(20,20,22,0) 30%, rgba(20,20,22,0.7) 100%),
+    linear-gradient(90deg, rgba(20,20,22,0.5) 0%, rgba(20,20,22,0) 50%);
+}
+.rt-editorial__article-photo-cap {
+  position: absolute;
+  bottom: var(--space-3);
+  left: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: var(--tracking-eyebrow);
+  color: var(--color-fg-1);
+  z-index: 2;
+}
+
+/* ============================================================
+   TUIT POST polish
+   ============================================================ */
+.rt-tuit {
+  background: var(--color-bg-base);
+  padding: var(--space-11) 0;
+}
+.rt-tuit__head {
+  margin: 0 auto var(--space-9);
+  max-width: var(--container-max);
+  padding: 0 var(--container-gutter);
+  text-align: left;
+}
+.rt-tuit__title {
+  max-width: 14ch;
+}
+
+/* Article-bottom navigation (back + invitation) */
+.rt-tuit__nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  padding-top: var(--space-8);
+  margin-top: var(--space-8);
+  border-top: var(--border-hairline);
+  max-width: var(--reading-column);
+  margin-left: 180px; /* match the .rt-tuit__stage grid offset */
+}
+@media (max-width: 920px) {
+  .rt-tuit__nav { margin-left: 0; }
+}
+
+/* ============================================================
+   CREATIVE ATELIER polish — give imagery committed space
+   ============================================================ */
+.rt-creative {
+  background: var(--color-bg-surface);
+  padding: var(--space-11) 0;
+}
+
+/* Image panel — three big tiles + one feature-large */
+.rt-creative__panel:first-of-type .rt-creative__panel-art {
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 1px;
+}
+.rt-creative__panel:first-of-type .rt-creative__panel-art img:first-child {
+  aspect-ratio: 4 / 5;
+}
+.rt-creative__panel:first-of-type .rt-creative__panel-art img:nth-child(n+2) {
+  aspect-ratio: 3 / 5;
+}
+.rt-creative__panel--motion .rt-creative__video {
+  aspect-ratio: 21 / 11;
+}
+
+/* Music panel — the audio player is the focal point */
+.rt-creative__panel:last-of-type {
+  grid-template-columns: 1fr 1.4fr;
+}
+
+/* ============================================================
+   TECHNICAL section polish — cortex larger, tile grid sharper
+   ============================================================ */
+.rt-tech {
+  background: var(--color-bg-sunken);
+  padding: var(--space-11) 0;
+}
+.rt-tech__topology {
+  position: relative;
+  border: var(--border-hairline);
+  background: var(--color-bg-sunken);
+  overflow: hidden;
+}
+.rt-tech__topology::before {
+  content: "";
+  position: absolute;
+  top: var(--space-4);
+  left: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: var(--tracking-eyebrow);
+  color: var(--color-fg-3);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* A small framing chrome for the cortex render so it reads as a diagram */
+.rt-tech__topology-frame {
+  position: absolute;
+  top: var(--space-4); left: var(--space-4);
+  display: flex; align-items: center;
+  gap: var(--space-3);
+  z-index: 3;
+}
+.rt-tech__topology-frame .eyebrow {
+  color: var(--color-accent-cool);
+}
+.rt-tech__topology-frame__dot {
+  width: 6px; height: 6px;
+  background: var(--color-accent-cool-strong);
+  border-radius: 50%;
+  animation: pulse 2.4s var(--ease-swing) infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.6); }
+}
+
+.rt-tech__topology-readout {
+  position: absolute;
+  top: var(--space-4); right: var(--space-4);
+  z-index: 3;
+  display: flex; flex-direction: column;
+  gap: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: var(--tracking-eyebrow);
+  color: var(--color-fg-3);
+  text-align: right;
+}
+.rt-tech__topology-readout strong {
+  color: var(--color-fg-1);
+  font-weight: var(--fw-medium);
+}
+
+.rt-tile {
+  background: var(--color-bg-sunken);
+  position: relative;
+  overflow: hidden;
+}
+.rt-tile:hover {
+  background: var(--color-bg-base);
+}
+.rt-tile::before {
+  content: attr(data-corner);
+  position: absolute;
+  top: var(--space-3); right: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: var(--tracking-eyebrow);
+  color: var(--color-fg-4);
+}
+
+/* ============================================================
+   MEDIA KIT polish — make the photo grid 3-up, larger
+   ============================================================ */
+.rt-mk {
+  background: var(--color-bg-base);
+  padding: var(--space-11) 0;
+}
+.rt-mk__nav {
+  top: 68px;     /* sit below fixed nav */
+  backdrop-filter: none;
+  background: var(--color-bg-base);
+}
+.rt-mk__photos {
+  grid-template-columns: repeat(3, 1fr);
+}
+.rt-mk__photo img {
+  aspect-ratio: 4 / 5;
+}
+
+/* ============================================================
+   FOOTER polish
+   ============================================================ */
+.rt-footer {
+  background: var(--color-bg-sunken);
+  padding: var(--space-11) 0 var(--space-7);
+}
+.rt-footer__headline em {
+  font-style: italic;
+  color: var(--color-accent-warm-strong);
+  font-weight: var(--fw-semibold);
+}
+
+/* ============================================================
+   BACK-TO-TOP affordance (bottom-right)
+   ============================================================ */
+.rt-totop {
+  position: fixed;
+  bottom: var(--space-7);
+  right: var(--container-gutter);
+  z-index: var(--z-nav);
+  display: inline-flex; align-items: center; gap: var(--space-3);
+  background: transparent;
+  border: 0;
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-fg-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: var(--tracking-eyebrow);
+  cursor: pointer;
+  opacity: 0; pointer-events: none;
+  transform: translateY(8px);
+  transition: opacity var(--duration-trans) var(--ease-swing),
+              transform var(--duration-trans) var(--ease-swing),
+              color var(--duration-ui) var(--ease-swing);
+}
+.rt-totop.is-visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.rt-totop:hover { color: var(--color-fg-1); }
+.rt-totop__line { display: inline-block; width: 36px; height: 1px; background: currentColor; }
+.rt-totop__arrow { color: var(--color-accent-warm); }
+
+/* ============================================================
+   Scroll reveal — small opacity/y lift for sections entering viewport.
+   IMPORTANT: starts visible. The reveal class only animates IN if JS
+   adds .rt-reveal--armed before scroll. This avoids the "section is
+   stuck invisible because the observer never fired" failure mode.
+   ============================================================ */
+.rt-reveal {
+  opacity: 1;
+  transform: none;
+}
+.rt-reveal--armed {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 900ms var(--ease-swing),
+              transform 900ms var(--ease-swing);
+  will-change: opacity, transform;
+}
+.rt-reveal--armed.is-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .rt-reveal, .rt-reveal--armed { opacity: 1; transform: none; transition: none; }
+  .rt-hero__orbit { animation: none; }
+  .rt-hero__portrait-card { transition: opacity 200ms linear, transform 0ms; }
+}
+
+/* ============================================================
+   ACCESSIBILITY OVERRIDES
+   ============================================================ */
+/* Bump fg-3 to clear WCAG AA 4.5:1 on small text against bg-base/surface.
+   Design token (#6E6A60) only reaches ~3.5:1. We override locally so the
+   token stays canonical but eyebrows/meta/captions stay readable. */
+:root {
+  --color-fg-3: #8C8779; /* was #6E6A60 — bumped to 5.2:1 on bg-base */
+}
+
+/* Skip-to-content link — invisible until focused, then docks top-left */
+.rt-skip-link {
+  position: fixed;
+  top: var(--space-3);
+  left: var(--space-3);
+  z-index: 9999;
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-bg-base);
+  background: var(--color-fg-1);
+  padding: var(--space-3) var(--space-4);
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform var(--duration-trans) var(--ease-swing);
+}
+.rt-skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid var(--color-accent-warm-strong);
+  outline-offset: 3px;
+}
+
+/* Stop-cycling button for the hero portrait carousel (keyboard pause control) */
+.rt-hero__pause {
+  position: absolute;
+  right: var(--space-6);
+  top: calc(50% + 130px);
+  z-index: 6;
+  background: transparent;
+  border: var(--border-hairline);
+  color: var(--color-fg-2);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-eyebrow);
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: color var(--duration-ui) var(--ease-swing),
+              border-color var(--duration-ui) var(--ease-swing);
+  pointer-events: auto;
+}
+.rt-hero__pause:hover,
+.rt-hero__pause:focus-visible {
+  color: var(--color-fg-1);
+  border-color: var(--color-fg-1);
+}
+.rt-hero__pause:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 3px;
+}
+
+/* Tighten Media Kit long bio for comfortable reading */
+.rt-mk__bio--long { max-width: 68ch; }
+
+/* Hero portrait dots: group as a single tabstop region via role=tablist;
+   each dot remains tabbable but visually a unit. Add focus rings. */
+.rt-hero__portrait-dot:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 4px;
+}
+
+/* ============================================================
+   Responsive trims
+   ============================================================ */
+@media (max-width: 1100px) {
+  .rt-hero__portrait-stage { width: 42vw; }
+  .rt-hero__content { padding-top: 16vh; }
+  .rt-hero__headline { font-size: clamp(40px, 7vw, 84px); }
+  .rt-hero__sub { max-width: clamp(320px, 36vw, 420px); }
+  .rt-hero__index { max-width: clamp(440px, 55vw, 640px); gap: clamp(20px, 4vw, 48px) clamp(28px, 5vw, 64px); }
+  .rt-hero__index-num { font-size: clamp(32px, 4vw, 52px); }
+  /* Deepen the portrait protection to absorb anything underneath */
+  .rt-hero__portrait-protection {
+    background:
+      linear-gradient(270deg,
+        rgba(5,5,7,0) 25%, rgba(5,5,7,0.7) 65%, rgba(5,5,7,0.95) 100%),
+      linear-gradient(180deg,
+        rgba(5,5,7,0.4) 0%, rgba(5,5,7,0) 18%,
+        rgba(5,5,7,0) 70%, rgba(5,5,7,0.85) 100%);
+  }
+}
+@media (max-width: 820px) {
+  .rt-nav__items { display: none; }
+  .rt-hero__portrait-stage { width: 55vw; opacity: 0.6; }
+  .rt-hero__headline { font-size: clamp(36px, 10vw, 72px); }
+  .rt-hero__index { grid-template-columns: 1fr 1fr; max-width: 100%; }
+  .rt-hero__index-num { font-size: clamp(28px, 8vw, 44px); }
+  .rt-creative__panel:last-of-type { grid-template-columns: 1fr; }
+  .rt-creative__panel:first-of-type .rt-creative__panel-art { grid-template-columns: 1fr 1fr; }
+  .rt-creative__panel:first-of-type .rt-creative__panel-art img:nth-child(3) { display: none; }
+}
