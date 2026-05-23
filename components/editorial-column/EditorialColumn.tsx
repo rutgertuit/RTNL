@@ -99,8 +99,8 @@ export function EditorialColumn() {
             </ul>
             <hr />
             <div className="rt-editorial__sidebar-label">INTERVIEW INDEX</div>
-            <a href="#" className="rt-editorial__sidebar-link">
-              24 conversations · 2018 → 2026 →
+            <a href="/press" className="rt-editorial__sidebar-link">
+              24 conversations · 2021 → 2025 →
             </a>
             <hr />
             <div className="rt-editorial__sidebar-label">READING TIME</div>
