@@ -56,10 +56,11 @@ export function CreativeAtelier() {
               <h3>The consistent-character library.</h3>
               <p>
                 Six versions of me from a single prompt set. The images are proof the set works;
-                the set is the actual asset.
+                the set is the actual asset. Full walkthrough of how to build one — three
+                methods, in order of effort.
               </p>
-              <a className="button" href="#">
-                See the prompts <span aria-hidden>→</span>
+              <a className="button" href="/creative/character-sheet">
+                How to build a character sheet <span aria-hidden>→</span>
               </a>
             </div>
           </article>
