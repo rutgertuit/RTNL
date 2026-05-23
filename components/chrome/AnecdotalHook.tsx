@@ -23,7 +23,7 @@ export function AnecdotalHook() {
           </p>
           <div className="rt-hook__signature">
             <span className="rt-hook__sig-line" aria-hidden />
-            <span className="rt-hook__sig-text">Rutger Tuit · Rotterdam · May 2026</span>
+            <span className="rt-hook__sig-text">Rutger Tuit · Amsterdam · May 2026</span>
           </div>
         </div>
       </div>

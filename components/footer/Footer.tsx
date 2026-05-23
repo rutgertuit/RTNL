@@ -39,7 +39,7 @@ export function Footer() {
           </div>
           <div className="rt-footer__meta-col">
             <div className="eyebrow">RUTGER TUIT · 2026</div>
-            <span>Rotterdam · Amsterdam</span>
+            <span>Amsterdam</span>
             <span>KVK · [redacted]</span>
           </div>
         </div>

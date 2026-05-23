@@ -55,6 +55,48 @@ export function Hero() {
     };
   }, []);
 
+  // Mouse parallax — desktop only, prefers-reduced-motion aware.
+  useEffect(() => {
+    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) return;
+    const fineHover = window.matchMedia?.("(hover: hover) and (pointer: fine)").matches;
+    if (!fineHover) return;
+    let raf: number | null = null;
+    let targetX = 0;
+    let targetY = 0;
+    const onMove = (e: MouseEvent) => {
+      const el = wrapRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      targetX = (e.clientX - cx) / (rect.width / 2);
+      targetY = (e.clientY - cy) / (rect.height / 2);
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = null;
+        const elNow = wrapRef.current;
+        if (!elNow) return;
+        elNow.style.setProperty("--mouse-x", targetX.toFixed(3));
+        elNow.style.setProperty("--mouse-y", targetY.toFixed(3));
+      });
+    };
+    const onLeave = () => {
+      const el = wrapRef.current;
+      if (!el) return;
+      el.style.setProperty("--mouse-x", "0");
+      el.style.setProperty("--mouse-y", "0");
+    };
+    window.addEventListener("mousemove", onMove, { passive: true });
+    const el = wrapRef.current;
+    el?.addEventListener("mouseleave", onLeave);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      el?.removeEventListener("mouseleave", onLeave);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
   const cur = PORTRAITS[idx]!;
 
   return (
@@ -129,7 +171,7 @@ export function Hero() {
           <span className="rt-hero__brow-tick" aria-hidden />
           <span className="eyebrow eyebrow--warm">RUTGER TUIT · NOTES FROM THE SEAM</span>
           <span className="rt-hero__brow-sep" aria-hidden>·</span>
-          <span className="eyebrow">ROTTERDAM / AMSTERDAM</span>
+          <span className="eyebrow">AMSTERDAM</span>
         </div>
 
         <h1 className="rt-hero__headline">

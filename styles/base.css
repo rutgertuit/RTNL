@@ -618,24 +618,39 @@ html, body { margin: 0; }
   flex-direction: column;
 }
 .rt-audio__list li {
-  padding: var(--space-3) 0;
   border-bottom: var(--border-hairline);
   font-family: var(--font-body);
   font-size: var(--fs-200);
+}
+.rt-audio__list li:last-child { border-bottom: 0; }
+.rt-audio__list li button {
+  width: 100%;
+  background: none;
+  border: 0;
+  margin: 0;
+  font: inherit;
   color: var(--color-fg-2);
+  cursor: pointer;
+  text-align: left;
+  padding: var(--space-3) 0;
   display: grid;
   grid-template-columns: 36px 1fr;
   gap: var(--space-3);
+  transition: color 180ms ease;
 }
-.rt-audio__list li:last-child { border-bottom: 0; }
-.rt-audio__list li span {
+.rt-audio__list li button:hover { color: var(--color-fg-1); }
+.rt-audio__list li button:focus-visible {
+  outline: 2px solid var(--color-accent-warm-strong);
+  outline-offset: 2px;
+}
+.rt-audio__list li button > span {
   font-family: var(--font-mono);
   font-size: var(--fs-50);
   color: var(--color-fg-3);
   letter-spacing: 0.12em;
 }
-.rt-audio__list li.active { color: var(--color-fg-1); }
-.rt-audio__list li.active span { color: var(--color-accent-warm); }
+.rt-audio__list li.active button { color: var(--color-fg-1); }
+.rt-audio__list li.active button > span { color: var(--color-accent-warm); }
 
 /* ============================================================
    TECHNICAL INDEX (D1)

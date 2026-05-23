@@ -220,6 +220,34 @@ body { padding-top: 0; }
   .rt-hero__orbit,
   .rt-hero__portrait-stage { animation: none; }
 }
+
+/* 3D mouse parallax — desktop fine-pointer only, motion-aware.
+   The cortex orbit drifts WITH the cursor, the portrait stage drifts
+   AGAINST it. The opposing directions create perceived depth.
+   Portrait uses `translate` (separate from `transform`) so it doesn't
+   fight the portrait-breath keyframe animation. */
+@media (hover: hover) and (pointer: fine) {
+  .rt-hero--v2 .rt-hero__cortex--orbit {
+    transition: transform 700ms cubic-bezier(0.34, 0.05, 0.18, 1);
+    transform: translate3d(
+      calc(var(--mouse-x, 0) * 24px),
+      calc(var(--mouse-y, 0) * 20px),
+      0
+    );
+    will-change: transform;
+  }
+  .rt-hero--v2 .rt-hero__portrait-stage {
+    transition: translate 800ms cubic-bezier(0.34, 0.05, 0.18, 1);
+    translate:
+      calc(var(--mouse-x, 0) * -16px)
+      calc(var(--mouse-y, 0) * -12px);
+    will-change: translate;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rt-hero--v2 .rt-hero__cortex--orbit { transform: none !important; }
+  .rt-hero--v2 .rt-hero__portrait-stage { translate: none !important; }
+}
 .rt-hero__portrait-card {
   position: absolute;
   inset: 8vh 0 12vh 0;

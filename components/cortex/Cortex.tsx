@@ -136,6 +136,12 @@ export function Cortex({
             <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
+        <style>{`
+          @keyframes cortex-dash-flow { to { stroke-dashoffset: -24; } }
+          @media (prefers-reduced-motion: reduce) {
+            .rt-cortex__edge-active { animation: none !important; }
+          }
+        `}</style>
       </defs>
 
       <rect width="800" height="640" fill="url(#cortex-bg)" />
@@ -157,16 +163,19 @@ export function Cortex({
             return (
               <line
                 key={i}
+                className={active ? "rt-cortex__edge-active" : undefined}
                 x1={pa.x}
                 y1={pa.y}
                 x2={pb.x}
                 y2={pb.y}
                 stroke={active ? "#5B85C4" : "#4A6FA5"}
                 strokeOpacity={active ? 0.9 : 0.18 + w * 0.18}
-                strokeWidth={active ? 1.6 : 0.9 + w * 0.3}
+                strokeWidth={active ? 1.8 : 0.9 + w * 0.3}
+                strokeDasharray={active ? "6 6" : undefined}
                 style={{
                   transition:
                     "stroke 200ms cubic-bezier(0.34, 0.05, 0.18, 1), stroke-opacity 200ms",
+                  animation: active ? "cortex-dash-flow 1.1s linear infinite" : undefined,
                 }}
               />
             );

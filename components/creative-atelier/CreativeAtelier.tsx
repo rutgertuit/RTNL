@@ -1,33 +1,75 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 /**
  * CreativeAtelier — C1 Long-Scroll showcase: Image / Motion / Music.
- * Wires the audio + video play-button toggle (visual-only, no real audio
- * wired yet — the Codewoord tracks land in Phase 4 content handover).
+ *
+ * The music panel is a state-driven mock audio player (no real audio
+ * file wired yet — the Codewoord tracks land in Phase 4). It supports
+ * selecting tracks, play/pause toggle, an advancing scrubber, and a
+ * formatted time readout. Respects prefers-reduced-motion by leaving
+ * the timer paused unless the user explicitly hits play.
  */
+
+interface Track {
+  id: string;
+  n: string;
+  title: string;
+  duration: number; // seconds
+}
+
+const TRACKS: Track[] = [
+  { id: "t1", n: "01", title: "Briefing the harbour", duration: 192 },
+  { id: "t2", n: "02", title: "Slow port at 4 a.m.", duration: 268 },
+  { id: "t3", n: "03", title: "Codewoord", duration: 166 },
+  { id: "t4", n: "04", title: "Tuesday at 4 (reprise)", duration: 314 },
+];
+
+function formatTime(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
 export function CreativeAtelier() {
+  const [activeId, setActiveId] = useState<string>("t2");
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [currentTime, setCurrentTime] = useState<number>(102); // "01:42" starting point
+  const [videoPlaying, setVideoPlaying] = useState<boolean>(false);
+
+  const activeTrack = useMemo(
+    () => TRACKS.find((t) => t.id === activeId) ?? TRACKS[0]!,
+    [activeId]
+  );
+
+  // Advance the timer when playing. Tick at 250 ms to feel responsive but
+  // stay cheap. Loops back to 0 at the end of the track.
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      const target = e.target as HTMLElement | null;
-      const btn = target?.closest(".rt-audio__play, .rt-creative__play") as
-        | HTMLButtonElement
-        | null;
-      if (!btn) return;
-      btn.classList.toggle("is-playing");
-      const svg = btn.querySelector("svg polygon");
-      if (svg) {
-        if (btn.classList.contains("is-playing")) {
-          svg.setAttribute("points", "2,1 5,1 5,11 2,11 7,1 10,1 10,11 7,11");
-        } else {
-          svg.setAttribute("points", "2,1 11,6 2,11");
-        }
-      }
-    };
-    document.addEventListener("click", handler);
-    return () => document.removeEventListener("click", handler);
-  }, []);
+    if (!isPlaying) return;
+    const id = window.setInterval(() => {
+      setCurrentTime((t) => {
+        const next = t + 0.25;
+        return next >= activeTrack.duration ? 0 : next;
+      });
+    }, 250);
+    return () => window.clearInterval(id);
+  }, [isPlaying, activeTrack.duration]);
+
+  const handleSelectTrack = (id: string) => {
+    if (id === activeId) {
+      setIsPlaying((p) => !p);
+      return;
+    }
+    setActiveId(id);
+    setCurrentTime(0);
+    setIsPlaying(true);
+  };
+
+  const handleTogglePlay = () => setIsPlaying((p) => !p);
+  const handleToggleVideo = () => setVideoPlaying((p) => !p);
+
+  const fillPct = (currentTime / activeTrack.duration) * 100;
 
   return (
     <section className="rt-creative section" id="creative">
@@ -70,9 +112,18 @@ export function CreativeAtelier() {
             <div className="rt-creative__panel-art">
               <div className="rt-creative__video">
                 <img src="/assets/portraits/05-mid-shot.png" alt="" />
-                <button className="rt-creative__play" aria-label="play Veo evolution reel">
+                <button
+                  className={`rt-creative__play ${videoPlaying ? "is-playing" : ""}`}
+                  aria-label={videoPlaying ? "pause Veo evolution reel" : "play Veo evolution reel"}
+                  aria-pressed={videoPlaying}
+                  onClick={handleToggleVideo}
+                >
                   <svg viewBox="0 0 12 12" fill="#F2EEE5">
-                    <polygon points="2,1 11,6 2,11" />
+                    {videoPlaying ? (
+                      <polygon points="2,1 5,1 5,11 2,11 7,1 10,1 10,11 7,11" />
+                    ) : (
+                      <polygon points="2,1 11,6 2,11" />
+                    )}
                   </svg>
                 </button>
                 <div className="rt-creative__video-cap">
@@ -105,34 +156,60 @@ export function CreativeAtelier() {
             </div>
             <div className="rt-creative__panel-player">
               <div className="rt-audio">
-                <button className="rt-audio__play">
+                <button
+                  className={`rt-audio__play ${isPlaying ? "is-playing" : ""}`}
+                  aria-label={isPlaying ? `pause ${activeTrack.title}` : `play ${activeTrack.title}`}
+                  aria-pressed={isPlaying}
+                  onClick={handleTogglePlay}
+                >
                   <svg viewBox="0 0 12 12" fill="#F2EEE5">
-                    <polygon points="2,1 11,6 2,11" />
+                    {isPlaying ? (
+                      <polygon points="2,1 5,1 5,11 2,11 7,1 10,1 10,11 7,11" />
+                    ) : (
+                      <polygon points="2,1 11,6 2,11" />
+                    )}
                   </svg>
                 </button>
                 <div className="rt-audio__info">
                   <div className="rt-audio__eyebrow">CODEWOORD · PROMPT &amp; CODES II</div>
-                  <div className="rt-audio__title">Slow port at 4 a.m.</div>
-                  <div className="rt-audio__scrub">
-                    <div className="rt-audio__fill" />
-                    <div className="rt-audio__head" />
+                  <div className="rt-audio__title">{activeTrack.title}</div>
+                  <div
+                    className="rt-audio__scrub"
+                    role="progressbar"
+                    aria-label="track progress"
+                    aria-valuemin={0}
+                    aria-valuemax={Math.floor(activeTrack.duration)}
+                    aria-valuenow={Math.floor(currentTime)}
+                  >
+                    <div
+                      className="rt-audio__fill"
+                      style={{ width: `${fillPct}%` }}
+                    />
+                    <div
+                      className="rt-audio__head"
+                      style={{ left: `${fillPct}%` }}
+                    />
                   </div>
                 </div>
-                <div className="rt-audio__time">01:42 / 04:28</div>
+                <div className="rt-audio__time">
+                  {formatTime(currentTime)} / {formatTime(activeTrack.duration)}
+                </div>
               </div>
               <ul className="rt-audio__list">
-                <li>
-                  <span>01</span> Briefing the harbour
-                </li>
-                <li className="active">
-                  <span>02</span> Slow port at 4 a.m.
-                </li>
-                <li>
-                  <span>03</span> Codewoord
-                </li>
-                <li>
-                  <span>04</span> Tuesday at 4 (reprise)
-                </li>
+                {TRACKS.map((t) => (
+                  <li
+                    key={t.id}
+                    className={t.id === activeId ? "active" : ""}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => handleSelectTrack(t.id)}
+                      aria-current={t.id === activeId ? "true" : undefined}
+                    >
+                      <span>{t.n}</span> {t.title}
+                    </button>
+                  </li>
+                ))}
               </ul>
             </div>
           </article>

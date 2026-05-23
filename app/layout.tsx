@@ -64,8 +64,8 @@ const personLd = {
   ],
   address: {
     "@type": "PostalAddress",
-    addressLocality: "Rotterdam",
-    addressRegion: "Zuid-Holland",
+    addressLocality: "Amsterdam",
+    addressRegion: "Noord-Holland",
     addressCountry: "NL",
   },
 };
