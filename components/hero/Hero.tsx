@@ -133,18 +133,19 @@ export function Hero() {
         </div>
 
         <h1 className="rt-hero__headline">
-          <span className="rt-hero__line rt-hero__line--1">I help leaders</span>
-          <span className="rt-hero__line rt-hero__line--2">see the collision</span>
-          <span className="rt-hero__line rt-hero__line--3">
-            <em>before</em> it
+          <span className="rt-hero__line rt-hero__line--1">I dig into AI</span>
+          <span className="rt-hero__line rt-hero__line--2">until something</span>
+          <span className="rt-hero__line rt-hero__line--3">business-shaped</span>
+          <span className="rt-hero__line rt-hero__line--4">
+            <em>falls out.</em>
           </span>
-          <span className="rt-hero__line rt-hero__line--4">hits them.</span>
         </h1>
 
         <div className="rt-hero__sub">
           <p className="rt-hero__lead">
-            Marketing AI at Google by day, a homelab full of agents at night. The site is where the
-            two halves of that talk to each other.
+            Or until nothing does. Sales Director at Google Benelux by day, a homelab full of
+            agents at night. Some of what I build at night turns into things real teams use. Some
+            of it is just notes in public. The site is both.
           </p>
         </div>
 

@@ -68,9 +68,15 @@ export function EditorialColumn() {
       <div className="container">
         <header className="rt-editorial__head">
           <div className="eyebrow eyebrow--warm">01 · BUSINESS &amp; LEADERSHIP</div>
-          <h2 className="rt-editorial__title">
-            Three pieces I keep coming back to <em>in the actual work.</em>
-          </h2>
+          <div className="rt-editorial__head-body">
+            <h2 className="rt-editorial__title">
+              Three pieces from <em>the day side of the desk.</em>
+            </h2>
+            <p className="rt-editorial__lead">
+              The ones I keep returning to in actual rooms with actual P&amp;Ls — written for the
+              Dutch CMO or CEO who has thirteen minutes and a real question.
+            </p>
+          </div>
         </header>
 
         <div className="rt-editorial__rail">
