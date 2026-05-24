@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 const SECTIONS = [
   { id: "top", num: "00", label: "Home", short: "Home" },
@@ -44,13 +45,13 @@ export function Nav() {
 
   return (
     <nav className={`rt-nav rt-nav--sticky ${scrolled ? "is-scrolled" : ""}`} aria-label="Primary">
-      <a href="/" className="rt-nav__logo" aria-label="rutger tuit home">
+      <Link href="/" className="rt-nav__logo" aria-label="rutger tuit home">
         <span className="rt-nav__logo-top">rutger</span>
         <span className="rt-nav__logo-bot">tuit.</span>
-      </a>
+      </Link>
       <div className="rt-nav__items">
         {SECTIONS.slice(1).map((s) => (
-          <a
+          <Link
             key={s.id}
             href={`/#${s.id}`}
             className={`rt-nav__item ${active === s.id ? "is-active" : ""}`}
@@ -59,12 +60,12 @@ export function Nav() {
             <span className="rt-nav__num">{s.num}</span>
             <span className="rt-nav__item-long">{s.label}</span>
             <span className="rt-nav__item-short">{s.short}</span>
-          </a>
+          </Link>
         ))}
       </div>
-      <a href="/#contact" className="rt-nav__cta">
+      <Link href="/#contact" className="rt-nav__cta">
         Get in touch <span aria-hidden>→</span>
-      </a>
+      </Link>
       <div className="rt-nav__progress" aria-hidden>
         <div className="rt-nav__progress-fill" id="nav-progress-fill" />
       </div>
