@@ -86,23 +86,23 @@ export function TechnicalIndex() {
           </div>
           <div className="rt-tech__topology-readout">
             <div>
-              <strong>14</strong> nodes
+              <strong>25</strong> nodes
             </div>
             <div>
-              <strong>16</strong> active edges
+              <strong>25</strong> active edges
             </div>
             <div>VLAN · isolated</div>
           </div>
           <Cortex width={900} height={600} rotate={false} />
           <div className="rt-tech__topology-legend">
             <div>
-              <span className="dot dot--warm" /> Theme node
+              <span className="dot dot--warm" /> Frontier / hub
             </div>
             <div>
-              <span className="dot dot--cool" /> Infra node
+              <span className="dot dot--cool" /> Creative output
             </div>
             <div>
-              <span className="dot dot--neutral" /> Project
+              <span className="dot dot--neutral" /> Tool / agent / device
             </div>
             <div>
               <span className="line" /> Active dot-flow on hover

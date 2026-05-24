@@ -14,58 +14,145 @@ interface CortexNode {
 
 type CortexEdge = [string, string, number];
 
+/**
+ * Cortex topology — the actual AI architecture Rutger works with, not
+ * a generic theme graph.
+ *
+ * Read top to bottom:
+ *   Frontier models (Gemini, Claude, GPT) sit at the top as the brain.
+ *   They spin off into four capability branches:
+ *     - VISUAL  (Flow → Nano Banana, Veo, Omni)
+ *     - SOUND   (Lyria, Suno, ElevenLabs)
+ *     - CODING  (Claude Code, Gemini CLI, Cursor, Aider) — these loop
+ *               BACK to the frontier models that power them.
+ *     - AGENTS  (Luminary research agent, Shopping agent, Hermes local
+ *               agent on a Pi5)
+ *   Hermes connects down to the local HOMELAB, which then fans out
+ *   into network + local devices — the bombproof outcome the whole
+ *   stack made buildable.
+ */
 const CORTEX_DATA: { nodes: CortexNode[]; edges: CortexEdge[] } = {
   nodes: [
-    { id: "ai-trans", label: "AI TRANSFORMATION", kind: "theme", accent: "warm" },
-    { id: "media", label: "FUTURE OF MEDIA", kind: "theme", accent: "cool" },
-    { id: "culture", label: "CREATIVE CULTURE", kind: "theme", accent: "cool" },
-    { id: "jazz", label: "JAZZ SWING", kind: "theme", accent: "warm" },
-    { id: "home", label: "HOMELAB", kind: "theme", accent: "cool" },
-    { id: "geo", label: "GEO / LLMO", kind: "theme", accent: "warm" },
-    { id: "lum", label: "Luminary", kind: "project" },
-    { id: "vibe", label: "Vibe-coded sites", kind: "project" },
-    { id: "llmo", label: "LLM training", kind: "project" },
-    { id: "yt", label: "YouTube economy", kind: "project" },
-    { id: "gen", label: "Generative art", kind: "project" },
-    { id: "w3", label: "Brand in Web3", kind: "project" },
-    { id: "cw", label: "Codewoord", kind: "project" },
-    { id: "bed", label: "Bedtime Stories", kind: "project" },
+    // Frontier sub-models (small, neutral)
+    { id: "gemini", label: "Gemini", kind: "project" },
+    { id: "claude", label: "Claude", kind: "project" },
+    { id: "gpt", label: "GPT", kind: "project" },
+
+    // Frontier hub (the brain)
+    { id: "frontier", label: "FRONTIER MODELS", kind: "theme", accent: "warm" },
+
+    // Visual creative branch
+    { id: "visual", label: "VISUAL", kind: "theme", accent: "cool" },
+    { id: "flow", label: "Flow", kind: "project" },
+    { id: "nano", label: "Nano Banana", kind: "project" },
+    { id: "veo", label: "Veo", kind: "project" },
+    { id: "omni", label: "Omni", kind: "project" },
+
+    // Sound creative branch
+    { id: "sound", label: "SOUND", kind: "theme", accent: "cool" },
+    { id: "lyria", label: "Lyria", kind: "project" },
+    { id: "suno", label: "Suno", kind: "project" },
+    { id: "eleven", label: "ElevenLabs", kind: "project" },
+
+    // Coding branch (loops back to frontier)
+    { id: "coding", label: "CODING", kind: "theme", accent: "warm" },
+    { id: "claudecode", label: "Claude Code", kind: "project" },
+    { id: "gemcli", label: "Gemini CLI", kind: "project" },
+    { id: "cursor", label: "Cursor", kind: "project" },
+    { id: "aider", label: "Aider", kind: "project" },
+
+    // Always-on agents
+    { id: "agents", label: "AGENTS", kind: "theme", accent: "warm" },
+    { id: "luminary", label: "Luminary", kind: "project" },
+    { id: "shopper", label: "Shopping agent", kind: "project" },
+    { id: "hermes", label: "Hermes", kind: "project" },
+
+    // Homelab outcome
+    { id: "home", label: "HOMELAB", kind: "theme", accent: "warm" },
+    { id: "network", label: "Local network", kind: "project" },
+    { id: "devices", label: "Local devices", kind: "project" },
   ],
   edges: [
-    ["ai-trans", "lum", 1.0],
-    ["ai-trans", "llmo", 0.9],
-    ["ai-trans", "geo", 1.0],
-    ["ai-trans", "media", 0.8],
-    ["media", "yt", 1.0],
-    ["media", "geo", 0.8],
-    ["culture", "gen", 0.7],
-    ["culture", "cw", 0.9],
-    ["culture", "jazz", 1.0],
-    ["jazz", "lum", 0.5],
-    ["jazz", "cw", 0.8],
-    ["home", "lum", 0.8],
-    ["home", "bed", 0.7],
-    ["home", "vibe", 0.6],
-    ["geo", "vibe", 0.5],
-    ["w3", "culture", 0.5],
+    // Frontier hub aggregates the three frontier models
+    ["gemini", "frontier", 0.9],
+    ["claude", "frontier", 0.9],
+    ["gpt", "frontier", 0.7],
+
+    // Frontier radiates into the four capability branches
+    ["frontier", "visual", 0.9],
+    ["frontier", "sound", 0.8],
+    ["frontier", "coding", 1.0],
+    ["frontier", "agents", 0.9],
+
+    // Visual: Flow is the surface, the rest are the engines it consumes
+    ["visual", "flow", 1.0],
+    ["flow", "nano", 0.9],
+    ["flow", "veo", 0.9],
+    ["flow", "omni", 0.7],
+
+    // Sound: three peer tools
+    ["sound", "lyria", 0.9],
+    ["sound", "suno", 0.7],
+    ["sound", "eleven", 1.0],
+
+    // Coding: four peer tools that all use frontier models
+    ["coding", "claudecode", 1.0],
+    ["coding", "gemcli", 0.9],
+    ["coding", "cursor", 0.8],
+    ["coding", "aider", 0.7],
+
+    // The recursive loop — coding tools talk back to frontier models
+    ["claudecode", "claude", 0.6],
+    ["gemcli", "gemini", 0.6],
+    ["cursor", "frontier", 0.5],
+
+    // Agents
+    ["agents", "luminary", 0.9],
+    ["agents", "shopper", 0.7],
+    ["agents", "hermes", 1.0],
+
+    // Hermes is the bridge to the local infrastructure
+    ["hermes", "home", 1.0],
+    ["home", "network", 0.9],
+    ["home", "devices", 0.9],
   ],
 };
 
 const POSITIONS: Record<string, { x: number; y: number }> = {
-  "ai-trans": { x: 220, y: 240 },
-  media: { x: 580, y: 200 },
-  culture: { x: 640, y: 460 },
-  jazz: { x: 380, y: 540 },
-  home: { x: 140, y: 460 },
-  geo: { x: 420, y: 100 },
-  lum: { x: 260, y: 380 },
-  vibe: { x: 120, y: 280 },
-  llmo: { x: 340, y: 200 },
-  yt: { x: 720, y: 280 },
-  gen: { x: 540, y: 580 },
-  w3: { x: 740, y: 540 },
-  cw: { x: 480, y: 420 },
-  bed: { x: 60, y: 380 },
+  // Top: frontier sub-models clustered above the hub
+  gemini: { x: 330, y: 28 },
+  claude: { x: 400, y: 22 },
+  gpt: { x: 470, y: 28 },
+  frontier: { x: 400, y: 110 },
+
+  // Left column: visual + sound (creative outputs)
+  visual: { x: 130, y: 240 },
+  flow: { x: 60, y: 300 },
+  nano: { x: 80, y: 370 },
+  veo: { x: 150, y: 390 },
+  omni: { x: 210, y: 350 },
+
+  sound: { x: 130, y: 470 },
+  lyria: { x: 60, y: 530 },
+  suno: { x: 140, y: 580 },
+  eleven: { x: 220, y: 540 },
+
+  // Center column: coding (with edges that arc back up to frontier)
+  coding: { x: 400, y: 290 },
+  claudecode: { x: 340, y: 390 },
+  gemcli: { x: 410, y: 420 },
+  cursor: { x: 470, y: 390 },
+  aider: { x: 400, y: 480 },
+
+  // Right column: agents leading down into the homelab
+  agents: { x: 670, y: 240 },
+  luminary: { x: 590, y: 310 },
+  shopper: { x: 660, y: 350 },
+  hermes: { x: 740, y: 320 },
+
+  home: { x: 670, y: 480 },
+  network: { x: 590, y: 580 },
+  devices: { x: 740, y: 580 },
 };
 
 function accentColor(accent?: AccentKey): string {
@@ -121,7 +208,7 @@ export function Cortex({
       viewBox="0 0 800 640"
       preserveAspectRatio="xMidYMid meet"
       role="img"
-      aria-label="Cortex graph connecting themes and projects"
+      aria-label="Cortex graph: frontier AI models radiating into visual, sound, coding, and agent branches, with the coding tools looping back to the frontier and the Hermes agent feeding the local homelab"
     >
       <defs>
         <radialGradient id="cortex-bg" cx="50%" cy="50%" r="70%">

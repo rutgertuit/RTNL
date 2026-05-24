@@ -5,11 +5,11 @@ import { useEffect, useMemo, useState } from "react";
 /**
  * CreativeAtelier — C1 Long-Scroll showcase: Image / Motion / Music.
  *
- * The music panel is a state-driven mock audio player (no real audio
- * file wired yet — the Codewoord tracks land in Phase 4). It supports
- * selecting tracks, play/pause toggle, an advancing scrubber, and a
- * formatted time readout. Respects prefers-reduced-motion by leaving
- * the timer paused unless the user explicitly hits play.
+ * The music panel renders the Codewoord albums in a 90s-boombox aesthetic
+ * (cassette deck with LCD readout, transport buttons, two speaker grills,
+ * VU meter that pulses while playing). It's a state-driven mock player
+ * — no real audio wired yet — but supports track switching, play/pause,
+ * skip prev/next, scrubber, and a formatted time readout.
  */
 
 interface Track {
@@ -68,6 +68,20 @@ export function CreativeAtelier() {
 
   const handleTogglePlay = () => setIsPlaying((p) => !p);
   const handleToggleVideo = () => setVideoPlaying((p) => !p);
+
+  const handlePrev = () => {
+    const idx = TRACKS.findIndex((t) => t.id === activeId);
+    const prevIdx = idx <= 0 ? TRACKS.length - 1 : idx - 1;
+    setActiveId(TRACKS[prevIdx]!.id);
+    setCurrentTime(0);
+  };
+
+  const handleNext = () => {
+    const idx = TRACKS.findIndex((t) => t.id === activeId);
+    const nextIdx = idx >= TRACKS.length - 1 ? 0 : idx + 1;
+    setActiveId(TRACKS[nextIdx]!.id);
+    setCurrentTime(0);
+  };
 
   const fillPct = (currentTime / activeTrack.duration) * 100;
 
@@ -144,7 +158,7 @@ export function CreativeAtelier() {
             </div>
           </article>
 
-          {/* Music — Codewoord */}
+          {/* Music — Codewoord, rendered as a 90s boombox */}
           <article className="rt-creative__panel">
             <div className="rt-creative__panel-meta">
               <div className="eyebrow">MUSIC · CODEWOORD</div>
@@ -155,62 +169,127 @@ export function CreativeAtelier() {
               </p>
             </div>
             <div className="rt-creative__panel-player">
-              <div className="rt-audio">
-                <button
-                  className={`rt-audio__play ${isPlaying ? "is-playing" : ""}`}
-                  aria-label={isPlaying ? `pause ${activeTrack.title}` : `play ${activeTrack.title}`}
-                  aria-pressed={isPlaying}
-                  onClick={handleTogglePlay}
-                >
-                  <svg viewBox="0 0 12 12" fill="#F2EEE5">
-                    {isPlaying ? (
-                      <polygon points="2,1 5,1 5,11 2,11 7,1 10,1 10,11 7,11" />
-                    ) : (
-                      <polygon points="2,1 11,6 2,11" />
-                    )}
-                  </svg>
-                </button>
-                <div className="rt-audio__info">
-                  <div className="rt-audio__eyebrow">CODEWOORD · PROMPT &amp; CODES II</div>
-                  <div className="rt-audio__title">{activeTrack.title}</div>
+              <div className={`rt-boombox ${isPlaying ? "is-playing" : ""}`}>
+                <div className="rt-boombox__top">
+                  <span className="rt-boombox__handle" aria-hidden />
+                  <span className="rt-boombox__brand">
+                    CODEWOORD · PROMPT &amp; CODES II
+                  </span>
+                  <span className="rt-boombox__handle" aria-hidden />
+                </div>
+
+                <div className="rt-boombox__body">
                   <div
-                    className="rt-audio__scrub"
-                    role="progressbar"
-                    aria-label="track progress"
-                    aria-valuemin={0}
-                    aria-valuemax={Math.floor(activeTrack.duration)}
-                    aria-valuenow={Math.floor(currentTime)}
+                    className="rt-boombox__speaker rt-boombox__speaker--left"
+                    aria-hidden
                   >
-                    <div
-                      className="rt-audio__fill"
-                      style={{ width: `${fillPct}%` }}
-                    />
-                    <div
-                      className="rt-audio__head"
-                      style={{ left: `${fillPct}%` }}
-                    />
+                    <span className="rt-boombox__speaker-cone" />
+                  </div>
+
+                  <div className="rt-boombox__deck">
+                    <div className="rt-boombox__lcd">
+                      <div className="rt-boombox__lcd-row">
+                        <span className="rt-boombox__lcd-num">{activeTrack.n}</span>
+                        <span className="rt-boombox__lcd-track">{activeTrack.title}</span>
+                      </div>
+                      <div
+                        className="rt-boombox__scrub"
+                        role="progressbar"
+                        aria-label="track progress"
+                        aria-valuemin={0}
+                        aria-valuemax={Math.floor(activeTrack.duration)}
+                        aria-valuenow={Math.floor(currentTime)}
+                      >
+                        <span
+                          className="rt-boombox__scrub-fill"
+                          style={{ width: `${fillPct}%` }}
+                        />
+                      </div>
+                      <div className="rt-boombox__lcd-meta">
+                        <span>
+                          {formatTime(currentTime)} / {formatTime(activeTrack.duration)}
+                        </span>
+                        <span className="rt-boombox__lcd-state">
+                          {isPlaying ? "▶ PLAY" : "■ STOP"}
+                        </span>
+                      </div>
+                      <div className="rt-boombox__vu" aria-hidden>
+                        {Array.from({ length: 8 }, (_, i) => (
+                          <span key={i} style={{ animationDelay: `${(i * 70) % 360}ms` }} />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="rt-boombox__transport">
+                      <button
+                        type="button"
+                        className="rt-boombox__btn rt-boombox__btn--side"
+                        onClick={handlePrev}
+                        aria-label="previous track"
+                      >
+                        <svg viewBox="0 0 14 14" aria-hidden>
+                          <polygon points="3,2 3,12 4,12 4,2" fill="currentColor" />
+                          <polygon points="13,2 4,7 13,12" fill="currentColor" />
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        className={`rt-boombox__btn rt-boombox__btn--play ${isPlaying ? "is-playing" : ""}`}
+                        onClick={handleTogglePlay}
+                        aria-label={isPlaying ? `pause ${activeTrack.title}` : `play ${activeTrack.title}`}
+                        aria-pressed={isPlaying}
+                      >
+                        <svg viewBox="0 0 14 14" aria-hidden>
+                          {isPlaying ? (
+                            <>
+                              <rect x="3" y="2" width="3" height="10" fill="currentColor" />
+                              <rect x="8" y="2" width="3" height="10" fill="currentColor" />
+                            </>
+                          ) : (
+                            <polygon points="3,2 12,7 3,12" fill="currentColor" />
+                          )}
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        className="rt-boombox__btn rt-boombox__btn--side"
+                        onClick={handleNext}
+                        aria-label="next track"
+                      >
+                        <svg viewBox="0 0 14 14" aria-hidden>
+                          <polygon points="1,2 10,7 1,12" fill="currentColor" />
+                          <polygon points="10,2 11,2 11,12 10,12" fill="currentColor" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div
+                    className="rt-boombox__speaker rt-boombox__speaker--right"
+                    aria-hidden
+                  >
+                    <span className="rt-boombox__speaker-cone" />
                   </div>
                 </div>
-                <div className="rt-audio__time">
-                  {formatTime(currentTime)} / {formatTime(activeTrack.duration)}
-                </div>
+
+                <ul className="rt-boombox__tracklist">
+                  {TRACKS.map((t) => (
+                    <li key={t.id} className={t.id === activeId ? "active" : ""}>
+                      <button
+                        type="button"
+                        onClick={() => handleSelectTrack(t.id)}
+                        aria-current={t.id === activeId ? "true" : undefined}
+                      >
+                        <span className="rt-boombox__tracklist-num">{t.n}</span>
+                        <span className="rt-boombox__tracklist-title">{t.title}</span>
+                        <span className="rt-boombox__tracklist-time">
+                          {formatTime(t.duration)}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <ul className="rt-audio__list">
-                {TRACKS.map((t) => (
-                  <li
-                    key={t.id}
-                    className={t.id === activeId ? "active" : ""}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => handleSelectTrack(t.id)}
-                      aria-current={t.id === activeId ? "true" : undefined}
-                    >
-                      <span>{t.n}</span> {t.title}
-                    </button>
-                  </li>
-                ))}
-              </ul>
             </div>
           </article>
         </div>
