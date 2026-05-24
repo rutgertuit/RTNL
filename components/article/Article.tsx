@@ -71,9 +71,9 @@ export function Article({
           <Link className="button" href="/#business">
             <span aria-hidden>←</span> Back to all articles
           </Link>
-          <a className="button button--warm" href="mailto:rutger@rutgertuit.nl">
+          <Link className="button button--warm" href="/contact">
             Tell me what you&apos;re building <span aria-hidden>→</span>
-          </a>
+          </Link>
         </nav>
       </div>
     </article>

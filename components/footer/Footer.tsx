@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 /**
  * Footer — Invitation to Growth (the closing stage of the Tuit Post structure).
  * Server component.
@@ -11,25 +13,25 @@ export function Footer() {
           <h2 className="rt-footer__headline">
             Working on something similar? Tell me.
           </h2>
-          <a className="button button--warm rt-footer__cta" href="mailto:rutger@rutgertuit.nl">
-            rutger@rutgertuit.nl <span aria-hidden>→</span>
-          </a>
+          <Link className="button button--warm rt-footer__cta" href="/contact">
+            Open the contact form <span aria-hidden>→</span>
+          </Link>
         </div>
 
         <div className="rt-footer__meta">
           <div className="rt-footer__meta-col">
             <div className="eyebrow">SECTIONS</div>
-            <a href="#business">01 Business &amp; Leadership</a>
-            <a href="#creative">02 Creative Playground</a>
-            <a href="#technical">03 Technical / Deep End</a>
-            <a href="#media-kit">04 Media Kit</a>
+            <Link href="/#business">01 Business &amp; Leadership</Link>
+            <Link href="/#creative">02 Creative Playground</Link>
+            <Link href="/#technical">03 Technical / Deep End</Link>
+            <Link href="/#media-kit">04 Media Kit</Link>
           </div>
           <div className="rt-footer__meta-col">
             <div className="eyebrow">ELSEWHERE</div>
-            <a href="#">LinkedIn</a>
-            <a href="#">Substack</a>
-            <a href="#">GitHub</a>
-            <a href="#">YouTube</a>
+            <a href="https://www.linkedin.com/in/rutgertuit/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            <a href="https://github.com/rutgertuit/" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="https://www.youtube.com/rutgertuit" target="_blank" rel="noopener noreferrer">YouTube</a>
+            <a href="https://www.instagram.com/rutgertuit/" target="_blank" rel="noopener noreferrer">Instagram</a>
           </div>
           <div className="rt-footer__meta-col">
             <div className="eyebrow">COLOPHON</div>
@@ -41,7 +43,22 @@ export function Footer() {
             <div className="eyebrow">RUTGER TUIT · 2026</div>
             <span>Amsterdam</span>
             <span>KVK · [redacted]</span>
+            <Link href="/contact" className="rt-footer__contact-link">
+              Contact →
+            </Link>
           </div>
+        </div>
+
+        <div className="rt-footer__disclaimer">
+          <div className="eyebrow">DISCLAIMER</div>
+          <p>
+            All views, opinions, and arguments expressed on this site are my own personal
+            views. They do not represent the views, positions, or strategies of my employer
+            (Google) or any other organisation I am affiliated with. This site is a personal
+            project, written and maintained outside of work time, and any AI experiments,
+            commentary on industry trends, or speaker bios on this site reflect only my
+            individual perspective.
+          </p>
         </div>
       </div>
     </footer>

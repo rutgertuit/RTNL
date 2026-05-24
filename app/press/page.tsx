@@ -404,9 +404,9 @@ export default function PressPage() {
             <Link className="button" href="/">
               <span aria-hidden>←</span> Back to the site
             </Link>
-            <a className="button button--warm" href="mailto:rutger@rutgertuit.nl">
+            <Link className="button button--warm" href="/contact">
               Press enquiries <span aria-hidden>→</span>
-            </a>
+            </Link>
           </nav>
         </div>
       </article>

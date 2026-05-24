@@ -364,9 +364,9 @@ export default function CharacterSheetPage() {
             <Link className="button" href="/#creative">
               <span aria-hidden>←</span> Back to creative
             </Link>
-            <a className="button button--warm" href="mailto:rutger@rutgertuit.nl">
+            <Link className="button button--warm" href="/contact">
               Show me yours <span aria-hidden>→</span>
-            </a>
+            </Link>
           </nav>
         </div>
       </article>

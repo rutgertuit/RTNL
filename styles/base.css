@@ -1725,6 +1725,428 @@ html, body { margin: 0; }
   color: var(--color-fg-3);
   letter-spacing: 0.04em;
 }
+
+/* ============================================================
+   Contact form (/contact page)
+   ============================================================ */
+.rt-contact .rt-tuit__title { max-width: 720px; }
+.rt-contact__intro {
+  max-width: 720px;
+  margin: var(--space-7) 0 var(--space-8) 0;
+  padding-bottom: var(--space-7);
+  border-bottom: var(--border-hairline);
+}
+.rt-contact__lead {
+  font-family: var(--font-body);
+  font-size: var(--fs-300);
+  line-height: var(--lh-lead);
+  color: var(--color-fg-2);
+  margin: 0 0 var(--space-4) 0;
+}
+.rt-contact__lead:last-child { margin-bottom: 0; }
+
+.rt-contact__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 720px;
+  margin: 0;
+}
+.rt-contact__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+.rt-contact__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.rt-contact__label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-fg-3);
+}
+.rt-contact__field input,
+.rt-contact__field select,
+.rt-contact__field textarea {
+  background: var(--color-bg-surface);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  color: var(--color-fg-1);
+  font-family: var(--font-body);
+  font-size: var(--fs-200);
+  padding: var(--space-3) var(--space-4);
+  line-height: 1.45;
+  transition: border-color 200ms ease, background 200ms ease;
+}
+.rt-contact__field textarea {
+  resize: vertical;
+  min-height: 160px;
+  font-family: var(--font-body);
+}
+.rt-contact__field input:focus,
+.rt-contact__field select:focus,
+.rt-contact__field textarea:focus {
+  outline: none;
+  border-color: var(--color-accent-warm);
+  background: var(--color-bg-surface-raised);
+}
+.rt-contact__field input:disabled,
+.rt-contact__field select:disabled,
+.rt-contact__field textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.rt-contact__hint {
+  font-family: var(--font-body);
+  font-size: var(--fs-50);
+  color: var(--color-fg-3);
+}
+
+.rt-contact__error {
+  font-family: var(--font-body);
+  font-size: var(--fs-100);
+  color: #ffb088;
+  padding: var(--space-3) var(--space-4);
+  background: rgba(200, 85, 61, 0.08);
+  border: 1px solid rgba(200, 85, 61, 0.25);
+  border-radius: 4px;
+}
+
+.rt-contact__submit {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.rt-contact__submit-hint {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-fg-3);
+}
+
+.rt-contact__success {
+  max-width: 720px;
+  padding: var(--space-6) var(--space-5);
+  background: linear-gradient(180deg, #1c1a18 0%, #14110d 100%);
+  border: 1px solid rgba(200, 85, 61, 0.25);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+.rt-contact__success-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-500);
+  font-weight: var(--fw-semibold);
+  color: var(--color-fg-1);
+  margin: 0;
+}
+.rt-contact__success-body {
+  font-family: var(--font-body);
+  font-size: var(--fs-200);
+  line-height: var(--lh-lead);
+  color: var(--color-fg-2);
+  margin: 0;
+}
+
+.rt-contact__elsewhere {
+  max-width: 720px;
+  margin-top: var(--space-8);
+  padding-top: var(--space-7);
+  border-top: var(--border-hairline);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.rt-contact__elsewhere p {
+  font-family: var(--font-body);
+  font-size: var(--fs-200);
+  line-height: var(--lh-lead);
+  color: var(--color-fg-2);
+  margin: 0;
+}
+
+@media (max-width: 720px) {
+  .rt-contact__row { grid-template-columns: 1fr; gap: var(--space-4); }
+}
+
+/* ============================================================
+   Footer — Disclaimer + Contact link
+   ============================================================ */
+.rt-footer__disclaimer {
+  margin-top: var(--space-7);
+  padding-top: var(--space-5);
+  border-top: var(--border-hairline);
+  max-width: 880px;
+}
+.rt-footer__disclaimer .eyebrow {
+  display: block;
+  margin-bottom: var(--space-2);
+}
+.rt-footer__disclaimer p {
+  font-family: var(--font-body);
+  font-size: var(--fs-50);
+  line-height: var(--lh-lead);
+  color: var(--color-fg-3);
+  margin: 0;
+}
+.rt-footer__contact-link {
+  font-family: var(--font-body);
+  font-size: var(--fs-100);
+  color: var(--color-accent-warm) !important;
+  text-decoration: none;
+  margin-top: var(--space-2);
+  display: inline-block;
+}
+.rt-footer__contact-link:hover { color: var(--color-fg-1) !important; }
+
+/* ============================================================
+   Podcast TAB — sticky orange tear-strip on the right edge.
+   The article is the focus; this is a peripheral affordance.
+   ============================================================ */
+.rt-podcast-tab {
+  position: fixed;
+  right: 0;
+  top: 38vh;
+  z-index: 600;
+  pointer-events: none; /* re-enabled on children */
+}
+
+/* The orange tab handle — always visible, sticks out vertically */
+.rt-podcast-tab__handle {
+  pointer-events: auto;
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-2);
+  width: 44px;
+  background: linear-gradient(180deg, #C8553D 0%, #a04330 60%, #7a3325 100%);
+  border: 1px solid #6a2918;
+  border-right: 0;
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+  color: #F2EEE5;
+  cursor: pointer;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    -3px 0 12px rgba(0, 0, 0, 0.5);
+  transition: transform 220ms cubic-bezier(0.34, 0.05, 0.18, 1),
+              background 200ms ease;
+  animation: rt-podcast-tab-pulse 1.6s ease-in-out 4 alternate;
+}
+.rt-podcast-tab__handle:hover {
+  background: linear-gradient(180deg, #d8654d 0%, #b0533e 60%, #8a4335 100%);
+  transform: translateX(-3px);
+}
+.rt-podcast-tab__handle:focus-visible {
+  outline: 2px solid #F2EEE5;
+  outline-offset: 3px;
+}
+
+@keyframes rt-podcast-tab-pulse {
+  from { transform: translateX(2px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), -3px 0 12px rgba(0,0,0,0.5), -1px 0 0 rgba(200, 85, 61, 0.4); }
+  to   { transform: translateX(-2px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), -8px 0 20px rgba(200, 85, 61, 0.5); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rt-podcast-tab__handle { animation: none; }
+}
+
+.rt-podcast-tab__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.rt-podcast-tab__label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  white-space: nowrap;
+}
+.rt-podcast-tab__arrow {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  opacity: 0.6;
+  transition: opacity 200ms ease;
+}
+.rt-podcast-tab__handle:hover .rt-podcast-tab__arrow { opacity: 1; }
+.rt-podcast-tab.is-open .rt-podcast-tab__handle { transform: translateX(-380px); }
+.rt-podcast-tab.is-open .rt-podcast-tab__handle:hover { transform: translateX(-383px); }
+
+/* The slide-out panel — visible on open */
+.rt-podcast-tab__panel {
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  top: -40vh;
+  width: 380px;
+  max-width: calc(100vw - 24px);
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: var(--space-5);
+  background: linear-gradient(180deg, #1c1a18 0%, #14110d 100%);
+  border: 1px solid #0a0805;
+  border-right: 0;
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    -6px 0 24px rgba(0, 0, 0, 0.6);
+  transform: translateX(100%);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    transform 280ms cubic-bezier(0.34, 0.05, 0.18, 1),
+    opacity 200ms ease,
+    visibility 0s linear 280ms;
+}
+.rt-podcast-tab.is-open .rt-podcast-tab__panel {
+  pointer-events: auto;
+  transform: translateX(0);
+  opacity: 1;
+  visibility: visible;
+  transition:
+    transform 280ms cubic-bezier(0.34, 0.05, 0.18, 1),
+    opacity 200ms ease,
+    visibility 0s linear 0s;
+}
+
+.rt-podcast-tab__panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+.rt-podcast-tab__close {
+  background: none;
+  border: 0;
+  color: var(--color-fg-3);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 var(--space-2);
+  transition: color 150ms ease;
+}
+.rt-podcast-tab__close:hover { color: var(--color-fg-1); }
+.rt-podcast-tab__close:focus-visible {
+  outline: 2px solid var(--color-accent-warm-strong);
+  outline-offset: 2px;
+}
+
+/* Compact player inside the panel — override a few widths */
+.rt-podcast-tab__panel .rt-podcast {
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto auto;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+.rt-podcast-tab__panel .rt-podcast__reels { grid-row: 1; }
+.rt-podcast-tab__panel .rt-podcast__meta { grid-row: 1; }
+.rt-podcast-tab__panel .rt-podcast__play {
+  grid-row: 2;
+  grid-column: 1 / -1;
+  justify-self: center;
+}
+.rt-podcast-tab__panel .rt-podcast__controls {
+  grid-row: 3;
+  grid-column: 1 / -1;
+}
+
+.rt-podcast-tab__essay {
+  font-family: var(--font-body);
+  font-size: var(--fs-100);
+  line-height: var(--lh-lead);
+  color: var(--color-fg-2);
+  padding-top: var(--space-4);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+.rt-podcast-tab__essay-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-300);
+  font-weight: var(--fw-semibold);
+  color: var(--color-fg-1);
+  margin: 0 0 var(--space-3) 0;
+}
+.rt-podcast-tab__essay p {
+  margin: 0 0 var(--space-3) 0;
+}
+.rt-podcast-tab__essay p:last-child { margin-bottom: 0; }
+.rt-podcast-tab__essay-foot {
+  font-style: italic;
+  color: var(--color-accent-warm);
+}
+.rt-podcast-tab__stack {
+  list-style: none;
+  margin: var(--space-4) 0;
+  padding: var(--space-4) 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--space-3);
+}
+.rt-podcast-tab__stack li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.rt-podcast-tab__stack strong {
+  font-family: var(--font-display);
+  font-size: var(--fs-300);
+  font-weight: var(--fw-semibold);
+  color: var(--color-accent-warm);
+  line-height: 1.1;
+}
+.rt-podcast-tab__stack span {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-fg-3);
+}
+
+/* Mobile: tab moves to bottom of screen, panel becomes a sheet */
+@media (max-width: 720px) {
+  .rt-podcast-tab {
+    right: 0;
+    top: auto;
+    bottom: var(--space-5);
+  }
+  .rt-podcast-tab__handle {
+    flex-direction: row;
+    width: auto;
+    padding: var(--space-3) var(--space-4);
+    border-radius: 6px 0 0 6px;
+  }
+  .rt-podcast-tab__label {
+    writing-mode: horizontal-tb;
+    transform: none;
+  }
+  .rt-podcast-tab__panel {
+    top: auto;
+    bottom: 64px;
+    width: calc(100vw - 12px);
+    max-height: 70vh;
+  }
+  .rt-podcast-tab.is-open .rt-podcast-tab__handle {
+    transform: translateY(-12px);
+  }
+  .rt-podcast-tab__stack { grid-template-columns: 1fr; }
+}
 .rt-tuit__video-wrap {
   position: relative;
   width: 100%;

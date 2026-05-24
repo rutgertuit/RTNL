@@ -203,10 +203,10 @@ export function MediaKit() {
           </div>
           <p className="rt-mk__book">
             For speaking enquiries, podcast appearances, or strategic engagements with Dutch-market
-            CMOs and agency CEOs — email below. Same inbox.
+            CMOs and agency CEOs — use the contact form below. Same inbox, same human reading it.
           </p>
-          <a className="button button--warm" href="#contact">
-            rutger@rutgertuit.nl <span aria-hidden>→</span>
+          <a className="button button--warm" href="/contact">
+            Open the contact form <span aria-hidden>→</span>
           </a>
         </div>
       </div>
