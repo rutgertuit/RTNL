@@ -80,6 +80,20 @@ export default function ThirtyMinuteKitchenPage() {
                   I have thought about that sentence, in a slightly absurd way, every time I have
                   walked into a CMO&apos;s office for the last three years.
                 </p>
+                <figure className="rt-tuit__video">
+                  <div className="rt-tuit__video-wrap">
+                    <iframe
+                      src="https://www.youtube-nocookie.com/embed/Fs6Ia1AmKhw?modestbranding=1&rel=0&color=white"
+                      title="The 30-Minute Kitchen — Rutger Tuit"
+                      loading="lazy"
+                      allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                  <figcaption className="rt-tuit__video-cap">
+                    Video · The 30-Minute Kitchen · 3 min
+                  </figcaption>
+                </figure>
               </>
             ),
           },
