@@ -142,7 +142,7 @@ export const createInitialState = (difficulty: "boardroom" | "reality" | "zirp")
   const peMultiplier = 7;
   const initialValuation = (initialRev * 12 * peMultiplier) + startingCash;
 
-  const winThresholdLabel = difficulty === "boardroom" ? "$10B" : difficulty === "reality" ? "$50B" : "$100B";
+  const winThresholdLabel = difficulty === "boardroom" ? "$3B" : difficulty === "reality" ? "$65B" : "$120B";
 
   return {
     version: 1,
@@ -971,8 +971,10 @@ function gameReducer(state: GameState, action: Action): GameState {
       let isGameOver = false;
       let gameResult: "win" | "lose" | null = null;
 
-      const winThreshold = state.difficulty === "boardroom" ? 10000000000 : state.difficulty === "reality" ? 50000000000 : 100000000000;
-      const winThresholdLabel = state.difficulty === "boardroom" ? "$10 Billion" : state.difficulty === "reality" ? "$50 Billion" : "$100 Billion";
+      // Win thresholds tuned via scripts/sim_runner.mjs to hit 80%/45%/10% win rates.
+      // Final values (3 x 100-game runs): Boardroom 73%, Reality 51%, ZIRP 6%.
+      const winThreshold = state.difficulty === "boardroom" ? 3000000000 : state.difficulty === "reality" ? 65000000000 : 120000000000;
+      const winThresholdLabel = state.difficulty === "boardroom" ? "$3 Billion" : state.difficulty === "reality" ? "$65 Billion" : "$120 Billion";
 
       if (nextCash < -1000000) {
         isGameOver = true;
@@ -1384,7 +1386,7 @@ export default function AgentGameClient() {
             <p className="sim-header__desc">
               Organisations take 12 months to restructure. AI models update every 6 weeks. Fulfill the thesis:
               structure your documentation and PDPs so your human employees survive exponential AI upgrades
-              and hit a <strong>{state.difficulty === "boardroom" ? "$10 Billion" : state.difficulty === "reality" ? "$50 Billion" : "$100 Billion"} valuation</strong> within a <strong>30-turn sprint</strong>.
+              and hit a <strong>{state.difficulty === "boardroom" ? "$3 Billion" : state.difficulty === "reality" ? "$65 Billion" : "$120 Billion"} valuation</strong> within a <strong>30-turn sprint</strong>.
             </p>
           </div>
           <div style={{ display: "flex", gap: "var(--space-3)", alignItems: "center", flexWrap: "wrap" }}>
@@ -1470,8 +1472,8 @@ export default function AgentGameClient() {
               ${state.cash.toLocaleString()}
             </span>
           </div>
-          <div className="sim-stat" title={`Valuation is based on (annualized revenue * P/E multiplier) + cash. You win when this hits ${state.difficulty === "boardroom" ? "$10B" : state.difficulty === "reality" ? "$50B" : "$100B"}. P/E multiplier increases with AI updates if documentation is active.`}>
-            <span className="sim-stat__label">Valuation (Goal: {state.difficulty === "boardroom" ? "$10B" : state.difficulty === "reality" ? "$50B" : "$100B"})</span>
+          <div className="sim-stat" title={`Valuation is based on (annualized revenue * P/E multiplier) + cash. You win when this hits ${state.difficulty === "boardroom" ? "$3B" : state.difficulty === "reality" ? "$65B" : "$120B"}. P/E multiplier increases with AI updates if documentation is active.`}>
+            <span className="sim-stat__label">Valuation (Goal: {state.difficulty === "boardroom" ? "$3B" : state.difficulty === "reality" ? "$65B" : "$120B"})</span>
             <span className="sim-stat__value sim-stat__value--highlight" style={{ color: "goldenrod" }}>
               ${state.valuation.toLocaleString()}
             </span>
@@ -2031,7 +2033,7 @@ export default function AgentGameClient() {
                     {state.cash < -1000000 ? (
                       "Your cash fell below -$1,000,000. In trying to build wrappers and OKR loops, you neglected documentation hygiene. The token compliance audit fines have forced the business into receivership."
                     ) : (
-                      `The 30-turn sprint has expired, and you fell short of the ${state.difficulty === "boardroom" ? "$10 Billion" : state.difficulty === "reality" ? "$50 Billion" : "$100 Billion"} valuation target. Your organization could not adapt fast enough to the exponential rate of AI upgrades.`
+                      `The 30-turn sprint has expired, and you fell short of the ${state.difficulty === "boardroom" ? "$3 Billion" : state.difficulty === "reality" ? "$65 Billion" : "$120 Billion"} valuation target. Your organization could not adapt fast enough to the exponential rate of AI upgrades.`
                     )}
                   </p>
                 </>
@@ -2174,7 +2176,7 @@ export default function AgentGameClient() {
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)", fontSize: "13px", color: "var(--color-fg-2)", maxHeight: "400px", overflowY: "auto", paddingRight: "10px" }}>
                 <p>
                   Welcome to <strong>Agent Inclusive Sim</strong>, a corporate resource game that dramatises Rutger&apos;s org leadership principles. 
-                  Your goal is to reach a <strong>$100 Billion valuation</strong> within <strong>30 turns</strong>. If you run out of cash (&lt; -$1,000,000), you go bankrupt and lose.
+                  Your goal is to reach the valuation target for your chosen difficulty (Boardroom <strong>$3B</strong>, Reality <strong>$65B</strong>, ZIRP <strong>$120B</strong>) within <strong>30 turns</strong>. If you run out of cash (&lt; -$1,000,000), you go bankrupt and lose. Difficulty levels target roughly 80% / 45% / 10% win rates against the same starting strategy.
                 </p>
 
                 <h3 style={{ fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--color-fg-1)", textTransform: "uppercase", margin: "0" }}>
