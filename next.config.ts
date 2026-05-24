@@ -4,7 +4,11 @@ const config: NextConfig = {
   output: "standalone",
   reactStrictMode: true,
   poweredByHeader: false,
-  typedRoutes: true,
+  // typedRoutes disabled: races with standalone-mode manifest copy on
+  // Windows builds (PageNotFoundError during page-data collection).
+  // We don't depend on its type safety today; reenable if Link href
+  // typing becomes load-bearing.
+  typedRoutes: false,
   images: {
     remotePatterns: [
       {

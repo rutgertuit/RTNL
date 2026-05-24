@@ -3,6 +3,7 @@ import { Nav } from "@/components/nav/Nav";
 import { Footer } from "@/components/footer/Footer";
 import { AppChrome } from "@/components/chrome/AppChrome";
 import { Article, buildArticleLd } from "@/components/article/Article";
+import { PodcastPlayer } from "@/components/podcast-player/PodcastPlayer";
 
 const TITLE = "The Multiplier Myth";
 const DESCRIPTION =
@@ -35,6 +36,100 @@ export default function MultiplierMythPage() {
         title="The Multiplier Myth."
         readTime="13 min read"
         publishedLabel="May 2026"
+        intro={
+          <>
+            <PodcastPlayer
+              src="/audio/multiplier-myth-ep02.mp3"
+              eyebrow="EP 02 · 5:30 LISTEN"
+              title="The Multiplier Myth — a conversation."
+              subtitle="With Maya, who is allergic to corporate spirituality."
+              duration="5:30"
+            />
+
+            <section className="rt-podcast-meta" aria-label="How this conversation was made">
+              <header className="rt-podcast-meta__head">
+                <span className="rt-podcast-meta__eyebrow">Behind the build</span>
+                <h2 className="rt-podcast-meta__title">
+                  How this conversation was made.
+                </h2>
+              </header>
+
+              <p>
+                Everything you just listened to was made by AI, except the human approving
+                each step. Showing the workings, because this is exactly the kind of
+                artefact the article below argues for — a cognitive multiplier at work,
+                not a margin-chop.
+              </p>
+
+              <p>
+                <strong>The argument came first.</strong> The article was written in long
+                form, by hand, over about three weeks. Without that underneath, there is
+                nothing for two voices to disagree on — they just take turns sounding
+                interesting.
+              </p>
+
+              <p>
+                <strong>Then the dialog.</strong> A language model was given two system
+                prompts. Mine was grounded in the brand-voice guideline that lives
+                elsewhere on this site — the Trusted Translator identity, the
+                Direction-D register, the no-manifesto rule. Maya&apos;s was more
+                interesting to write: I fed the model a four-thousand-word
+                sociolinguistic analysis of West-Frisian humour — <em>relativeren</em>,
+                antonymic deadpan, the regional aversion to <em>verbeelding</em>
+                (anyone blowing their own trumpet) — and told it that her job was to
+                deflate me whenever I started sounding like a TED talk. The bit where
+                she says &quot;Yes. Sure. Try to convince me. Do you think you
+                can.&quot; comes directly from that humour model.
+              </p>
+
+              <p>
+                <strong>The voices are ElevenLabs clones.</strong> Maya is a stock
+                voice tuned hot — bumped style dial, occasional Dutch flavour words.
+                Mine is cloned from a ten-minute recording. The synthesis runs through
+                ElevenLabs v3 with a fixed random seed per speaker, which keeps
+                consecutive lines from drifting accent — a real problem the first time
+                we generated this, where the clone&apos;s mixed-dialect source had it
+                bouncing between American and British English between lines.
+              </p>
+
+              <p>
+                <strong>The pipeline that stitches it all together</strong> — parse the
+                dialog markdown, call the ElevenLabs REST API per spoken line,
+                concatenate via ffmpeg, run a broadcaster mastering chain
+                (dynamic normalisation → gentle compressor → EBU R128 loudness
+                normalisation to the podcast standard of −16 LUFS) — is a Python
+                script that another AI wrote, based on a working pattern it lifted
+                from a separate project of mine.
+              </p>
+
+              <div className="rt-podcast-meta__stack" aria-label="Time economics">
+                <div className="rt-podcast-meta__stack-cell">
+                  <span className="rt-podcast-meta__stack-eyebrow">The article</span>
+                  <span className="rt-podcast-meta__stack-value">~3 weeks</span>
+                  <span className="rt-podcast-meta__stack-detail">of thinking</span>
+                </div>
+                <div className="rt-podcast-meta__stack-cell">
+                  <span className="rt-podcast-meta__stack-eyebrow">The pipeline, once</span>
+                  <span className="rt-podcast-meta__stack-value">~2 hours</span>
+                  <span className="rt-podcast-meta__stack-detail">of conversation</span>
+                </div>
+                <div className="rt-podcast-meta__stack-cell">
+                  <span className="rt-podcast-meta__stack-eyebrow">Each episode after</span>
+                  <span className="rt-podcast-meta__stack-value">~20 min</span>
+                  <span className="rt-podcast-meta__stack-detail">plus rendering</span>
+                </div>
+              </div>
+
+              <p style={{ marginTop: "var(--space-5)" }}>
+                AI did not write the argument — the argument has to come from the work.
+                But everything downstream of the argument compresses by a factor of fifty
+                once the pipeline exists. That is the multiplier in practice. The article
+                you are about to read makes the case for treating that gap as a strategic
+                opportunity, not a headcount-reduction exercise.
+              </p>
+            </section>
+          </>
+        }
         stages={[
           {
             num: "01",

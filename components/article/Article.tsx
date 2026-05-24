@@ -21,6 +21,12 @@ export interface ArticleProps {
   readTime: string; // "11 min read"
   publishedLabel: string; // "May 2026"
   stages: ArticleStage[];
+  /**
+   * Optional content slot rendered between the article head and stage 01.
+   * Used for things like the podcast player + "how this was made" essay
+   * on Multiplier Myth. Inherits the article container width.
+   */
+  intro?: ReactNode;
 }
 
 export function Article({
@@ -30,6 +36,7 @@ export function Article({
   readTime,
   publishedLabel,
   stages,
+  intro,
 }: ArticleProps) {
   return (
     <article className="rt-tuit section section--surface">
@@ -47,6 +54,8 @@ export function Article({
             <span>FILED UNDER {filedUnder.toUpperCase()}</span>
           </div>
         </div>
+
+        {intro && <div className="rt-tuit__intro">{intro}</div>}
 
         {stages.map((stage) => (
           <div className="rt-tuit__stage" key={stage.num}>
