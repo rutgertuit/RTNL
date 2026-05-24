@@ -44,7 +44,7 @@ export function Nav() {
 
   return (
     <nav className={`rt-nav rt-nav--sticky ${scrolled ? "is-scrolled" : ""}`} aria-label="Primary">
-      <a href="#top" className="rt-nav__logo" aria-label="rutger tuit home">
+      <a href="/" className="rt-nav__logo" aria-label="rutger tuit home">
         <span className="rt-nav__logo-top">rutger</span>
         <span className="rt-nav__logo-bot">tuit.</span>
       </a>
@@ -52,7 +52,7 @@ export function Nav() {
         {SECTIONS.slice(1).map((s) => (
           <a
             key={s.id}
-            href={`#${s.id}`}
+            href={`/#${s.id}`}
             className={`rt-nav__item ${active === s.id ? "is-active" : ""}`}
             aria-current={active === s.id ? "page" : undefined}
           >
@@ -62,7 +62,7 @@ export function Nav() {
           </a>
         ))}
       </div>
-      <a href="#contact" className="rt-nav__cta">
+      <a href="/#contact" className="rt-nav__cta">
         Get in touch <span aria-hidden>→</span>
       </a>
       <div className="rt-nav__progress" aria-hidden>
