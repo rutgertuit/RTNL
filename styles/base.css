@@ -1703,17 +1703,30 @@ html, body { margin: 0; }
   .rt-editorial__sidebar { position: static; }
   .rt-tuit__stage,
   .rt-tuit__stage--with-image,
-  .rt-tuit__stage--image-left { grid-template-columns: 1fr; }
+  .rt-tuit__stage--image-left {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
   .rt-tuit__stage-marker { position: static; flex-direction: row; align-items: baseline; }
+  /* On mobile, stack: image (top) -> marker -> body, regardless of which
+     desktop side the image was on. The image acts as a header illustration. */
   .rt-tuit__stage--with-image .rt-tuit__stage-image,
   .rt-tuit__stage--image-left .rt-tuit__stage-image {
     grid-column: 1;
-    grid-row: auto;
+    grid-row: 1;
     max-width: 320px;
     margin-bottom: var(--space-5);
   }
-  .rt-tuit__stage--image-left .rt-tuit__stage-marker { grid-column: 1; grid-row: auto; }
-  .rt-tuit__stage--image-left .rt-tuit__stage-body { grid-column: 1; grid-row: auto; }
+  .rt-tuit__stage--with-image .rt-tuit__stage-marker,
+  .rt-tuit__stage--image-left .rt-tuit__stage-marker {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .rt-tuit__stage--with-image .rt-tuit__stage-body,
+  .rt-tuit__stage--image-left .rt-tuit__stage-body {
+    grid-column: 1;
+    grid-row: 3;
+  }
   .rt-creative__panel { grid-template-columns: 1fr; }
   .rt-footer__meta { grid-template-columns: repeat(2, 1fr); }
   .rt-mk__photos { grid-template-columns: repeat(2, 1fr); }
