@@ -183,6 +183,9 @@ export interface GameState {
   // Cash delta tracking: prevCash is captured at the START of END_TURN so the
   // HUD can show "▲ / ▼ $Xk" under the cash tile after each turn resolves.
   prevCash?: number;
+  // GG.2: Snapshot of state before last player action — cleared on END_TURN.
+  // Used by the Undo button. Never recurses (lastSnapshot within snapshot is null).
+  lastSnapshot?: GameState | null;
 }
 
 // ============================================================

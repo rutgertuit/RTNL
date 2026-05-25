@@ -29,6 +29,8 @@ export type Action =
   | { type: "LOAD_STATE"; state: GameState }
   | { type: "CHOOSE_EVENT_OPTION"; option: "A" | "B" }
   | { type: "DRAFT_CARD"; cardId: string }
+  | { type: "SKIP_DRAFT" }
+  | { type: "UNDO" }
   | { type: "DISMISS_TUTORIAL"; turn: number };
 
 // Tutorial gating — mechanics unlock by turn so new players see one
@@ -203,6 +205,7 @@ function gameReducer(state: GameState, action: Action): GameState {
     (state.activeEventId !== null || state.draftChoices !== null) &&
     action.type !== "CHOOSE_EVENT_OPTION" &&
     action.type !== "DRAFT_CARD" &&
+    action.type !== "SKIP_DRAFT" &&
     action.type !== "RESET_GAME" &&
     action.type !== "LOAD_STATE"
   ) {
@@ -215,6 +218,16 @@ function gameReducer(state: GameState, action: Action): GameState {
 
     case "RESET_GAME":
       return createInitialState(action.difficulty);
+
+    case "UNDO": {
+      if (!state.lastSnapshot) return state;
+      return state.lastSnapshot;
+    }
+
+    case "SKIP_DRAFT": {
+      if (!state.draftChoices) return state;
+      return { ...state, draftChoices: null };
+    }
 
     case "DISMISS_TUTORIAL": {
       const dismissed = state.tutorialDismissed ?? [];
@@ -357,6 +370,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         cash: state.cash - cost,
         employees: [...state.employees, newEmployee],
         hiredThisTurn: true,
+        lastSnapshot: { ...state, lastSnapshot: null },
         eventLog: [
           ...state.eventLog,
           `💼 Hired ${traitInfo.displayName} for $30,000 (onboarding: ${state.hasDocumentation ? "3" : "6"} turns).`,
@@ -414,6 +428,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         cash: state.cash - cost,
         employees: [...state.employees, newAgent],
         hiredThisTurn: true,
+        lastSnapshot: { ...state, lastSnapshot: null },
         eventLog: [
           ...state.eventLog,
           `🤖 Hired AI Cognitive Agent ${name} for $15,000. Required: Markdown Wiki documentation active for proper synergy.`,
@@ -520,6 +535,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         cash: state.cash - cost,
         employees: updatedEmployees,
         promotionsThisTurn: (state.promotionsThisTurn ?? 0) + 1,
+        lastSnapshot: { ...state, lastSnapshot: null },
         eventLog: [...state.eventLog, ...logs],
       };
     }
@@ -561,6 +577,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         cash: state.cash - cost,
         okrLevel: nextOkr,
         redefinedOkrsThisTurn: true,
+        lastSnapshot: { ...state, lastSnapshot: null },
         eventLog: [...state.eventLog, ...logs],
       };
     }
@@ -735,6 +752,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         cardsHand: nextHand,
         cardsDiscard: nextDiscard,
         playedCardThisTurn: true,
+        lastSnapshot: { ...state, lastSnapshot: null },
         eventLog: [...state.eventLog, ...logs],
       };
     }
@@ -1138,6 +1156,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         surgeTurnsLeft: nextSurgeTurnsLeft,
         surgeThrottledTurnsLeft: nextSurgeThrottledTurnsLeft,
         freezeHiringNextTurn: false, // Decays at the end of the turn
+        lastSnapshot: null, // GG.2: clear undo snapshot at turn boundary
         eventLog: [...state.eventLog, ...logs],
       };
     }
@@ -1242,14 +1261,14 @@ export default function AgentGameClient() {
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [showDifficultySelector, setShowDifficultySelector] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
-  const [resetConfirmMode, setResetConfirmMode] = useState(false);
   const [copiedText, setCopiedText] = useState(false);
   // Full-screen v3: bottom-drawer state — at most one drawer open at a time.
   const [drawer, setDrawer] = useState<"log" | "cards" | "details" | null>(null);
+  // Fix FF: trait popover open state per employee id
+  const [traitPopoverOpen, setTraitPopoverOpen] = useState<Record<string, boolean>>({});
 
   const logContainerRef = useRef<HTMLDivElement | null>(null);
   const cardElementsRef = useRef<(HTMLButtonElement | null)[]>([]);
-  const resetTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // 1. Initial Load from LocalStorage (with schema validation guard)
   useEffect(() => {
@@ -1288,7 +1307,7 @@ export default function AgentGameClient() {
     }
   }, [state.eventLog]);
 
-  // 4. Keyboard Listener for Ctrl + Enter
+  // 4. Keyboard Listener for Ctrl + Enter and Escape (closes trait popovers)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key === "Enter") {
@@ -1297,25 +1316,26 @@ export default function AgentGameClient() {
         dispatch({ type: "END_TURN" });
         setSelectedCardId(null);
       }
+      if (e.key === "Escape") {
+        setTraitPopoverOpen({});
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [state]);
 
 
-  // Double-tap timer for reset
+  // Fix GG.1: Reset with window.confirm for safety
   const handleResetInitiate = () => {
-    if (resetConfirmMode) {
-      // Confirmed reset: show selector again
-      if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
-      setResetConfirmMode(false);
+    const formatCash = (n: number) => {
+      if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
+      return `$${Math.round(n / 1000)}k`;
+    };
+    const ok = window.confirm(
+      `Reset this run? You're on turn ${state.turn} with ${formatCash(state.cash)} cash. This cannot be undone.`
+    );
+    if (ok) {
       setShowDifficultySelector(true);
-    } else {
-      // Initiate reset confirm mode
-      setResetConfirmMode(true);
-      resetTimerRef.current = setTimeout(() => {
-        setResetConfirmMode(false);
-      }, 2500); // 2.5s window
     }
   };
 
@@ -1493,11 +1513,11 @@ export default function AgentGameClient() {
             </button>
             <button
               type="button"
-              className={`sim-fs__head-btn sim-fs__head-btn--reset ${resetConfirmMode ? "is-confirm" : ""}`}
+              className="sim-fs__head-btn sim-fs__head-btn--reset"
               onClick={handleResetInitiate}
               title="Restart the simulation"
             >
-              {resetConfirmMode ? "Confirm?" : "Reset"}
+              Reset
             </button>
           </div>
         </header>
@@ -1658,7 +1678,6 @@ export default function AgentGameClient() {
                         ].filter(Boolean).join(" ")}
                         role={isTargetable ? "button" : undefined}
                         aria-label={`${displayName}, ${isAgent ? "Cognitive Agent" : `Level ${emp.promotionLevel}`}, productivity ${productivity}%, loyalty ${emp.loyalty}%`}
-                        title={traitInfo ? `${traitInfo.passiveName}: ${traitInfo.description}` : undefined}
                       >
                         <div className="sim-desk__badges">
                           {emp.isAsleep && <span className="sim-desk__badge" title="Asleep this turn">💤</span>}
@@ -1706,7 +1725,24 @@ export default function AgentGameClient() {
                           )}
                         </svg>
                         <div className="sim-desk__info">
-                          <span className="sim-desk__name">{displayName}</span>
+                          <div className="sim-desk__name-row">
+                            <span className="sim-desk__name">{displayName}</span>
+                            {traitInfo && (
+                              <button
+                                type="button"
+                                className="sim-desk__trait-btn"
+                                aria-label={`${displayName} trait: ${traitInfo.passiveName}`}
+                                aria-expanded={!!traitPopoverOpen[emp.id]}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setTraitPopoverOpen((prev) => ({
+                                    ...prev,
+                                    [emp.id]: !prev[emp.id],
+                                  }));
+                                }}
+                              >i</button>
+                            )}
+                          </div>
                           <span className="sim-desk__level">
                             {isAgent ? "AI AGENT" : `L${emp.promotionLevel}`}
                             {!isOnboarded && !isAgent && (
@@ -1738,6 +1774,25 @@ export default function AgentGameClient() {
                             </span>
                           </div>
                         </div>
+                        {traitPopoverOpen[emp.id] && traitInfo && (
+                          <div
+                            role="dialog"
+                            aria-label={`${displayName} trait detail`}
+                            className="sim-desk__popover"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <strong>{traitInfo.passiveName}</strong>
+                            <p>{traitInfo.description}</p>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setTraitPopoverOpen((prev) => ({ ...prev, [emp.id]: false }));
+                              }}
+                              className="sim-desk__popover-close"
+                            >Close</button>
+                          </div>
+                        )}
                         {!isAgent && isOnboarded && emp.promotionLevel < 3 && state.turn >= TURN_PROMOTION_UNLOCKED && (
                           <button
                             onClick={(e) => { e.stopPropagation(); handlePromoteWorker(emp.id); }}
@@ -1784,14 +1839,19 @@ export default function AgentGameClient() {
                 !!state.hiredThisTurn
               }
               className={`sim-fs__move-btn ${state.hiredThisTurn ? "is-used" : ""}`}
-              title={state.hiredThisTurn ? "Already hired this turn — pacing matters." : ""}
+              title={state.hiredThisTurn ? "Already hired this turn — pacing matters." : "Hires a human employee ($30,000 upfront). Generates revenue at their level once fully onboarded (6 turns, or 3 with Markdown Wiki). Salary: $8k/turn at L1, $18k at L2, $45k at L3."}
+              aria-describedby="hire-human-help"
             >
               <span className="sim-fs__move-btn-name">
                 {state.hiredThisTurn ? "✓ Hired this turn" : "Hire Human"}
               </span>
               <span className="sim-fs__move-btn-cost">$30k</span>
             </button>
+            <div id="hire-human-help" className="sr-only">
+              Hires a human employee ($30,000 upfront). Generates revenue at their level once fully onboarded (6 turns, or 3 with Markdown Wiki). Salary: $8k/turn at L1, $18k at L2, $45k at L3.
+            </div>
             {state.turn >= TURN_AGENT_UNLOCKED ? (
+              <>
               <button
                 type="button"
                 onClick={handleHireAgent}
@@ -1803,13 +1863,18 @@ export default function AgentGameClient() {
                   !!state.hiredThisTurn
                 }
                 className={`sim-fs__move-btn ${state.hiredThisTurn ? "is-used" : ""}`}
-                title={state.hiredThisTurn ? "Already hired this turn — pacing matters." : ""}
+                title={state.hiredThisTurn ? "Already hired this turn — pacing matters." : "Deploys a Cognitive Agent ($15,000 upfront, no ongoing salary). With Markdown Wiki: boosts each human +25% productivity. Without docs: costs $10k/turn maintenance and drains team loyalty."}
+                aria-describedby="hire-agent-help"
               >
                 <span className="sim-fs__move-btn-name">
                   {state.hiredThisTurn ? "✓ Hired this turn" : "Hire Cognitive Agent"}
                 </span>
                 <span className="sim-fs__move-btn-cost">$15k</span>
               </button>
+              <div id="hire-agent-help" className="sr-only">
+                Deploys a Cognitive Agent ($15,000 upfront, no ongoing salary). With Markdown Wiki: boosts each human +25% productivity. Without docs: costs $10k/turn maintenance and drains team loyalty.
+              </div>
+              </>
             ) : (
               <button
                 type="button"
@@ -1832,13 +1897,17 @@ export default function AgentGameClient() {
                 state.redefinedOkrsThisTurn
               }
               className={`sim-fs__move-btn ${state.redefinedOkrsThisTurn ? "is-used" : ""}`}
-              title={state.redefinedOkrsThisTurn ? "Already redefined this turn — the team can't handle two alignment meetings." : ""}
+              title={state.redefinedOkrsThisTurn ? "Already redefined this turn — the team can't handle two alignment meetings." : "Adds one OKR Level ($10,000). Permanently increases global productivity by +15% per level. Costs 40% productivity this turn (alignment meeting penalty)."}
+              aria-describedby="okr-help"
             >
               <span className="sim-fs__move-btn-name">
                 {state.redefinedOkrsThisTurn ? "✓ OKRs redefined" : "Redefine OKRs"}
               </span>
               <span className="sim-fs__move-btn-cost">$10k</span>
             </button>
+            <div id="okr-help" className="sr-only">
+              Adds one OKR Level ($10,000). Permanently increases global productivity by +15% per level. Costs 40% productivity this turn (alignment meeting penalty).
+            </div>
             {state.turn >= TURN_CARDS_UNLOCKED ? (
               <button
                 type="button"
@@ -1883,6 +1952,16 @@ export default function AgentGameClient() {
           >
             Next Turn <span aria-hidden>→</span>
           </button>
+          {state.lastSnapshot && (
+            <button
+              type="button"
+              className="sim-undo"
+              onClick={() => dispatch({ type: "UNDO" })}
+              aria-label="Undo last action"
+            >
+              ↶ Undo
+            </button>
+          )}
           <div className="sim-fs__next-hint">
             Shortcut: <kbd>Ctrl + Enter</kbd>
           </div>
@@ -2189,6 +2268,16 @@ export default function AgentGameClient() {
                     </div>
                   );
                 })}
+              </div>
+              {/* GG.3: Skip draft — dismiss FEBO without taking a card */}
+              <div style={{ textAlign: "center", marginTop: "var(--space-4)" }}>
+                <button
+                  type="button"
+                  className="sim-febo__skip"
+                  onClick={() => dispatch({ type: "SKIP_DRAFT" })}
+                >
+                  Skip draft
+                </button>
               </div>
             </div>
           </div>

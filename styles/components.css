@@ -2923,6 +2923,122 @@ body { padding-top: 0; }
   opacity: 0.65;
 }
 
+/* Fix FF: name row holds name + trait info button inline */
+.sim-v2 .sim-desk__name-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+}
+
+/* Fix FF: trait info button (i-circle) */
+.sim-v2 .sim-desk__trait-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-bg-raised, #1a1a1a);
+  color: var(--color-fg-2, #aaa);
+  border: 1px solid var(--color-fg-4, #555);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 120ms, border-color 120ms;
+}
+.sim-v2 .sim-desk__trait-btn:hover {
+  color: var(--color-fg-1, #eee);
+  border-color: var(--color-fg-3, #888);
+}
+.sim-v2 .sim-desk__trait-btn[aria-expanded="true"] {
+  color: var(--color-accent-warm-strong, #e8623e);
+  border-color: var(--color-accent-warm-strong, #e8623e);
+}
+
+/* Fix FF: trait popover */
+.sim-v2 .sim-desk__popover {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: var(--space-2, 6px);
+  background: var(--color-bg-surface, #111);
+  border: 1px solid var(--color-accent-warm-strong, #e8623e);
+  padding: var(--space-3, 10px);
+  z-index: 10;
+  font-family: var(--font-body);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  text-align: left;
+}
+.sim-v2 .sim-desk__popover strong {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--fs-50, 10px);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent-warm-strong, #e8623e);
+  margin-bottom: var(--space-2, 6px);
+}
+.sim-v2 .sim-desk__popover p {
+  font-size: var(--fs-100, 12px);
+  line-height: 1.5;
+  color: var(--color-fg-2, #aaa);
+  margin: 0 0 var(--space-3, 10px);
+}
+.sim-v2 .sim-desk__popover-close {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50, 10px);
+  letter-spacing: 0.1em;
+  background: transparent;
+  border: 1px solid var(--color-fg-4, #555);
+  color: var(--color-fg-2, #aaa);
+  padding: var(--space-1, 3px) var(--space-3, 10px);
+  cursor: pointer;
+  text-transform: uppercase;
+}
+.sim-v2 .sim-desk__popover-close:hover {
+  color: var(--color-fg-1, #eee);
+  border-color: var(--color-fg-3, #888);
+}
+
+/* Fix GG.2: Undo button */
+.sim-undo {
+  background: transparent;
+  border: var(--border-hairline, 1px solid #555);
+  color: var(--color-fg-2, #aaa);
+  font-family: var(--font-mono);
+  font-size: var(--fs-50, 10px);
+  letter-spacing: 0.1em;
+  padding: var(--space-2, 6px) var(--space-3, 10px);
+  cursor: pointer;
+  text-transform: uppercase;
+}
+.sim-undo:hover {
+  color: var(--color-fg-1, #eee);
+  border-color: var(--color-fg-3, #888);
+}
+
+/* Fix GG.3: FEBO skip-draft button */
+.sim-febo__skip {
+  background: transparent;
+  border: var(--border-hairline, 1px solid #555);
+  color: var(--color-fg-3, #888);
+  font-family: var(--font-mono);
+  font-size: var(--fs-50, 10px);
+  letter-spacing: 0.1em;
+  padding: var(--space-2, 6px) var(--space-3, 10px);
+  cursor: pointer;
+  text-transform: uppercase;
+}
+.sim-febo__skip:hover {
+  color: var(--color-fg-1, #eee);
+  border-color: var(--color-fg-3, #888);
+}
+
 /* Target cue — gold pulse + outline */
 .sim-v2 .sim-desk.is-targetable {
   cursor: pointer;
