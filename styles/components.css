@@ -120,6 +120,27 @@ body { overflow-x: hidden; }
 /* Push everything below the fixed nav */
 body { padding-top: 0; }
 
+/* Fix K (H-4, M-2, X-2): Sticky-nav-aware section anchors.
+   scroll-margin-top prevents the fixed nav from covering section headings
+   when the user clicks an anchor link. --nav-height = 64px + breathing room. */
+[id="hook"],
+[id="business"],
+[id="creative"],
+[id="technical"],
+[id="media-kit"],
+[id="contact"],
+[id^="mk-"] {
+  scroll-margin-top: calc(var(--nav-height, 64px) + var(--space-3));
+}
+
+.rt-footer__headline {
+  scroll-margin-top: calc(var(--nav-height, 64px) + var(--space-3));
+}
+
+.rt-footer__invite {
+  padding-top: calc(var(--nav-height, 64px) + var(--space-3));
+}
+
 /* ============================================================
    HERO v2 — orbiting cortex + cycling portrait + billboard type
    With slow 3D rotation: the hero becomes a 3D stage; the cortex
