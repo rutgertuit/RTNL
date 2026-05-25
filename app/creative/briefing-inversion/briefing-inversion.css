@@ -1274,3 +1274,107 @@
   }
   .rt-bi-cost__table td { border: 0; padding: 0; }
 }
+
+/* ============================================================
+   Section 6 — Invitation (closing)
+   ============================================================ */
+
+.rt-bi-invite {
+  background: var(--gradient-sweep-up);
+  padding-bottom: var(--space-12);
+}
+
+.rt-bi-invite .rt-bi__heading,
+.rt-bi-invite .rt-bi__body {
+  max-width: var(--reading-column);
+}
+
+.rt-bi-invite__pull {
+  max-width: var(--reading-column);
+  margin: var(--space-10) 0;
+  padding: var(--space-4) 0;
+  border-top: 1px solid var(--color-accent-warm);
+  border-bottom: 1px solid var(--color-accent-warm);
+  text-align: center;
+}
+
+.rt-bi-invite__pull p {
+  font-family: var(--font-display);
+  margin: 0;
+  color: var(--color-fg-1);
+  line-height: 1.3;
+}
+
+.rt-bi-invite__pull p:first-child {
+  font-size: var(--fs-600);
+}
+
+.rt-bi-invite__pull p:last-child {
+  font-size: var(--fs-300);
+  color: var(--color-fg-2);
+  margin-top: var(--space-2);
+}
+
+.rt-bi-invite__crosslink {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: var(--reading-column);
+  padding: var(--space-5);
+  background: var(--color-bg-surface);
+  border: var(--border-hairline);
+  text-decoration: none;
+  color: inherit;
+  margin: var(--space-8) 0;
+  transition: border-color 200ms;
+}
+
+.rt-bi-invite__crosslink:hover {
+  border-color: var(--color-accent-warm);
+}
+
+.rt-bi-invite__crosslink-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: 0.15em;
+  color: var(--color-fg-3);
+  text-transform: uppercase;
+}
+
+.rt-bi-invite__crosslink h3 {
+  font-family: var(--font-display);
+  font-size: var(--fs-500);
+  color: var(--color-fg-1);
+  margin: 0;
+}
+
+.rt-bi-invite__crosslink p {
+  font-size: var(--fs-100);
+  line-height: 1.55;
+  color: var(--color-fg-2);
+  margin: 0;
+}
+
+.rt-bi-invite__crosslink-cta {
+  margin-top: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: 0.12em;
+  color: var(--color-accent-warm-strong);
+  text-transform: uppercase;
+}
+
+.rt-bi-invite__signoff {
+  max-width: var(--reading-column);
+  font-size: var(--fs-200);
+  line-height: 1.6;
+  color: var(--color-fg-2);
+  margin: var(--space-6) 0 var(--space-8);
+}
+
+.rt-bi-invite__nav {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-top: var(--space-6);
+}
