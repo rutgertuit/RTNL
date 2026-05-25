@@ -1247,7 +1247,7 @@ export default function AgentGameClient() {
   const [drawer, setDrawer] = useState<"log" | "cards" | "details" | null>(null);
 
   const logContainerRef = useRef<HTMLDivElement | null>(null);
-  const cardElementsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const cardElementsRef = useRef<(HTMLButtonElement | null)[]>([]);
   const resetTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // 1. Initial Load from LocalStorage (with schema validation guard)
@@ -1378,7 +1378,18 @@ export default function AgentGameClient() {
   };
 
   const handleCardKeyDown = (e: React.KeyboardEvent, cardId: string) => {
-    if (e.key === " " || e.key === "Enter") {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (selectedCardId === cardId) {
+        // Second Enter on already-selected card: play it
+        const card = CARD_DATABASE[cardId];
+        if (card && !card.requiresTarget) {
+          handlePlayNoTargetCard();
+        }
+      } else {
+        handleCardClick(cardId);
+      }
+    } else if (e.key === " ") {
       e.preventDefault();
       handleCardClick(cardId);
     }
@@ -1825,11 +1836,14 @@ export default function AgentGameClient() {
               </button>
             )}
           </div>
-          {state.turn >= TURN_PROMOTION_UNLOCKED && (
-            <p className="sim-fs__move-hint">
-              + Click <em>Promote</em> on a desk to promote one employee per turn.
-            </p>
-          )}
+          <p className="sim-fs__move-hint">
+            {drawer === "cards"
+              ? <>+ Click a card to select. Click again, double-click, or press <kbd>Enter</kbd> to play.</>
+              : state.turn >= TURN_PROMOTION_UNLOCKED
+                ? <>+ Click <em>Promote</em> on a desk to promote one employee per turn.</>
+                : null
+            }
+          </p>
         </section>
 
         {/* Next Turn — primary CTA */}
@@ -1900,33 +1914,29 @@ export default function AgentGameClient() {
                 ✓ You&apos;ve played a card this turn. End the turn to play another.
               </div>
             )}
-            {selectedCard && !selectedCard.requiresTarget && !state.playedCardThisTurn && (
-              <div style={{ display: "flex", justifyContent: "center", marginBottom: "var(--space-2)" }}>
-                <button
-                  type="button"
-                  onClick={handlePlayNoTargetCard}
-                  className="button button--warm"
-                  style={{ maxWidth: "300px", padding: "8px 16px" }}
-                >
-                  ▶ Play {selectedCard.name}
-                </button>
-              </div>
-            )}
             <div className="sim-hand-shelf" role="group" aria-label="Cards in hand">
               {state.cardsHand.map((cardId, index) => {
                 const card = CARD_DATABASE[cardId];
                 if (!card) return null;
                 const isSelected = selectedCardId === cardId;
                 return (
-                  <div
+                  <button
                     key={`${cardId}-${index}`}
+                    type="button"
                     onClick={() => handleCardClick(cardId)}
+                    onDoubleClick={() => {
+                      if (!card.requiresTarget && !state.playedCardThisTurn) {
+                        setSelectedCardId(cardId);
+                        dispatch({ type: "PLAY_CARD", cardId });
+                        setSelectedCardId(null);
+                      }
+                    }}
                     onKeyDown={(e) => handleCardKeyDown(e, cardId)}
-                    ref={(el) => { cardElementsRef.current[index] = el; }}
+                    ref={(el) => { cardElementsRef.current[index] = el as HTMLButtonElement | null; }}
                     tabIndex={0}
                     className={`mtg-card mtg-card--${card.class} ${isSelected ? "mtg-card--selected" : ""}`}
-                    role="button"
-                    aria-label={`${card.name}, Cost: ${card.cost}. ${card.rulesText}`}
+                    aria-label={`${card.name}, Cost: ${card.cost}. ${card.rulesText}${isSelected && !card.requiresTarget ? ". Press Enter to play." : ""}`}
+                    aria-pressed={isSelected}
                   >
                     <div className="mtg-card__header">
                       <h3 className="mtg-card__name" style={{ fontSize: "13px" }}>{card.name}</h3>
@@ -1940,7 +1950,29 @@ export default function AgentGameClient() {
                       <p className="mtg-card__rules">{card.rulesText}</p>
                       <p className="mtg-card__flavor">{card.flavor}</p>
                     </div>
-                  </div>
+                    {isSelected && !card.requiresTarget && !state.playedCardThisTurn && (
+                      <span
+                        className="mtg-card__play"
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => { e.stopPropagation(); handlePlayNoTargetCard(); }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handlePlayNoTargetCard();
+                          }
+                        }}
+                      >
+                        Play this card <span aria-hidden>→</span>
+                      </span>
+                    )}
+                    {isSelected && card.requiresTarget && !state.playedCardThisTurn && (
+                      <span className="mtg-card__play mtg-card__play--target">
+                        Click a desk to target <span aria-hidden>→</span>
+                      </span>
+                    )}
+                  </button>
                 );
               })}
             </div>

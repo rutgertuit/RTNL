@@ -1895,6 +1895,34 @@ body { padding-top: 0; }
 .mtg-card.mtg-card--selected {
   transform: translateY(-14px) scale(1.03) !important;
   z-index: 10;
+  border-color: var(--color-accent-warm-strong);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* Inline play-confirm button rendered inside the selected card */
+.mtg-card__play {
+  display: inline-flex;
+  margin-top: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-accent-warm-strong);
+  color: var(--color-fg-1);
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 0;
+  align-self: stretch;
+  justify-content: center;
+  text-decoration: none;
+  border-radius: 2px;
+  position: relative;
+  z-index: 6; /* above the card sheen ::before layer */
+}
+.mtg-card__play:hover { filter: brightness(1.1); }
+.mtg-card__play:focus-visible { outline: 2px solid var(--color-fg-1); outline-offset: 2px; }
+.mtg-card__play--target {
+  background: var(--color-accent-cool-strong, #5b85c4);
 }
 
 /* MTG Category-specific border and art accents */
