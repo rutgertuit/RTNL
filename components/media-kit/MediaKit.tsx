@@ -111,6 +111,9 @@ export function MediaKit() {
               </button>
             </div>
           </div>
+          <span className="sr-only" aria-live="polite">
+            {copied ? `${copied.charAt(0).toUpperCase() + copied.slice(1)} bio copied to clipboard` : ""}
+          </span>
           <p className={`rt-mk__bio rt-mk__bio--${bio}`}>{BIOS[bio]}</p>
         </div>
 
