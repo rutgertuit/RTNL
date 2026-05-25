@@ -19,9 +19,9 @@ type CortexEdge = [string, string, number];
  * a generic theme graph.
  *
  * Read top to bottom:
- *   Frontier models (Gemini, Claude, GPT) sit at the top as the brain.
+ *   Frontier models (Gemini, Claude, Gemma) sit at the top as the brain.
  *   They spin off into four capability branches:
- *     - VISUAL  (Flow → Nano Banana, Veo, Omni)
+ *     - VISUAL  (Flow → Nano Banana, Veo, Omni; plus Flux.1, Flux Context, Runway)
  *     - SOUND   (Lyria, Suno, ElevenLabs)
  *     - CODING  (Claude Code, Gemini CLI, Cursor, Aider) — these loop
  *               BACK to the frontier models that power them.
@@ -36,7 +36,7 @@ const CORTEX_DATA: { nodes: CortexNode[]; edges: CortexEdge[] } = {
     // Frontier sub-models (small, neutral)
     { id: "gemini", label: "Gemini", kind: "project" },
     { id: "claude", label: "Claude", kind: "project" },
-    { id: "gpt", label: "GPT", kind: "project" },
+    { id: "gemma", label: "Gemma", kind: "project" },
 
     // Frontier hub (the brain)
     { id: "frontier", label: "FRONTIER MODELS", kind: "theme", accent: "warm" },
@@ -47,6 +47,9 @@ const CORTEX_DATA: { nodes: CortexNode[]; edges: CortexEdge[] } = {
     { id: "nano", label: "Nano Banana", kind: "project" },
     { id: "veo", label: "Veo", kind: "project" },
     { id: "omni", label: "Omni", kind: "project" },
+    { id: "flux", label: "Flux.1", kind: "project" },
+    { id: "fluxctx", label: "Flux Context", kind: "project" },
+    { id: "runway", label: "Runway", kind: "project" },
 
     // Sound creative branch
     { id: "sound", label: "SOUND", kind: "theme", accent: "cool" },
@@ -74,9 +77,9 @@ const CORTEX_DATA: { nodes: CortexNode[]; edges: CortexEdge[] } = {
   ],
   edges: [
     // Frontier hub aggregates the three frontier models
-    ["gemini", "frontier", 0.9],
+    ["gemini", "frontier", 1.0],
     ["claude", "frontier", 0.9],
-    ["gpt", "frontier", 0.7],
+    ["gemma", "frontier", 0.7],
 
     // Frontier radiates into the four capability branches
     ["frontier", "visual", 0.9],
@@ -89,6 +92,10 @@ const CORTEX_DATA: { nodes: CortexNode[]; edges: CortexEdge[] } = {
     ["flow", "nano", 0.9],
     ["flow", "veo", 0.9],
     ["flow", "omni", 0.7],
+    // Other visual engines outside the Flow surface
+    ["visual", "flux", 0.8],
+    ["visual", "fluxctx", 0.7],
+    ["visual", "runway", 0.8],
 
     // Sound: three peer tools
     ["sound", "lyria", 0.9],
@@ -169,9 +176,18 @@ interface CortexProps {
   variant?: "hero" | "tech";
 }
 
+// Mobile stat-strip values — derived from CORTEX_DATA so they stay accurate
+// when the graph grows. The qualitative VLAN / uptime stats are stylized
+// (they describe how the homelab is wired, not a count).
 const TECH_STATS = [
-  { value: "14", label: "nodes" },
-  { value: "16", label: "active edges" },
+  {
+    value: String(CORTEX_DATA.nodes.filter((n) => n.kind === "project").length),
+    label: "nodes",
+  },
+  {
+    value: String(CORTEX_DATA.edges.length),
+    label: "active edges",
+  },
   { value: "VLAN", label: "isolated" },
   { value: "24/7", label: "uptime" },
 ] as const;

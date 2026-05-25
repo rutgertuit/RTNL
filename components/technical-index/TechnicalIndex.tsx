@@ -79,11 +79,11 @@ export function TechnicalIndex() {
         <header className="rt-tech__head">
           <div className="eyebrow eyebrow--warm">03 · TECHNICAL / DEEP END</div>
           <h2 className="rt-tech__title">
-            Six projects, one rack, one Pi5 named hermes.
+            Six projects, one rack, one Pi5 named Hermes.
           </h2>
           <p className="rt-tech__lead">
-            Built locally, broken locally, documented in the order I figured them out. Not a portfolio —
-            a log of what runs on top of which other piece.
+            Built locally, broken locally, documented in the order I figured them out. Not a
+            portfolio &mdash; a log of what runs on top of which other piece.
           </p>
         </header>
 
@@ -94,10 +94,10 @@ export function TechnicalIndex() {
           </div>
           <div className="rt-tech__topology-readout">
             <div>
-              <strong>14</strong> nodes
+              <strong>22</strong> nodes
             </div>
             <div>
-              <strong>16</strong> active edges
+              <strong>30</strong> active edges
             </div>
             <div>VLAN · isolated</div>
           </div>

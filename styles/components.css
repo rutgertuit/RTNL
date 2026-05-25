@@ -487,6 +487,21 @@ body { padding-top: 0; }
   line-height: var(--lh-lead);
   color: var(--color-fg-1);
 }
+.rt-hero__lead + .rt-hero__lead {
+  margin-top: var(--space-3);
+}
+/* The closing "Nothing on this site was hand-touched..." line gets a small
+   warm-accent rule above it so it reads as the page's positioning stamp. */
+.rt-hero__lead--stamp {
+  margin-top: var(--space-5);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-accent-warm);
+  font-size: var(--fs-200);
+  color: var(--color-fg-1);
+}
+.rt-hero__lead--stamp strong {
+  font-weight: var(--fw-medium);
+}
 
 /* ============================================================
    HERO INDEX (formerly "strip") — typographic, no boxes.

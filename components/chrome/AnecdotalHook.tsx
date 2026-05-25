@@ -9,13 +9,13 @@ export function AnecdotalHook() {
       <div className="container">
         <div className="rt-hook__inner">
           <div className="rt-hook__brow">
-            <span className="rt-hook__brow-num">01</span>
-            <span className="eyebrow eyebrow--warm">WHAT&apos;S HERE</span>
+            <span className="eyebrow eyebrow--warm">WHAT&apos;S ON THIS SITE</span>
             <span className="eyebrow">RUTGER TUIT · 2026</span>
           </div>
           <p className="rt-hook__pull" id="hook-title">
-            Three articles, six side projects, one homelab — <em>the work I keep coming back to</em>
-            with the agencies and brand teams I sit across from.
+            Side-line learnings worth sharing &mdash; from my own AI experiments, the day job, and
+            the networks I sit in. Notes on creative AI in <em>music, video, and games.</em> And a
+            log of the technical projects running in the homelab.
           </p>
           <p className="rt-hook__body">
             None of it is finished. All of it is up for discussion. Drop a note if any of it is
