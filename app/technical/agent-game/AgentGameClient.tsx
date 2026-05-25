@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useReducer, useEffect, useState, useRef } from "react";
+import React, { useReducer, useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
 // Site Nav/Footer/AppChrome intentionally NOT imported — this route is
 // a full-screen game canvas. A small "← rt.nl" link inside the game header
@@ -29,6 +29,8 @@ export type Action =
   | { type: "LOAD_STATE"; state: GameState }
   | { type: "CHOOSE_EVENT_OPTION"; option: "A" | "B" }
   | { type: "DRAFT_CARD"; cardId: string }
+  | { type: "SKIP_DRAFT" }
+  | { type: "UNDO" }
   | { type: "DISMISS_TUTORIAL"; turn: number };
 
 // Tutorial gating — mechanics unlock by turn so new players see one
@@ -73,6 +75,12 @@ const INITIAL_DECK = [
   "powerpoint_clinic",
   "koffie_apparaat",
 ];
+
+/** Returns the famous-person display name for log messages and tooltips.
+ *  Falls back to emp.name for legacy state without a traitId. */
+function getDisplayName(emp: { name: string; traitId?: string }): string {
+  return (emp.traitId ? TRAIT_DATABASE[emp.traitId]?.displayName : undefined) ?? emp.name;
+}
 
 function shuffleArray<T>(array: T[]): T[] {
   const arr = [...array];
@@ -197,6 +205,7 @@ function gameReducer(state: GameState, action: Action): GameState {
     (state.activeEventId !== null || state.draftChoices !== null) &&
     action.type !== "CHOOSE_EVENT_OPTION" &&
     action.type !== "DRAFT_CARD" &&
+    action.type !== "SKIP_DRAFT" &&
     action.type !== "RESET_GAME" &&
     action.type !== "LOAD_STATE"
   ) {
@@ -209,6 +218,16 @@ function gameReducer(state: GameState, action: Action): GameState {
 
     case "RESET_GAME":
       return createInitialState(action.difficulty);
+
+    case "UNDO": {
+      if (!state.lastSnapshot) return state;
+      return state.lastSnapshot;
+    }
+
+    case "SKIP_DRAFT": {
+      if (!state.draftChoices) return state;
+      return { ...state, draftChoices: null };
+    }
 
     case "DISMISS_TUTORIAL": {
       const dismissed = state.tutorialDismissed ?? [];
@@ -283,11 +302,13 @@ function gameReducer(state: GameState, action: Action): GameState {
     }
 
     case "DRAFT_CARD": {
+      // Single log emission — reducer is the source of truth. No useEffect re-fires this.
+      // Guard: if draftChoices already cleared (e.g. StrictMode double-dispatch), bail early.
       if (state.isGameOver || !state.draftChoices) return state;
       const card = CARD_DATABASE[action.cardId];
       if (!card) return state;
 
-      const logs = [`🃏 Drafted Card: ${card.name} has been added to your hand and deck discard pile.`];
+      const logs = [`🃏 Drafted Card: ${card.name} added to hand.`];
 
       // Add to hand and discard pile (deck structure)
       const nextHand = [...state.cardsHand, action.cardId];
@@ -297,7 +318,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         ...state,
         cardsHand: nextHand,
         cardsDiscard: nextDiscard,
-        draftChoices: null, // Clear draft overlay blocker
+        draftChoices: null, // Clear overlay — second dispatch sees draftChoices=null and returns early
         eventLog: [...state.eventLog, ...logs],
       };
     }
@@ -349,6 +370,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         cash: state.cash - cost,
         employees: [...state.employees, newEmployee],
         hiredThisTurn: true,
+        lastSnapshot: { ...state, lastSnapshot: null },
         eventLog: [
           ...state.eventLog,
           `💼 Hired ${traitInfo.displayName} for $30,000 (onboarding: ${state.hasDocumentation ? "3" : "6"} turns).`,
@@ -406,6 +428,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         cash: state.cash - cost,
         employees: [...state.employees, newAgent],
         hiredThisTurn: true,
+        lastSnapshot: { ...state, lastSnapshot: null },
         eventLog: [
           ...state.eventLog,
           `🤖 Hired AI Cognitive Agent ${name} for $15,000. Required: Markdown Wiki documentation active for proper synergy.`,
@@ -439,13 +462,13 @@ function gameReducer(state: GameState, action: Action): GameState {
       if (emp.type === "agent") {
         return {
           ...state,
-          eventLog: [...state.eventLog, `Cannot promote ${emp.name}: AI Agents do not receive human title promotions.`],
+          eventLog: [...state.eventLog, `Cannot promote ${getDisplayName(emp)}: AI Agents do not receive human title promotions.`],
         };
       }
       if (emp.promotionLevel >= 3) {
         return {
           ...state,
-          eventLog: [...state.eventLog, `Cannot promote ${emp.name}: already at max Level 3.`],
+          eventLog: [...state.eventLog, `Cannot promote ${getDisplayName(emp)}: already at max Level 3.`],
         };
       }
 
@@ -455,18 +478,18 @@ function gameReducer(state: GameState, action: Action): GameState {
           ...state,
           eventLog: [
             ...state.eventLog,
-            `Cannot promote ${emp.name}: insufficient cash (requires $${cost.toLocaleString()}).`,
+            `Cannot promote ${getDisplayName(emp)}: insufficient cash (requires $${cost.toLocaleString()}).`,
           ],
         };
       }
 
       const nextLevel = (emp.promotionLevel + 1) as 1 | 2 | 3;
       const hasPDP = emp.hasPDP;
-      const logs = [`📈 Promoted ${emp.name} to Level ${nextLevel} for $${cost.toLocaleString()}.`];
+      const logs = [`📈 Promoted ${getDisplayName(emp)} to Level ${nextLevel} for $${cost.toLocaleString()}.`];
 
       if (!hasPDP) {
         logs.push(
-          `⚠️ WARNING: ${emp.name} promoted without a Build-Plan PDP! -30% productivity penalty and double loyalty decay applied.`
+          `⚠️ WARNING: ${getDisplayName(emp)} promoted without a Build-Plan PDP! -30% productivity penalty and double loyalty decay applied.`
         );
       }
 
@@ -492,7 +515,7 @@ function gameReducer(state: GameState, action: Action): GameState {
             loyaltyVal = Math.min(100, loyaltyVal + 8);
           }
           if (!isMargaretPatcher && e.promotionLevel < nextLevel && e.type === "human") {
-            logs.push(`✨ ${e.name} is inspired by ${emp.name}'s promotion! (+50% productivity for 5 turns)`);
+            logs.push(`✨ ${getDisplayName(e)} is inspired by ${getDisplayName(emp)}'s promotion! (+50% productivity for 5 turns)`);
             return {
               ...e,
               inspirationTurnsLeft: 5,
@@ -512,6 +535,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         cash: state.cash - cost,
         employees: updatedEmployees,
         promotionsThisTurn: (state.promotionsThisTurn ?? 0) + 1,
+        lastSnapshot: { ...state, lastSnapshot: null },
         eventLog: [...state.eventLog, ...logs],
       };
     }
@@ -553,6 +577,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         cash: state.cash - cost,
         okrLevel: nextOkr,
         redefinedOkrsThisTurn: true,
+        lastSnapshot: { ...state, lastSnapshot: null },
         eventLog: [...state.eventLog, ...logs],
       };
     }
@@ -616,7 +641,7 @@ function gameReducer(state: GameState, action: Action): GameState {
       } else if (card.id === "pdp") {
         updatedEmployees = updatedEmployees.map((e) => {
           if (e.id === action.targetEmployeeId) {
-            logs.push(`📋 Applied Build-Plan PDP to ${e.name}. They can now be promoted safely.`);
+            logs.push(`📋 Applied Build-Plan PDP to ${getDisplayName(e)}. They can now be promoted safely.`);
             return { ...e, hasPDP: true };
           }
           return e;
@@ -626,7 +651,7 @@ function gameReducer(state: GameState, action: Action): GameState {
           if (e.id === action.targetEmployeeId) {
             const isMarieFurie = e.traitId === "furie";
             const loyaltyGain = isMarieFurie ? 50 : 35;
-            logs.push(`🍔 ${e.name} ate two kroketten. Loyalty +${loyaltyGain}${isMarieFurie ? " (Marie Furie Radical Energy bonus!)" : ""}, but fell asleep ('tapped') for 1 turn.`);
+            logs.push(`🍔 ${getDisplayName(e)} ate two kroketten. Loyalty +${loyaltyGain}${isMarieFurie ? " (Marie Furie Radical Energy bonus!)" : ""}, but fell asleep ('tapped') for 1 turn.`);
             return { ...e, loyalty: Math.min(100, e.loyalty + loyaltyGain), isAsleep: true };
           }
           return e;
@@ -634,12 +659,12 @@ function gameReducer(state: GameState, action: Action): GameState {
       } else if (card.id === "hei_sessie") {
         const promoter = updatedEmployees.find((e) => e.id === action.targetEmployeeId);
         if (promoter) {
-          logs.push(`🌲 Hei-sessie: ${promoter.name} is inspired (+20 Loyalty, +50% productivity for 5 turns).`);
+          logs.push(`🌲 Hei-sessie: ${getDisplayName(promoter)} is inspired (+20 Loyalty, +50% productivity for 5 turns).`);
           updatedEmployees = updatedEmployees.map((e) => {
             if (e.id === action.targetEmployeeId) {
               return { ...e, loyalty: Math.min(100, e.loyalty + 20), inspirationTurnsLeft: 5 };
             } else if (e.promotionLevel < promoter.promotionLevel && e.type === "human") {
-              logs.push(`✨ ${e.name} is inspired by ${promoter.name}'s leadership!`);
+              logs.push(`✨ ${getDisplayName(e)} is inspired by ${getDisplayName(promoter)}'s leadership!`);
               return { ...e, inspirationTurnsLeft: 5 };
             }
             return e;
@@ -692,7 +717,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         updatedEmployees = updatedEmployees.map((e) => {
           if (e.id === action.targetEmployeeId) {
             logs.push(
-              `📊 ${e.name} attended PowerPoint Clinic. Loyalty +40, but PowerPoint Poisoning applied (-20% productivity for 3 turns).`
+              `📊 ${getDisplayName(e)} attended PowerPoint Clinic. Loyalty +40, but PowerPoint Poisoning applied (-20% productivity for 3 turns).`
             );
             return { ...e, loyalty: Math.min(100, e.loyalty + 40), pptPoisoningTurns: 3 };
           }
@@ -727,6 +752,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         cardsHand: nextHand,
         cardsDiscard: nextDiscard,
         playedCardThisTurn: true,
+        lastSnapshot: { ...state, lastSnapshot: null },
         eventLog: [...state.eventLog, ...logs],
       };
     }
@@ -755,9 +781,9 @@ function gameReducer(state: GameState, action: Action): GameState {
         if (e.turnsOnboarded < employeeOnboardingTarget) {
           const nextOnboard = e.turnsOnboarded + 1;
           if (nextOnboard === employeeOnboardingTarget) {
-            logs.push(`🎉 ${e.name} is now fully onboarded and ready at 100% capacity.`);
+            logs.push(`🎉 ${getDisplayName(e)} is now fully onboarded and ready at 100% capacity.`);
           } else {
-            logs.push(`📈 ${e.name} onboarding progress: ${nextOnboard}/${employeeOnboardingTarget} turns.`);
+            logs.push(`📈 ${getDisplayName(e)} onboarding progress: ${nextOnboard}/${employeeOnboardingTarget} turns.`);
           }
           return {
             ...e,
@@ -817,7 +843,7 @@ function gameReducer(state: GameState, action: Action): GameState {
           let agentLoyalty = e.loyalty;
           if (!state.hasDocumentation) {
             agentLoyalty = Math.max(0, agentLoyalty - 15);
-            logs.push(`⚠️ ${e.name} is hallucinating due to lack of docs. Core alignment drops.`);
+            logs.push(`⚠️ ${getDisplayName(e)} is hallucinating due to lack of docs. Core alignment drops.`);
           }
           if (agentLoyalty > 0) {
             activeEmployeesAfterTurn.push({
@@ -826,7 +852,7 @@ function gameReducer(state: GameState, action: Action): GameState {
               isAsleep: false,
             });
           } else {
-            logs.push(`❌ CRASH: AI Agent ${e.name} has suffered token collapse and crashed.`);
+            logs.push(`❌ CRASH: AI Agent ${getDisplayName(e)} has suffered token collapse and crashed.`);
           }
           return;
         }
@@ -938,10 +964,10 @@ function gameReducer(state: GameState, action: Action): GameState {
         }
 
         if (nextLoyalty === 0) {
-          logs.push(`❌ RESIGNATION: ${e.name} has resigned in protest of corporate alignment meetings.`);
+          logs.push(`❌ RESIGNATION: ${getDisplayName(e)} has resigned in protest of corporate alignment meetings.`);
         } else if (nextLoyalty <= 20) {
           logs.push(
-            `⚠️ WARNING: ${e.name} loyalty is critical (${Math.floor(nextLoyalty)}%)! Promote them or play Broodje Kroket.`
+            `⚠️ WARNING: ${getDisplayName(e)} loyalty is critical (${Math.floor(nextLoyalty)}%)! Promote them or play Broodje Kroket.`
           );
         }
 
@@ -1108,6 +1134,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         ...state,
         turn: currentTurn + 1,
         cash: nextCash,
+        prevCash: state.cash, // capture pre-turn cash for delta display
         valuation: nextValuation,
         agentVersion: nextAgentVersion,
         employees: activeEmployeesAfterTurn,
@@ -1129,6 +1156,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         surgeTurnsLeft: nextSurgeTurnsLeft,
         surgeThrottledTurnsLeft: nextSurgeThrottledTurnsLeft,
         freezeHiringNextTurn: false, // Decays at the end of the turn
+        lastSnapshot: null, // GG.2: clear undo snapshot at turn boundary
         eventLog: [...state.eventLog, ...logs],
       };
     }
@@ -1148,13 +1176,13 @@ interface TutorialStep {
 const TUTORIAL_STEPS: Record<number, TutorialStep> = {
   1: {
     eyebrow: "DAY ONE",
-    title: "Welcome to your new consultancy.",
+    title: "Day One — Welcome to your new consultancy.",
     body: [
-      "You inherited the company yesterday. The goal: keep this thing afloat for 30 turns and hit your difficulty's valuation target.",
-      "Pacing rule (all game): one hire, one OKR redefine, one card, and one promotion per turn — that's it. You play this game like chess, not Monopoly.",
-      "Today: meet your team. Each desk shows 🔨 productivity and ❤ loyalty. Pick ONE move (hire $30k, or redefine OKRs $10k), then NEXT TURN.",
+      "You inherited the company yesterday. The goal: keep this thing afloat for 30 turns and reach the valuation target for your difficulty (Boardroom $1.1B · Reality $25B · ZIRP $140B).",
+      "Each turn you get one of each: one hire, one OKR redefine, one card play, one promotion. You don't have to take all four — pacing matters more than spending.",
+      "Today: meet your team. Each desk shows 🔨 productivity and ❤ loyalty. Pick at most one move (a hire, or an OKR redefine), then NEXT TURN.",
     ],
-    cta: "Got it — show me my desk",
+    cta: "Got it — show me my desk →",
   },
   2: {
     eyebrow: "TURN TWO · ONBOARDING",
@@ -1198,35 +1226,6 @@ const TUTORIAL_STEPS: Record<number, TutorialStep> = {
   },
 };
 
-const playSound = (soundName: string) => {
-  if (typeof window === "undefined") return;
-  try {
-    const audio = new Audio(`/audio/sfx/${soundName}.mp3`);
-    audio.volume = 0.25; // Subtle, non-intrusive volume
-    audio.play().catch((err) => {
-      if (err.name !== "AbortError") {
-        console.warn("Audio playback failed:", err);
-      }
-    });
-  } catch (e) {
-    console.warn("Audio init failed:", e);
-  }
-};
-
-const playVoice = (voiceName: string) => {
-  if (typeof window === "undefined") return;
-  try {
-    const audio = new Audio(`/audio/voice/${voiceName}.mp3`);
-    audio.volume = 0.45; // Balanced voiceover volume
-    audio.play().catch((err) => {
-      if (err.name !== "AbortError") {
-        console.warn("Voice playback failed:", err);
-      }
-    });
-  } catch (e) {
-    console.warn("Voice init failed:", e);
-  }
-};
 
 // ============================================================
 // Main Client UI
@@ -1262,52 +1261,16 @@ export default function AgentGameClient() {
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [showDifficultySelector, setShowDifficultySelector] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
-  const [resetConfirmMode, setResetConfirmMode] = useState(false);
   const [copiedText, setCopiedText] = useState(false);
   // Full-screen v3: bottom-drawer state — at most one drawer open at a time.
   const [drawer, setDrawer] = useState<"log" | "cards" | "details" | null>(null);
+  // Fix FF: trait popover open state per employee id
+  const [traitPopoverOpen, setTraitPopoverOpen] = useState<Record<string, boolean>>({});
+  // Sub-step 4: help modal open state (separate from showTutorial which is the full tutorial)
+  const [helpOpen, setHelpOpen] = useState(false);
 
-  const [musicPlaying, setMusicPlaying] = useState(false);
-  const [musicVolume, setMusicVolume] = useState(0.15);
-  const bgMusicRef = useRef<HTMLAudioElement | null>(null);
-
-  // Initialize background music
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const audio = new window.Audio("/audio/music/background.mp3");
-    audio.loop = true;
-    bgMusicRef.current = audio;
-
-    return () => {
-      audio.pause();
-      bgMusicRef.current = null;
-    };
-  }, []);
-
-  // Update play state
-  useEffect(() => {
-    if (!bgMusicRef.current) return;
-    if (musicPlaying) {
-      bgMusicRef.current.play().catch((err) => {
-        if (err.name !== "AbortError") {
-          console.warn("Background music play failed:", err);
-        }
-      });
-    } else {
-      bgMusicRef.current.pause();
-    }
-  }, [musicPlaying]);
-
-  // Update volume state
-  useEffect(() => {
-    if (bgMusicRef.current) {
-      bgMusicRef.current.volume = musicVolume;
-    }
-  }, [musicVolume]);
-  
   const logContainerRef = useRef<HTMLDivElement | null>(null);
-  const cardElementsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const resetTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const cardElementsRef = useRef<(HTMLButtonElement | null)[]>([]);
 
   // 1. Initial Load from LocalStorage (with schema validation guard)
   useEffect(() => {
@@ -1346,7 +1309,7 @@ export default function AgentGameClient() {
     }
   }, [state.eventLog]);
 
-  // 4. Keyboard Listener for Ctrl + Enter
+  // 4. Keyboard Listener for Ctrl + Enter and Escape (closes trait popovers)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key === "Enter") {
@@ -1355,63 +1318,108 @@ export default function AgentGameClient() {
         dispatch({ type: "END_TURN" });
         setSelectedCardId(null);
       }
+      if (e.key === "Escape") {
+        setTraitPopoverOpen({});
+        setHelpOpen(false);
+        setShowTutorial(false);
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [state]);
 
-  // 5. Audio effects triggers for turn progression and game ending states
+  // Sub-step 13: H/O/C/P keyboard shortcuts for game actions
   useEffect(() => {
-    if (state.turn > 1 && !state.isGameOver) {
-      playSound("card-draw");
-    }
-  }, [state.turn, state.isGameOver]);
+    const onKey = (e: KeyboardEvent) => {
+      // Don't fire when typing in a form input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      // Don't fire when any modal/tutorial is open
+      if (helpOpen || showTutorial || showDifficultySelector || state.activeEventId || state.draftChoices || state.isGameOver) return;
 
-  useEffect(() => {
-    if (state.isGameOver) {
-      if (state.gameResult === "win") {
-        playSound("game-win");
-      } else if (state.gameResult === "lose") {
-        playSound("game-lose");
+      switch (e.key.toLowerCase()) {
+        case "h": {
+          const canHire = !state.hiredThisTurn && state.cash >= 30000 && !state.freezeHiringNextTurn;
+          if (canHire) {
+            e.preventDefault();
+            dispatch({ type: "EMPLOY_WORKER" });
+          }
+          break;
+        }
+        case "o": {
+          const canOkr = !state.redefinedOkrsThisTurn && state.cash >= 10000 && state.okrLevel < 5;
+          if (canOkr) {
+            e.preventDefault();
+            dispatch({ type: "REDEFINE_OKRS" });
+          }
+          break;
+        }
+        case "c": {
+          if (state.turn >= TURN_CARDS_UNLOCKED && state.cardsHand.length > 0) {
+            e.preventDefault();
+            setDrawer((d) => (d === "cards" ? null : "cards"));
+          }
+          break;
+        }
+        case "p": {
+          // Open promote: find first promotable fully-onboarded human at < L3 that isn't already at max
+          const promotable = state.employees.find(
+            (emp) =>
+              emp.type === "human" &&
+              emp.promotionLevel < 3 &&
+              emp.turnsOnboarded >= (state.hasDocumentation ? 3 : 6) &&
+              state.turn >= TURN_PROMOTION_UNLOCKED
+          );
+          if (promotable && (state.promotionsThisTurn ?? 0) < MAX_PROMOTIONS_PER_TURN) {
+            const cost = promotable.promotionLevel === 1 ? 15000 : 40000;
+            if (state.cash >= cost) {
+              e.preventDefault();
+              dispatch({ type: "PROMOTE_WORKER", employeeId: promotable.id });
+            }
+          }
+          break;
+        }
       }
-    }
-  }, [state.isGameOver, state.gameResult]);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [helpOpen, showTutorial, showDifficultySelector, state, drawer]);
 
-  // 6. Voiceover playback when a new employee is hired
-  const prevEmployeesCountRef = useRef(state.employees.length);
-  useEffect(() => {
-    if (state.employees.length > prevEmployeesCountRef.current && state.turn > 1) {
-      const newEmp = state.employees[state.employees.length - 1];
-      if (newEmp && newEmp.type === "human") {
-        const voiceKey = ["edgar", "jochem", "lous"].includes(newEmp.name.toLowerCase())
-          ? newEmp.name.toLowerCase()
-          : (newEmp.traitId || newEmp.name.toLowerCase());
-        setTimeout(() => {
-          playVoice(voiceKey);
-        }, 300);
+  // Sub-step 2: Group log entries by turn for display
+  const logsByTurn = useMemo(() => {
+    const groups = new Map<number, string[]>();
+    let currentTurn = 0;
+    for (const entry of state.eventLog) {
+      // Detect "--- TURN N SUMMARY ---" sentinel lines written by END_TURN
+      const turnMatch = /--- TURN (\d+) SUMMARY ---/.exec(entry);
+      if (turnMatch) {
+        currentTurn = Number(turnMatch[1]);
       }
+      if (!groups.has(currentTurn)) groups.set(currentTurn, []);
+      groups.get(currentTurn)!.push(entry);
     }
-    prevEmployeesCountRef.current = state.employees.length;
-  }, [state.employees, state.turn]);
+    return Array.from(groups.entries()).sort((a, b) => b[0] - a[0]); // most recent first
+  }, [state.eventLog]);
 
-  // Double-tap timer for reset
+
+  // Helper: compact money format for both reset confirm and post-mortem
+  const formatCash = (n: number): string => {
+    if (Math.abs(n) >= 1_000_000_000) return `$${(n / 1_000_000_000).toFixed(1)}B`;
+    if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
+    return `$${Math.round(n / 1000)}k`;
+  };
+
+  // Fix GG.1: Reset with window.confirm for safety
   const handleResetInitiate = () => {
-    if (resetConfirmMode) {
-      // Confirmed reset: show selector again
-      if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
-      setResetConfirmMode(false);
+    const ok = window.confirm(
+      `Reset this run? You're on turn ${state.turn} with ${formatCash(state.cash)} cash. This cannot be undone.`
+    );
+    if (ok) {
       setShowDifficultySelector(true);
-    } else {
-      // Initiate reset confirm mode
-      setResetConfirmMode(true);
-      resetTimerRef.current = setTimeout(() => {
-        setResetConfirmMode(false);
-      }, 2500); // 2.5s window
     }
   };
 
   const handleDifficultySelect = (difficulty: "boardroom" | "reality" | "zirp") => {
-    playSound("ui-click");
     dispatch({ type: "RESET_GAME", difficulty });
     setShowDifficultySelector(false);
     setSelectedCardId(null);
@@ -1419,7 +1427,6 @@ export default function AgentGameClient() {
 
   const handleCardClick = (cardId: string) => {
     if (state.isGameOver || state.activeEventId || state.draftChoices) return;
-    playSound("ui-click");
     if (selectedCardId === cardId) {
       setSelectedCardId(null);
     } else {
@@ -1429,7 +1436,6 @@ export default function AgentGameClient() {
 
   const handlePlayNoTargetCard = () => {
     if (!selectedCardId || state.activeEventId || state.draftChoices) return;
-    playSound("card-play");
     dispatch({ type: "PLAY_CARD", cardId: selectedCardId });
     setSelectedCardId(null);
   };
@@ -1440,7 +1446,6 @@ export default function AgentGameClient() {
     if (selectedCardId) {
       const card = CARD_DATABASE[selectedCardId];
       if (card && card.requiresTarget) {
-        playSound("card-play");
         dispatch({ type: "PLAY_CARD", cardId: selectedCardId, targetEmployeeId: employeeId });
         setSelectedCardId(null);
       }
@@ -1449,48 +1454,43 @@ export default function AgentGameClient() {
 
   const handlePromoteWorker = (employeeId: string) => {
     if (state.isGameOver || state.activeEventId || state.draftChoices) return;
-    playSound("ui-click");
     dispatch({ type: "PROMOTE_WORKER", employeeId });
-
-    // Play voiceover for promotion
-    const emp = state.employees.find((e) => e.id === employeeId);
-    if (emp && emp.type === "human") {
-      const voiceKey = ["edgar", "jochem", "lous"].includes(emp.name.toLowerCase())
-        ? emp.name.toLowerCase()
-        : (emp.traitId || emp.name.toLowerCase());
-      setTimeout(() => {
-        playVoice(voiceKey);
-      }, 300);
-    }
   };
 
   const handleHireWorker = () => {
     if (state.activeEventId || state.draftChoices) return;
-    playSound("ui-click");
     dispatch({ type: "EMPLOY_WORKER" });
   };
 
   const handleHireAgent = () => {
     if (state.activeEventId || state.draftChoices) return;
-    playSound("ui-click");
     dispatch({ type: "EMPLOY_AGENT" });
   };
 
   const handleRedefineOkrs = () => {
     if (state.activeEventId || state.draftChoices) return;
-    playSound("ui-click");
     dispatch({ type: "REDEFINE_OKRS" });
   };
 
   const handleEndTurn = () => {
     if (state.activeEventId || state.draftChoices) return;
-    playSound("turn-end");
     dispatch({ type: "END_TURN" });
     setSelectedCardId(null);
   };
 
   const handleCardKeyDown = (e: React.KeyboardEvent, cardId: string) => {
-    if (e.key === " " || e.key === "Enter") {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (selectedCardId === cardId) {
+        // Second Enter on already-selected card: play it
+        const card = CARD_DATABASE[cardId];
+        if (card && !card.requiresTarget) {
+          handlePlayNoTargetCard();
+        }
+      } else {
+        handleCardClick(cardId);
+      }
+    } else if (e.key === " ") {
       e.preventDefault();
       handleCardClick(cardId);
     }
@@ -1539,6 +1539,24 @@ export default function AgentGameClient() {
   // Win-threshold label for the stats strip
   const winThresholdLabel = state.difficulty === "boardroom" ? "$1.1B" : state.difficulty === "reality" ? "$25B" : "$140B";
 
+  // Cash delta — difference between current cash and the cash at start of last turn.
+  // Only meaningful after the first END_TURN (prevCash is undefined on turn 1).
+  const cashDelta = state.prevCash !== undefined ? state.cash - state.prevCash : null;
+
+  // Helper: compact money format matching the HUD tiles.
+  const formatDelta = (n: number): string => {
+    const abs = Math.abs(n);
+    if (abs >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
+    return `$${Math.round(n / 1000)}k`;
+  };
+
+  // P/E multiplier breakdown (mirrors the END_TURN computation in the reducer).
+  const peBase = 7;
+  const peDocBonus = state.hasDocumentation ? 3 + state.agentVersion * 4 : 0;
+  const peHypeBonus = state.hypeTurnsLeft > 0 ? 8 : 0;
+  const peBoardPenalty = (state.boardAngerTurns ?? 0) > 0 ? -10 : 0;
+  const peTotal = Math.max(1, peBase + peDocBonus + peHypeBonus + peBoardPenalty);
+
   return (
     <div className="sim-fs-root">
       {/* Full-screen game canvas — no site Nav/Footer/AppChrome on this route.
@@ -1546,12 +1564,16 @@ export default function AgentGameClient() {
           viewport and competing with the game for attention. This page now
           renders as its own application. */}
 
-      <main className="sim-fs sim-v2" id="game-content">
+      <section className="sim-fs sim-v2" id="game-content">
         {/* Compact game-canvas header */}
         <header className="sim-fs__head">
           <Link href="/" className="sim-fs__home" aria-label="Back to rutgertuit.nl">
             <span className="sim-fs__home-arrow" aria-hidden>←</span>
             <span className="sim-fs__home-label">rt.nl</span>
+          </Link>
+          <Link href="/business/agent-inclusive" className="sim-fs__born-from" aria-label="Read the source article: Agent Inclusive">
+            <span className="eyebrow">BORN FROM</span>
+            <span>Agent Inclusive →</span>
           </Link>
           <div className="sim-fs__head-mid">
             <span className="sim-fs__game-name">AGENT INCLUSIVE SIM</span>
@@ -1563,28 +1585,19 @@ export default function AgentGameClient() {
             <button
               type="button"
               className="sim-fs__head-btn"
-              onClick={() => setMusicPlaying(p => !p)}
-              title={musicPlaying ? "Mute music" : "Play music"}
-              aria-pressed={musicPlaying}
-            >
-              {musicPlaying ? "♫" : "🔇"}
-            </button>
-            <button
-              type="button"
-              className="sim-fs__head-btn"
-              onClick={() => setShowTutorial(true)}
-              title="Show tutorial"
-              aria-label="Show tutorial"
+              onClick={() => setHelpOpen(true)}
+              title="Show help / tutorial"
+              aria-label="Show help"
             >
               ?
             </button>
             <button
               type="button"
-              className={`sim-fs__head-btn sim-fs__head-btn--reset ${resetConfirmMode ? "is-confirm" : ""}`}
+              className="sim-fs__head-btn sim-fs__head-btn--reset"
               onClick={handleResetInitiate}
               title="Restart the simulation"
             >
-              {resetConfirmMode ? "Confirm?" : "Reset"}
+              Reset
             </button>
           </div>
         </header>
@@ -1595,7 +1608,7 @@ export default function AgentGameClient() {
           const dismissed = state.tutorialDismissed ?? [];
           if (!step || dismissed.includes(state.turn)) return null;
           return (
-            <div className="sim-tut" role="dialog" aria-live="polite" aria-label={step.title}>
+            <aside className="sim-tut sim-tut--banner" aria-live="polite" aria-label={step.title}>
               <div className="sim-tut__art" aria-hidden>
                 <span className="sim-tut__art-label">IMAGE · Turn {state.turn}</span>
               </div>
@@ -1621,7 +1634,7 @@ export default function AgentGameClient() {
               >
                 ×
               </button>
-            </div>
+            </aside>
           );
         })()}
 
@@ -1636,6 +1649,14 @@ export default function AgentGameClient() {
                   : `${Math.round(state.cash / 1000)}k`
               }
             </span>
+            {cashDelta !== null && (
+              <div
+                className={`sim-hud__delta ${cashDelta >= 0 ? "is-positive" : "is-negative"}`}
+                aria-label={`Cash change this turn: ${cashDelta >= 0 ? "+" : ""}${formatDelta(cashDelta)}`}
+              >
+                {cashDelta >= 0 ? "▲" : "▼"} {formatDelta(Math.abs(cashDelta))}
+              </div>
+            )}
           </div>
           <div className="sim-fs__stat sim-fs__stat--primary" title={`Win at ${winThresholdLabel}`}>
             <span className="sim-fs__stat-label">Valuation</span>
@@ -1737,7 +1758,6 @@ export default function AgentGameClient() {
                         ].filter(Boolean).join(" ")}
                         role={isTargetable ? "button" : undefined}
                         aria-label={`${displayName}, ${isAgent ? "Cognitive Agent" : `Level ${emp.promotionLevel}`}, productivity ${productivity}%, loyalty ${emp.loyalty}%`}
-                        title={traitInfo ? `${traitInfo.passiveName}: ${traitInfo.description}` : undefined}
                       >
                         <div className="sim-desk__badges">
                           {emp.isAsleep && <span className="sim-desk__badge" title="Asleep this turn">💤</span>}
@@ -1785,7 +1805,24 @@ export default function AgentGameClient() {
                           )}
                         </svg>
                         <div className="sim-desk__info">
-                          <span className="sim-desk__name">{displayName}</span>
+                          <div className="sim-desk__name-row">
+                            <span className="sim-desk__name">{displayName}</span>
+                            {traitInfo && (
+                              <button
+                                type="button"
+                                className="sim-desk__trait-btn"
+                                aria-label={`${displayName} trait: ${traitInfo.passiveName}`}
+                                aria-expanded={!!traitPopoverOpen[emp.id]}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setTraitPopoverOpen((prev) => ({
+                                    ...prev,
+                                    [emp.id]: !prev[emp.id],
+                                  }));
+                                }}
+                              >i</button>
+                            )}
+                          </div>
                           <span className="sim-desk__level">
                             {isAgent ? "AI AGENT" : `L${emp.promotionLevel}`}
                             {!isOnboarded && !isAgent && (
@@ -1817,6 +1854,25 @@ export default function AgentGameClient() {
                             </span>
                           </div>
                         </div>
+                        {traitPopoverOpen[emp.id] && traitInfo && (
+                          <div
+                            role="dialog"
+                            aria-label={`${displayName} trait detail`}
+                            className="sim-desk__popover"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <strong>{traitInfo.passiveName}</strong>
+                            <p>{traitInfo.description}</p>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setTraitPopoverOpen((prev) => ({ ...prev, [emp.id]: false }));
+                              }}
+                              className="sim-desk__popover-close"
+                            >Close</button>
+                          </div>
+                        )}
                         {!isAgent && isOnboarded && emp.promotionLevel < 3 && state.turn >= TURN_PROMOTION_UNLOCKED && (
                           <button
                             onClick={(e) => { e.stopPropagation(); handlePromoteWorker(emp.id); }}
@@ -1863,14 +1919,19 @@ export default function AgentGameClient() {
                 !!state.hiredThisTurn
               }
               className={`sim-fs__move-btn ${state.hiredThisTurn ? "is-used" : ""}`}
-              title={state.hiredThisTurn ? "Already hired this turn — pacing matters." : ""}
+              title={state.hiredThisTurn ? "Already hired this turn — pacing matters." : "Hires a human employee ($30,000 upfront). Generates revenue at their level once fully onboarded (6 turns, or 3 with Markdown Wiki). Salary: $8k/turn at L1, $18k at L2, $45k at L3."}
+              aria-describedby="hire-human-help"
             >
               <span className="sim-fs__move-btn-name">
                 {state.hiredThisTurn ? "✓ Hired this turn" : "Hire Human"}
               </span>
               <span className="sim-fs__move-btn-cost">$30k</span>
             </button>
+            <div id="hire-human-help" className="sr-only">
+              Hires a human employee ($30,000 upfront). Generates revenue at their level once fully onboarded (6 turns, or 3 with Markdown Wiki). Salary: $8k/turn at L1, $18k at L2, $45k at L3.
+            </div>
             {state.turn >= TURN_AGENT_UNLOCKED ? (
+              <>
               <button
                 type="button"
                 onClick={handleHireAgent}
@@ -1882,13 +1943,18 @@ export default function AgentGameClient() {
                   !!state.hiredThisTurn
                 }
                 className={`sim-fs__move-btn ${state.hiredThisTurn ? "is-used" : ""}`}
-                title={state.hiredThisTurn ? "Already hired this turn — pacing matters." : ""}
+                title={state.hiredThisTurn ? "Already hired this turn — pacing matters." : "Deploys a Cognitive Agent ($15,000 upfront, no ongoing salary). With Markdown Wiki: boosts each human +25% productivity. Without docs: costs $10k/turn maintenance and drains team loyalty."}
+                aria-describedby="hire-agent-help"
               >
                 <span className="sim-fs__move-btn-name">
                   {state.hiredThisTurn ? "✓ Hired this turn" : "Hire Cognitive Agent"}
                 </span>
                 <span className="sim-fs__move-btn-cost">$15k</span>
               </button>
+              <div id="hire-agent-help" className="sr-only">
+                Deploys a Cognitive Agent ($15,000 upfront, no ongoing salary). With Markdown Wiki: boosts each human +25% productivity. Without docs: costs $10k/turn maintenance and drains team loyalty.
+              </div>
+              </>
             ) : (
               <button
                 type="button"
@@ -1911,13 +1977,17 @@ export default function AgentGameClient() {
                 state.redefinedOkrsThisTurn
               }
               className={`sim-fs__move-btn ${state.redefinedOkrsThisTurn ? "is-used" : ""}`}
-              title={state.redefinedOkrsThisTurn ? "Already redefined this turn — the team can't handle two alignment meetings." : ""}
+              title={state.redefinedOkrsThisTurn ? "Already redefined this turn — the team can't handle two alignment meetings." : "Adds one OKR Level ($10,000). Permanently increases global productivity by +15% per level. Costs 40% productivity this turn (alignment meeting penalty)."}
+              aria-describedby="okr-help"
             >
               <span className="sim-fs__move-btn-name">
                 {state.redefinedOkrsThisTurn ? "✓ OKRs redefined" : "Redefine OKRs"}
               </span>
               <span className="sim-fs__move-btn-cost">$10k</span>
             </button>
+            <div id="okr-help" className="sr-only">
+              Adds one OKR Level ($10,000). Permanently increases global productivity by +15% per level. Costs 40% productivity this turn (alignment meeting penalty).
+            </div>
             {state.turn >= TURN_CARDS_UNLOCKED ? (
               <button
                 type="button"
@@ -1942,11 +2012,14 @@ export default function AgentGameClient() {
               </button>
             )}
           </div>
-          {state.turn >= TURN_PROMOTION_UNLOCKED && (
-            <p className="sim-fs__move-hint">
-              + Click <em>Promote</em> on a desk to promote one employee per turn.
-            </p>
-          )}
+          <p className="sim-fs__move-hint">
+            {drawer === "cards"
+              ? <>+ Click a card to select. Click again, double-click, or press <kbd>Enter</kbd> to play.</>
+              : state.turn >= TURN_PROMOTION_UNLOCKED
+                ? <>+ Click <em>Promote</em> on a desk to promote one employee per turn.</>
+                : null
+            }
+          </p>
         </section>
 
         {/* Next Turn — primary CTA */}
@@ -1959,7 +2032,17 @@ export default function AgentGameClient() {
           >
             Next Turn <span aria-hidden>→</span>
           </button>
-          <div className="sim-fs__next-hint">
+          {state.lastSnapshot && (
+            <button
+              type="button"
+              className="sim-undo"
+              onClick={() => dispatch({ type: "UNDO" })}
+              aria-label="Undo last action"
+            >
+              ↶ Undo
+            </button>
+          )}
+          <div className="sim-fs__next-hint sim-next-shortcut">
             Shortcut: <kbd>Ctrl + Enter</kbd>
           </div>
         </div>
@@ -1996,16 +2079,29 @@ export default function AgentGameClient() {
 
         {drawer === "log" && (
           <div className="sim-fs__drawer-panel sim-fs__drawer-panel--log" role="region" aria-label="Game log">
-            <div className="sim-log-box" ref={logContainerRef}>
+            {/* Sub-step 8: aria-live for most recent log entry (screen readers) */}
+            {state.eventLog.length > 0 && (
+              <div className="sr-only" aria-live="polite" aria-atomic="true" role="status">
+                {state.eventLog[state.eventLog.length - 1] ?? ""}
+              </div>
+            )}
+            {/* Sub-step 2: grouped log by turn using <details> */}
+            <div className="sim-log sim-log-box" ref={logContainerRef}>
               <div style={{ color: "var(--color-fg-3)", borderBottom: "1px dashed var(--color-fg-4)", paddingBottom: "var(--space-2)", marginBottom: "var(--space-2)" }}>
                 [ --- LIVE SPRINT LEDGER --- ]
               </div>
-              {state.eventLog.map((log, index) => (
-                <div key={index} className="sim-log-entry">{log}</div>
+              {logsByTurn.map(([turn, entries]) => (
+                <details key={turn} open={turn === state.turn - 1 || turn === 0}>
+                  <summary>
+                    {turn === 0 ? "Setup" : `Turn ${turn}`} ({entries.length} {entries.length === 1 ? "event" : "events"})
+                  </summary>
+                  <ul>
+                    {entries.map((entry, i) => (
+                      <li key={`${turn}-${i}`} className="sim-log-entry">{entry}</li>
+                    ))}
+                  </ul>
+                </details>
               ))}
-            </div>
-            <div className="sr-only" aria-live="polite">
-              {state.eventLog[state.eventLog.length - 1]}
             </div>
           </div>
         )}
@@ -2017,38 +2113,33 @@ export default function AgentGameClient() {
                 ✓ You&apos;ve played a card this turn. End the turn to play another.
               </div>
             )}
-            {selectedCard && !selectedCard.requiresTarget && !state.playedCardThisTurn && (
-              <div style={{ display: "flex", justifyContent: "center", marginBottom: "var(--space-2)" }}>
-                <button
-                  type="button"
-                  onClick={handlePlayNoTargetCard}
-                  className="button button--warm"
-                  style={{ maxWidth: "300px", padding: "8px 16px" }}
-                >
-                  ▶ Play {selectedCard.name}
-                </button>
-              </div>
-            )}
             <div className="sim-hand-shelf" role="group" aria-label="Cards in hand">
               {state.cardsHand.map((cardId, index) => {
                 const card = CARD_DATABASE[cardId];
                 if (!card) return null;
                 const isSelected = selectedCardId === cardId;
                 return (
-                  <div
+                  <button
                     key={`${cardId}-${index}`}
+                    type="button"
                     onClick={() => handleCardClick(cardId)}
+                    onDoubleClick={() => {
+                      if (!card.requiresTarget && !state.playedCardThisTurn) {
+                        setSelectedCardId(cardId);
+                        dispatch({ type: "PLAY_CARD", cardId });
+                        setSelectedCardId(null);
+                      }
+                    }}
                     onKeyDown={(e) => handleCardKeyDown(e, cardId)}
-                    ref={(el) => { cardElementsRef.current[index] = el; }}
+                    ref={(el) => { cardElementsRef.current[index] = el as HTMLButtonElement | null; }}
                     tabIndex={0}
                     className={`mtg-card mtg-card--${card.class} ${isSelected ? "mtg-card--selected" : ""}`}
-                    onMouseEnter={() => playSound("ui-hover")}
-                    role="button"
-                    aria-label={`${card.name}, Cost: ${card.cost}. ${card.rulesText}`}
+                    aria-label={`${card.name}, Cost: ${card.cost}. ${card.rulesText}${isSelected && !card.requiresTarget ? ". Press Enter to play." : ""}`}
+                    aria-pressed={isSelected}
                   >
                     <div className="mtg-card__header">
                       <h3 className="mtg-card__name" style={{ fontSize: "13px" }}>{card.name}</h3>
-                      <span className="mtg-card__cost">${(card.cost / 1000)}k</span>
+                      <span className="mtg-card__cost">play ${(card.cost / 1000)}k</span>
                     </div>
                     <div className="mtg-card__type">Sorcery — {card.class}</div>
                     <div className="mtg-card__art-window">
@@ -2058,7 +2149,29 @@ export default function AgentGameClient() {
                       <p className="mtg-card__rules">{card.rulesText}</p>
                       <p className="mtg-card__flavor">{card.flavor}</p>
                     </div>
-                  </div>
+                    {isSelected && !card.requiresTarget && !state.playedCardThisTurn && (
+                      <span
+                        className="mtg-card__play"
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => { e.stopPropagation(); handlePlayNoTargetCard(); }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handlePlayNoTargetCard();
+                          }
+                        }}
+                      >
+                        Play this card <span aria-hidden>→</span>
+                      </span>
+                    )}
+                    {isSelected && card.requiresTarget && !state.playedCardThisTurn && (
+                      <span className="mtg-card__play mtg-card__play--target">
+                        Click a desk to target <span aria-hidden>→</span>
+                      </span>
+                    )}
+                  </button>
                 );
               })}
             </div>
@@ -2091,6 +2204,27 @@ export default function AgentGameClient() {
                 <span className="sim-fs__detail-hint">+8× P/E during hype</span>
               </div>
             </div>
+            <div className="sim-details__pe-breakdown">
+              <strong>P/E breakdown</strong>
+              <ul>
+                <li>Base {peBase}×</li>
+                {state.hasDocumentation && (
+                  <li>Docs + AI v{state.agentVersion} → +{peDocBonus}×</li>
+                )}
+                {state.hypeTurnsLeft > 0 && (
+                  <li>Hype window → +{peHypeBonus}× ({state.hypeTurnsLeft}t left)</li>
+                )}
+                {(state.boardAngerTurns ?? 0) > 0 && (
+                  <li>Board anger → {peBoardPenalty}× ({state.boardAngerTurns}t left)</li>
+                )}
+                <li><strong>Current {peTotal}×</strong></li>
+              </ul>
+            </div>
+            {/* Sub-step 9: Onboarding badge legend */}
+            <p className="sim-details__legend">
+              Legend: <code>1/6T</code> = onboarding turn 1 of 6.
+              With Markdown Wiki active: <code>1/3T</code>.
+            </p>
           </div>
         )}
 
@@ -2111,7 +2245,6 @@ export default function AgentGameClient() {
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
                   <button
                     onClick={() => {
-                      playSound("ui-click");
                       dispatch({ type: "CHOOSE_EVENT_OPTION", option: "A" });
                     }}
                     className="button button--warm"
@@ -2126,7 +2259,6 @@ export default function AgentGameClient() {
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
                   <button
                     onClick={() => {
-                      playSound("ui-click");
                       dispatch({ type: "CHOOSE_EVENT_OPTION", option: "B" });
                     }}
                     className="button"
@@ -2153,11 +2285,12 @@ export default function AgentGameClient() {
                   FEBO Card Automat
                 </h2>
                 <p className="sim-modal__text" style={{ fontSize: "12px", color: "var(--color-fg-3)" }}>
-                  Insert alignment credits. Pull the glass window to draft your 5th card for this sprint turn.
+                  Pull a window to add one card to your hand. Free to draft — pay the play cost later.
                 </p>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "var(--space-4)" }}>
+              {/* Sub-step 7: febo-cards wrapper for mobile carousel snap */}
+              <div className="febo-cards" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "var(--space-4)" }}>
                 {state.draftChoices.map((cardId) => {
                   const card = CARD_DATABASE[cardId];
                   if (!card) return null;
@@ -2200,7 +2333,7 @@ export default function AgentGameClient() {
                       <div className={`mtg-card mtg-card--${card.class}`} style={{ transform: "scale(0.85)", transformOrigin: "top center", marginBottom: "-20px" }}>
                         <div className="mtg-card__header">
                           <h3 className="mtg-card__name" style={{ fontSize: "13px" }}>{card.name}</h3>
-                          <span className="mtg-card__cost">${(card.cost / 1000)}k</span>
+                          <span className="mtg-card__cost">play ${(card.cost / 1000)}k</span>
                         </div>
                         <div className="mtg-card__type">Sorcery — {card.class}</div>
                         <div className="mtg-card__art-window">
@@ -2214,7 +2347,6 @@ export default function AgentGameClient() {
                       {/* Slot Pull Button */}
                       <button
                         onClick={() => {
-                          playSound("card-draw");
                           dispatch({ type: "DRAFT_CARD", cardId });
                         }}
                         className="button button--warm"
@@ -2235,6 +2367,16 @@ export default function AgentGameClient() {
                     </div>
                   );
                 })}
+              </div>
+              {/* GG.3: Skip draft — dismiss FEBO without taking a card */}
+              <div style={{ textAlign: "center", marginTop: "var(--space-4)" }}>
+                <button
+                  type="button"
+                  className="sim-febo__skip"
+                  onClick={() => dispatch({ type: "SKIP_DRAFT" })}
+                >
+                  Skip draft
+                </button>
               </div>
             </div>
           </div>
@@ -2283,6 +2425,25 @@ export default function AgentGameClient() {
                   <span className="sim-stat__label">Turns Survived</span>
                   <span className="sim-stat__value">{state.turn - 1} / 30</span>
                 </div>
+              </div>
+
+              {/* Sub-step 11: Post-mortem run summary */}
+              <div className="sim-postmortem">
+                <h4>Run summary</h4>
+                <dl>
+                  <dt>Final cash</dt>
+                  <dd>{formatCash(state.cash)}</dd>
+                  <dt>Final valuation</dt>
+                  <dd>{formatCash(state.valuation)}</dd>
+                  <dt>Turns played</dt>
+                  <dd>{state.turn - 1} / 30</dd>
+                  <dt>AI version</dt>
+                  <dd>v{state.agentVersion}</dd>
+                  <dt>Docs active</dt>
+                  <dd>{state.hasDocumentation ? "Yes" : "No"}</dd>
+                  <dt>Team size</dt>
+                  <dd>{state.employees.length}</dd>
+                </dl>
               </div>
 
               {/* Share Card Block */}
@@ -2334,7 +2495,8 @@ export default function AgentGameClient() {
                 Select your starting difficulty parameters for the Agent Inclusive sprint.
               </p>
 
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "var(--space-3)" }}>
+              {/* Sub-step 1: 3-column mode grid via .sim-mode__grid */}
+              <div className="sim-mode__grid">
                 {/* Boardroom */}
                 <button
                   onClick={() => handleDifficultySelect("boardroom")}
@@ -2345,6 +2507,8 @@ export default function AgentGameClient() {
                   <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", textAlign: "left" }}>
                     <span className="sim-stat__value" style={{ color: "#a3be8c" }}>Boardroom</span>
                     <span className="sim-stat__label">Easy Mode</span>
+                    <div className="sim-mode__target">Target <strong>$1.1B</strong></div>
+                    <div className="sim-mode__detail">~10 min · ≈80% win rate</div>
                     <p style={{ fontSize: "11px", color: "var(--color-fg-2)", margin: "0" }}>
                       Start with <strong>$500,000</strong> cash.<br />
                       AI upgrades slowly (every <strong>7 turns</strong>).<br />
@@ -2363,6 +2527,8 @@ export default function AgentGameClient() {
                   <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", textAlign: "left" }}>
                     <span className="sim-stat__value" style={{ color: "goldenrod" }}>Reality</span>
                     <span className="sim-stat__label">Standard Mode</span>
+                    <div className="sim-mode__target">Target <strong>$25B</strong></div>
+                    <div className="sim-mode__detail">~10 min · ≈45% win rate</div>
                     <p style={{ fontSize: "11px", color: "var(--color-fg-2)", margin: "0" }}>
                       Start with <strong>$250,000</strong> cash.<br />
                       AI upgrades every <strong>5 turns</strong>.<br />
@@ -2381,6 +2547,8 @@ export default function AgentGameClient() {
                   <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", textAlign: "left" }}>
                     <span className="sim-stat__value" style={{ color: "var(--color-accent-warm-strong)" }}>ZIRP Nightmare</span>
                     <span className="sim-stat__label">Hard Mode</span>
+                    <div className="sim-mode__target">Target <strong>$140B</strong></div>
+                    <div className="sim-mode__detail">~12 min · ≈10% win rate</div>
                     <p style={{ fontSize: "11px", color: "var(--color-fg-2)", margin: "0" }}>
                       Start with <strong>$30,000</strong> cash (only enough to hire exactly 1 worker).<br />
                       AI upgrades at neck-breaking speeds (every <strong>4 turns</strong>).<br />
@@ -2393,12 +2561,19 @@ export default function AgentGameClient() {
           </div>
         )}
 
-        {/* Tutorial / Help Overlay Modal */}
-        {showTutorial && (
+        {/* Tutorial / Help Overlay Modal — Sub-step 4: helpOpen + Escape close + × button */}
+        {helpOpen && (
           <div className="sim-overlay" role="dialog" aria-modal="true" aria-labelledby="tutorial-title">
-            <div className="sim-modal" style={{ maxWidth: "600px", textAlign: "left" }}>
+            <div className="sim-modal" style={{ maxWidth: "600px", textAlign: "left", position: "relative" }}>
+              {/* Sub-step 4: visible × close button */}
+              <button
+                type="button"
+                className="dialog-close"
+                aria-label="Close help"
+                onClick={() => setHelpOpen(false)}
+              >×</button>
               <h2 className="sim-modal__title" id="tutorial-title" style={{ fontFamily: "var(--font-display)", color: "var(--color-fg-1)" }}>
-                Interactive Tutorial
+                Help &amp; Tutorial
               </h2>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)", fontSize: "13px", color: "var(--color-fg-2)", maxHeight: "400px", overflowY: "auto", paddingRight: "10px" }}>
                 <p>
@@ -2446,8 +2621,34 @@ export default function AgentGameClient() {
                 </p>
               </div>
 
+              {/* Sub-step 3: Per-turn tutorial replay submenu */}
+              <details className="sim-help__replay">
+                <summary>Re-read turn primers</summary>
+                <ul>
+                  {Object.entries(TUTORIAL_STEPS).map(([turnStr, step]) => (
+                    <li key={turnStr}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setHelpOpen(false);
+                          // Dismiss any existing tutorial for that turn so it re-shows
+                          // (the banner renders when turn matches and it isn't dismissed)
+                          // We can't replay past turns, so just show what we have:
+                          // inform player to navigate to that turn. For current turn only.
+                          if (Number(turnStr) === state.turn) {
+                            dispatch({ type: "DISMISS_TUTORIAL", turn: -999 }); // No-op sentinel; banner shows if not dismissed
+                          }
+                        }}
+                      >
+                        Turn {turnStr} — {step.title.replace(/^Day \w+ — /, "")}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+
               <button
-                onClick={() => setShowTutorial(false)}
+                onClick={() => setHelpOpen(false)}
                 className="sim-btn-primary"
                 style={{ width: "100%" }}
               >
@@ -2456,7 +2657,7 @@ export default function AgentGameClient() {
             </div>
           </div>
         )}
-      </main>
+      </section>
     </div>
   );
 }

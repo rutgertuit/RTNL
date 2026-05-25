@@ -4,6 +4,7 @@ import { Nav } from "@/components/nav/Nav";
 import { Footer } from "@/components/footer/Footer";
 import { AppChrome } from "@/components/chrome/AppChrome";
 import { Article, buildArticleLd } from "@/components/article/Article";
+import { Breadcrumb } from "@/components/breadcrumb/Breadcrumb";
 
 const TITLE = "Agent Inclusive";
 const DESCRIPTION =
@@ -30,6 +31,11 @@ export default function AgentInclusivePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
       />
       <Nav />
+      <Breadcrumb trail={[
+        { label: "Home", href: "/" },
+        { label: "Business & Leadership", href: "/business" },
+        { label: "Agent Inclusive" },
+      ]} />
       <Article
         number="03 / 03"
         filedUnder="Leadership · Org Design"
@@ -237,6 +243,23 @@ export default function AgentInclusivePage() {
                   their job.
                 </p>
               </>
+            ),
+          },
+          {
+            num: "+",
+            label: "Play the article",
+            children: (
+              <aside className="rt-tuit__sim-callout">
+                <div className="eyebrow eyebrow--warm">PLAY THE ARTICLE</div>
+                <p>
+                  There&apos;s a turn-based sim of every claim in this piece. You start with a
+                  consultancy, 30 turns, a $25B valuation target, and four people. Bankruptcy
+                  is a real option.
+                </p>
+                <Link href="/technical/agent-game" className="button button--warm">
+                  Open the Agent Inclusive Sim <span aria-hidden>→</span>
+                </Link>
+              </aside>
             ),
           },
           {

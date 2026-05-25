@@ -3,6 +3,7 @@ import { Nav } from "@/components/nav/Nav";
 import { Footer } from "@/components/footer/Footer";
 import { AppChrome } from "@/components/chrome/AppChrome";
 import { Article, buildArticleLd } from "@/components/article/Article";
+import { Breadcrumb } from "@/components/breadcrumb/Breadcrumb";
 
 const TITLE = "The 30-Minute Kitchen";
 const DESCRIPTION =
@@ -29,6 +30,11 @@ export default function ThirtyMinuteKitchenPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
       />
       <Nav />
+      <Breadcrumb trail={[
+        { label: "Home", href: "/" },
+        { label: "Business & Leadership", href: "/business" },
+        { label: "The 30-Minute Kitchen" },
+      ]} />
       <Article
         number="02 / 03"
         filedUnder="Marketing · Operations"
@@ -49,6 +55,18 @@ export default function ThirtyMinuteKitchenPage() {
             <figcaption className="rt-tuit__video-cap">
               Video · The 30-Minute Kitchen · 3 min
             </figcaption>
+            {/* TODO: align chapter timestamps with actual video */}
+            <details className="rt-video-transcript">
+              <summary>Transcript &amp; chapters</summary>
+              <ul className="rt-video-transcript__chapters">
+                <li><strong>0:00</strong> The 30-minute kitchen — what it is</li>
+                <li><strong>0:45</strong> Three roles, three frequencies</li>
+                <li><strong>1:30</strong> Why ripping out the kitchen is the most expensive mistake</li>
+                <li><strong>2:15</strong> The three variables that actually move</li>
+                <li><strong>3:00</strong> The procurement question, not the resolution number</li>
+                <li><strong>4:00</strong> Closing — what changes on Thursday</li>
+              </ul>
+            </details>
           </figure>
         }
         stages={[

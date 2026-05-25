@@ -10,6 +10,7 @@ const config: NextConfig = {
   // typing becomes load-bearing.
   typedRoutes: false,
   images: {
+    formats: ["image/avif", "image/webp"],
     remotePatterns: [
       {
         protocol: "https",

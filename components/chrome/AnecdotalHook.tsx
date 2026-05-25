@@ -4,7 +4,7 @@
  */
 export function AnecdotalHook() {
   return (
-    <section className="rt-hook" aria-labelledby="hook-title">
+    <section id="hook" className="rt-hook" aria-labelledby="hook-title">
       <div className="rt-hook__transit-in" aria-hidden />
       <div className="container">
         <div className="rt-hook__inner">

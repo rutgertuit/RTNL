@@ -66,7 +66,7 @@ export function BriefingInversionClient() {
           ))}
         </ul>
       </nav>
-      <main className="rt-bi" id="briefing-inversion">
+      <section className="rt-bi" id="briefing-inversion">
         <Hero />
         <BriefingInversion />
         <FourLineages />
@@ -74,7 +74,7 @@ export function BriefingInversionClient() {
         <TalkToIt />
         <CostOfFrame />
         <Invitation />
-      </main>
+      </section>
     </>
   );
 }

@@ -4,8 +4,9 @@ import { Nav } from "@/components/nav/Nav";
 import { Footer } from "@/components/footer/Footer";
 import { AppChrome } from "@/components/chrome/AppChrome";
 import { ContactForm } from "./ContactForm";
+import { Breadcrumb } from "@/components/breadcrumb/Breadcrumb";
 
-const TITLE = "Contact — Rutger Tuit";
+const TITLE = "Contact";
 const DESCRIPTION =
   "Get in touch with Rutger Tuit. Speaking, press, strategic engagements with Dutch CMOs and agency CEOs, or notes on what you're building.";
 
@@ -35,6 +36,10 @@ export default function ContactPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
       />
       <Nav />
+      <Breadcrumb trail={[
+        { label: "Home", href: "/" },
+        { label: "Contact" },
+      ]} />
       <article className="rt-tuit rt-contact section section--surface">
         <div className="container">
           <div className="rt-tuit__head">

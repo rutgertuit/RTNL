@@ -59,16 +59,16 @@ export function Article({
 
         {stages.map((stage) => (
           <div className="rt-tuit__stage" key={stage.num}>
-            <div className="rt-tuit__stage-marker">
+            <h2 className="rt-tuit__stage-marker">
               <span className="rt-tuit__stage-num">{stage.num}</span>
               <span className="rt-tuit__stage-label">{stage.label}</span>
-            </div>
+            </h2>
             <div className="rt-tuit__stage-body">{stage.children}</div>
           </div>
         ))}
 
         <nav className="rt-tuit__nav" aria-label="Article navigation">
-          <Link className="button" href="/#business">
+          <Link className="button" href="/business">
             <span aria-hidden>←</span> Back to all articles
           </Link>
           <Link className="button button--warm" href="/contact">

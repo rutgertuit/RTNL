@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Nav } from "@/components/nav/Nav";
 import { Footer } from "@/components/footer/Footer";
 import { AppChrome } from "@/components/chrome/AppChrome";
+import { Breadcrumb } from "@/components/breadcrumb/Breadcrumb";
 
 const TITLE = "How to build a character sheet";
 const DESCRIPTION =
@@ -61,6 +62,11 @@ export default function CharacterSheetPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(howToLd) }}
       />
       <Nav />
+      <Breadcrumb trail={[
+        { label: "Home", href: "/" },
+        { label: "Creative", href: "/#creative" },
+        { label: "Character Sheet" },
+      ]} />
       <article className="rt-tuit section section--surface">
         <div className="container">
           <div className="rt-tuit__head">
@@ -79,10 +85,10 @@ export default function CharacterSheetPage() {
 
           {/* Intro */}
           <div className="rt-tuit__stage">
-            <div className="rt-tuit__stage-marker">
+            <h2 className="rt-tuit__stage-marker">
               <span className="rt-tuit__stage-num">·</span>
               <span className="rt-tuit__stage-label">What it is</span>
-            </div>
+            </h2>
             <div className="rt-tuit__stage-body">
               <p className="lead">
                 A character sheet is a small set of reference images of the same person — front,
@@ -113,10 +119,10 @@ export default function CharacterSheetPage() {
 
           {/* Method 01 */}
           <div className="rt-tuit__stage">
-            <div className="rt-tuit__stage-marker">
+            <h2 className="rt-tuit__stage-marker">
               <span className="rt-tuit__stage-num">01</span>
-              <span className="rt-tuit__stage-label">Google Flow · Use Character</span>
-            </div>
+              <span className="rt-tuit__stage-label"><a href="https://flow.google.com" rel="noopener noreferrer" target="_blank">Google Flow</a> · Use Character</span>
+            </h2>
             <div className="rt-tuit__stage-body">
               <p>
                 <strong>Fastest path. Lowest control.</strong> When to use it: you&apos;re inside
@@ -157,15 +163,15 @@ export default function CharacterSheetPage() {
 
           {/* Method 02 */}
           <div className="rt-tuit__stage">
-            <div className="rt-tuit__stage-marker">
+            <h2 className="rt-tuit__stage-marker">
               <span className="rt-tuit__stage-num">02</span>
               <span className="rt-tuit__stage-label">Reference-shot pipeline, manually composited</span>
-            </div>
+            </h2>
             <div className="rt-tuit__stage-body">
               <p>
                 <strong>Most control. Moderate effort.</strong> When to use it: you want maximum
                 control over which &quot;version&quot; of the character becomes canonical, and you
-                want a sheet that is portable across multiple tools (Midjourney <code>--cref</code>
+                want a sheet that is portable across multiple tools (<a href="https://www.midjourney.com" rel="noopener noreferrer" target="_blank">Midjourney</a> <code>--cref</code>
                 , Nano Banana reference-attach, Imagen 3 character mode, Flux ControlNet, etc.).
               </p>
               <p>
@@ -239,10 +245,10 @@ export default function CharacterSheetPage() {
 
           {/* Method 03 */}
           <div className="rt-tuit__stage">
-            <div className="rt-tuit__stage-marker">
+            <h2 className="rt-tuit__stage-marker">
               <span className="rt-tuit__stage-num">03</span>
               <span className="rt-tuit__stage-label">Train a Flux1D LoRA</span>
-            </div>
+            </h2>
             <div className="rt-tuit__stage-body">
               <p>
                 <strong>Highest consistency. Largest upfront cost.</strong> When to use it:
@@ -274,11 +280,11 @@ export default function CharacterSheetPage() {
                   <strong>Pick a training environment.</strong>
                   <ul>
                     <li>
-                      <em>RunPod or Vast.ai</em> (cloud GPU rental): ~$3-10 per full training
+                      <em><a href="https://runpod.io" rel="noopener noreferrer" target="_blank">RunPod</a> or <a href="https://vast.ai" rel="noopener noreferrer" target="_blank">Vast.ai</a></em> (cloud GPU rental): ~$3-10 per full training
                       run. Cheapest option. Requires comfort with SSH and a Linux shell.
                     </li>
                     <li>
-                      <em>Replicate&apos;s Flux LoRA trainer</em> (managed): pay per training
+                      <em><a href="https://replicate.com" rel="noopener noreferrer" target="_blank">Replicate</a>&apos;s Flux LoRA trainer</em> (managed): pay per training
                       run, decent defaults, point-and-click. Easiest entry path.
                     </li>
                     <li>
@@ -295,7 +301,7 @@ export default function CharacterSheetPage() {
                   character.
                 </li>
                 <li>
-                  <strong>Test in ComfyUI or Forge.</strong> Load Flux1D base + your new LoRA
+                  <strong>Test in <a href="https://www.comfy.org" rel="noopener noreferrer" target="_blank">ComfyUI</a> or Forge.</strong> Load Flux1D base + your new LoRA
                   file at strength 0.7-1.0. Generate test prompts that include your trigger
                   word. Bad outputs almost always mean the dataset is bad, not that the training
                   is bad — go back to step 1.
@@ -335,10 +341,10 @@ export default function CharacterSheetPage() {
 
           {/* Closer */}
           <div className="rt-tuit__stage">
-            <div className="rt-tuit__stage-marker">
+            <h2 className="rt-tuit__stage-marker">
               <span className="rt-tuit__stage-num">·</span>
               <span className="rt-tuit__stage-label">What I actually use</span>
-            </div>
+            </h2>
             <div className="rt-tuit__stage-body">
               <p>
                 The portrait series on this site is Method 02. One anchor reference, generated

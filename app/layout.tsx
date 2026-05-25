@@ -12,11 +12,16 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_GB",
+    alternateLocale: ["nl_NL"],
     url: "https://rutgertuit.nl",
     siteName: "Rutger Tuit",
     title: "Rutger Tuit — Notes from the seam",
     description:
       "Senior brand and AI leadership at the seam between high-performance corporate tech and human creativity.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    creator: "@rutgertuit",
   },
   robots: { index: true, follow: true },
 };
@@ -100,14 +105,16 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <a href="#hook-title" className="rt-skip-link">
+        <a href="#main" className="rt-skip-link">
           Skip to content
         </a>
         <div className="rt-grain" aria-hidden="true">
           <div className="rt-grain__layer"></div>
           <div className="rt-grain__layer rt-grain__layer--drift"></div>
         </div>
-        {children}
+        <main id="main" tabIndex={-1}>
+          {children}
+        </main>
       </body>
     </html>
   );

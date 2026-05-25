@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 type BioKey = "short" | "medium" | "long";
 
@@ -19,12 +21,12 @@ const TOPICS = [
   { name: "Generative SEO & the Future of Discovery", tags: ["Talk", "20m"] },
 ];
 
-const EVENTS = [
-  { id: "01-yt-festival", name: "YouTube Festival", year: "2025" },
-  { id: "02-esns", name: "ESNS Panel", year: "2025" },
-  { id: "03-marketing-live", name: "Google Marketing Live", year: "2024" },
-  { id: "04-think-2025", name: "Think 2025", year: "2025" },
-  { id: "05-dentsu-think", name: "Dentsu Google Think", year: "2024" },
+const EVENTS: Array<{ id: string; name: string; year: string; alt: string }> = [
+  { id: "01-yt-festival", name: "YouTube Festival", year: "2025", alt: "Rutger Tuit speaking at YouTube Festival 2025" },
+  { id: "02-esns", name: "ESNS Panel", year: "2025", alt: "Rutger Tuit on stage at ESNS Panel 2025" },
+  { id: "03-marketing-live", name: "Google Marketing Live", year: "2024", alt: "Rutger Tuit presenting at Google Marketing Live 2024" },
+  { id: "04-think-2025", name: "Think 2025", year: "2025", alt: "Rutger Tuit at Think 2025" },
+  { id: "05-dentsu-think", name: "Dentsu Google Think", year: "2024", alt: "Rutger Tuit at Dentsu Google Think 2024" },
 ];
 
 const NAV_ITEMS: ReadonlyArray<readonly [string, string, string]> = [
@@ -33,7 +35,7 @@ const NAV_ITEMS: ReadonlyArray<readonly [string, string, string]> = [
   ["mk-logos", "03", "Logos"],
   ["mk-topics", "04", "Topics"],
   ["mk-events", "05", "Events"],
-  ["mk-book", "06", "Book"],
+  ["mk-book", "06", "Booking"],
 ];
 
 export function MediaKit() {
@@ -110,6 +112,9 @@ export function MediaKit() {
               </button>
             </div>
           </div>
+          <span className="sr-only" aria-live="polite">
+            {copied ? `${copied.charAt(0).toUpperCase() + copied.slice(1)} bio copied to clipboard` : ""}
+          </span>
           <p className={`rt-mk__bio rt-mk__bio--${bio}`}>{BIOS[bio]}</p>
         </div>
 
@@ -117,21 +122,34 @@ export function MediaKit() {
         <div className="rt-mk__section" id="mk-photos">
           <div className="rt-mk__row-head">
             <div className="rt-mk__row-label">02 · PHOTOS</div>
-            <a className="button" href="#">
-              Download all hi-res <span aria-hidden>↓</span>
-            </a>
+            <Link className="button" href="/contact?topic=photos">
+              Hi-res set · on request <span aria-hidden>→</span>
+            </Link>
           </div>
           <div className="rt-mk__photos">
-            {["01-studio", "02-warehouse", "03-cinematic", "04-profile", "05-mid-shot", "06-stage"].map(
-              (id) => (
+            {(
+              [
+                { id: "01-studio", alt: "Rutger Tuit — studio portrait, controlled lighting" },
+                { id: "02-warehouse", alt: "Rutger Tuit — warehouse portrait, dark overshirt, industrial backdrop" },
+                { id: "03-cinematic", alt: "Rutger Tuit — cinematic portrait, dramatic side lighting, profile angle" },
+                { id: "04-profile", alt: "Rutger Tuit — three-quarter profile, neutral backdrop" },
+                { id: "05-mid-shot", alt: "Rutger Tuit — mid-shot, relaxed casual register" },
+                { id: "06-stage", alt: "Rutger Tuit — stage portrait, performance and speaking context" },
+              ] as const
+            ).map(({ id, alt }) => (
                 <figure key={id} className="rt-mk__photo">
-                  <img src={`/assets/portraits/${id}.png`} alt="" />
+                  <Image
+                    src={`/assets/portraits/${id}.png`}
+                    alt={alt}
+                    width={1440}
+                    height={1920}
+                    sizes="(max-width: 720px) 50vw, 25vw"
+                  />
                   <figcaption>
                     {id.replace(/^\d+-/, "").toUpperCase().replace("-", " ")}
                   </figcaption>
                 </figure>
-              )
-            )}
+              ))}
           </div>
         </div>
 
@@ -139,21 +157,24 @@ export function MediaKit() {
         <div className="rt-mk__section" id="mk-logos">
           <div className="rt-mk__row-head">
             <div className="rt-mk__row-label">03 · LOGOS</div>
-            <a className="button" href="#">
-              Download SVG + PNG <span aria-hidden>↓</span>
-            </a>
+            <Link className="button" href="/contact?topic=logos">
+              Logo pack · on request <span aria-hidden>→</span>
+            </Link>
           </div>
           <div className="rt-mk__logos">
             <div className="rt-mk__logo rt-mk__logo--dark">
-              <img src="/assets/logo-rt.svg" alt="logo dark" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/assets/logo-rt.svg" alt="Rutger Tuit wordmark — dark variant" width={160} height={80} />
               <span>DARK</span>
             </div>
             <div className="rt-mk__logo rt-mk__logo--light">
-              <img src="/assets/logo-rt.svg" alt="logo light" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/assets/logo-rt.svg" alt="Rutger Tuit wordmark — light variant" width={160} height={80} />
               <span>LIGHT</span>
             </div>
             <div className="rt-mk__logo rt-mk__logo--mono">
-              <img src="/assets/logo-rt.svg" alt="logo mono" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/assets/logo-rt.svg" alt="Rutger Tuit wordmark — monochrome variant" width={160} height={80} />
               <span>MONO</span>
             </div>
           </div>
@@ -186,7 +207,13 @@ export function MediaKit() {
           <ul className="rt-mk__events">
             {EVENTS.map((e) => (
               <li key={e.id}>
-                <img src={`/assets/events/${e.id}.png`} alt="" />
+                <Image
+                  src={`/assets/events/${e.id}.png`}
+                  alt={e.alt}
+                  width={800}
+                  height={800}
+                  sizes="(max-width: 720px) 50vw, 33vw"
+                />
                 <div>
                   <div className="rt-mk__event-name">{e.name}</div>
                   <div className="rt-mk__event-year">{e.year}</div>
@@ -199,7 +226,7 @@ export function MediaKit() {
         {/* Book */}
         <div className="rt-mk__section" id="mk-book">
           <div className="rt-mk__row-head">
-            <div className="rt-mk__row-label">06 · BOOK</div>
+            <div className="rt-mk__row-label">06 · BOOKING</div>
           </div>
           <p className="rt-mk__book">
             For speaking enquiries, podcast appearances, or strategic engagements with Dutch-market

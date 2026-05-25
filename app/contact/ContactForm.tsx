@@ -47,6 +47,11 @@ export function ContactForm() {
 
   return (
     <form className="rt-contact__form" action={handleAction} noValidate>
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {pending && "Sending your message"}
+        {result?.ok && "Message sent. Expect a reply within a couple of business days."}
+        {result && !result.ok && "Send failed — please try LinkedIn DM as a fallback."}
+      </div>
       <div className="rt-contact__row">
         <label className="rt-contact__field">
           <span className="rt-contact__label">Your name</span>
