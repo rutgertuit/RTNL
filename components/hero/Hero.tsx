@@ -113,7 +113,7 @@ export function Hero() {
     >
       <div className="rt-hero__cortex rt-hero__cortex--orbit" aria-hidden>
         <div className="rt-hero__orbit">
-          <Cortex width={1100} height={900} rotate={true} interactive={false} />
+          <Cortex variant="hero" width={1100} height={900} rotate={true} interactive={false} />
         </div>
       </div>
 

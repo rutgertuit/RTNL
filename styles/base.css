@@ -185,7 +185,7 @@ html, body { margin: 0; }
   justify-content: center;
   opacity: 0.85;
 }
-.rt-hero__cortex svg { width: 100%; height: 100%; max-width: 1400px; }
+.rt-hero__cortex .rt-cortex__svg svg { width: 100%; height: 100%; max-width: 1400px; }
 .rt-hero__vignette {
   position: absolute; inset: 0;
   background:

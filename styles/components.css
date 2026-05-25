@@ -905,6 +905,45 @@ body { padding-top: 0; }
   font-weight: var(--fw-medium);
 }
 
+/* ============================================================
+   CORTEX wrapper — svg + mobile stat-strip
+   ============================================================ */
+.rt-cortex {
+  display: contents; /* transparent wrapper — preserves existing layout */
+}
+.rt-cortex__strip {
+  display: none; /* hidden above mobile breakpoint */
+}
+
+@media (max-width: 720px) {
+  .rt-cortex__svg { display: none; }
+  .rt-cortex__strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+    padding: var(--space-4);
+  }
+  .rt-cortex__strip > div {
+    background: var(--color-bg-surface);
+    border: var(--border-hairline);
+    padding: var(--space-3);
+    text-align: center;
+  }
+  .rt-cortex__strip strong {
+    display: block;
+    font-family: var(--font-display);
+    font-size: var(--fs-500);
+    color: var(--color-accent-warm-strong);
+  }
+  .rt-cortex__strip span {
+    font-family: var(--font-mono);
+    font-size: var(--fs-50);
+    color: var(--color-fg-3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+}
+
 .rt-tile {
   background: var(--color-bg-sunken);
   position: relative;
