@@ -175,6 +175,11 @@ export interface GameState {
   // in the turn-3 tutorial. Resets to 0 in END_TURN.
   tutorialDismissed?: number[];
   promotionsThisTurn?: number;
+  // One-action-per-bucket-per-turn caps. Force the player to make a
+  // strategic choice each turn instead of buying everything on turn 1.
+  // Reset in END_TURN. (redefinedOkrsThisTurn already does double duty.)
+  hiredThisTurn?: boolean;
+  playedCardThisTurn?: boolean;
 }
 
 // ============================================================

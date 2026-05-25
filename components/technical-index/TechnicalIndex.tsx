@@ -1,4 +1,5 @@
 import { Cortex } from "@/components/cortex/Cortex";
+import Link from "next/link";
 
 const PROJECTS = [
   {
@@ -38,6 +39,13 @@ const PROJECTS = [
     desc: "LLM head-to-head evaluation rig. Same prompt, four models, one human jury.",
     tags: ["BENCHMARK"],
     status: "open",
+  },
+  {
+    id: "GAME",
+    name: "Agent Inclusive Sim",
+    desc: "Interactive Jiskefet-inspired turn-based simulator. Survive 30 turns of exponential AI upgrades and reach a $100B valuation.",
+    tags: ["SIMULATION", "TACTICAL"],
+    status: "game",
   },
   {
     id: "D · 06",
@@ -86,23 +94,23 @@ export function TechnicalIndex() {
           </div>
           <div className="rt-tech__topology-readout">
             <div>
-              <strong>25</strong> nodes
+              <strong>14</strong> nodes
             </div>
             <div>
-              <strong>25</strong> active edges
+              <strong>16</strong> active edges
             </div>
             <div>VLAN · isolated</div>
           </div>
           <Cortex width={900} height={600} rotate={false} />
           <div className="rt-tech__topology-legend">
             <div>
-              <span className="dot dot--warm" /> Frontier / hub
+              <span className="dot dot--warm" /> Theme node
             </div>
             <div>
-              <span className="dot dot--cool" /> Creative output
+              <span className="dot dot--cool" /> Infra node
             </div>
             <div>
-              <span className="dot dot--neutral" /> Tool / agent / device
+              <span className="dot dot--neutral" /> Project
             </div>
             <div>
               <span className="line" /> Active dot-flow on hover
@@ -111,29 +119,65 @@ export function TechnicalIndex() {
         </div>
 
         <div className="rt-tech__grid">
-          {PROJECTS.map((p) => (
-            <article
-              key={p.id}
-              className={`rt-tile ${p.status === "private" ? "rt-tile--private" : ""}`}
-              data-corner={p.id.replace("D · ", "NODE-")}
-            >
-              <div className="rt-tile__head">
-                <span className="rt-tile__id">{p.id}</span>
-                <span className={`rt-tile__status rt-tile__status--${p.status}`}>
-                  {p.status === "private" ? "PRIVATE · NO REPO" : "OPEN · GITHUB"}
-                </span>
-              </div>
-              <h3 className="rt-tile__name">{p.name}</h3>
-              <p className="rt-tile__desc">{renderDesc(p.desc, p.status)}</p>
-              <div className="rt-tile__tags">
-                {p.tags.map((t) => (
-                  <span key={t} className="rt-tile__tag">
-                    {t}
+          {PROJECTS.map((p) => {
+            const isGame = p.status === "game";
+            const content = (
+              <>
+                <div className="rt-tile__head">
+                  <span className="rt-tile__id" style={isGame ? { color: "var(--color-accent-warm)" } : undefined}>
+                    {p.id}
                   </span>
-                ))}
-              </div>
-            </article>
-          ))}
+                  <span className={`rt-tile__status rt-tile__status--${p.status}`}>
+                    {p.status === "game"
+                      ? "GAME · LIVE SIMULATION"
+                      : p.status === "private"
+                      ? "PRIVATE · NO REPO"
+                      : "OPEN · GITHUB"}
+                  </span>
+                </div>
+                <h3 className="rt-tile__name" style={isGame ? { color: "var(--color-accent-warm-strong)" } : undefined}>
+                  {p.name}
+                </h3>
+                <p className="rt-tile__desc">
+                  {isGame ? p.desc : renderDesc(p.desc, p.status)}
+                </p>
+                <div className="rt-tile__tags">
+                  {p.tags.map((t) => (
+                    <span
+                      key={t}
+                      className="rt-tile__tag"
+                      style={isGame ? { borderColor: "var(--color-accent-warm)" } : undefined}
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </>
+            );
+
+            if (isGame) {
+              return (
+                <Link
+                  key={p.id}
+                  href="/technical/agent-game"
+                  className="rt-tile rt-tile--game"
+                  data-corner="GAME"
+                >
+                  {content}
+                </Link>
+              );
+            }
+
+            return (
+              <article
+                key={p.id}
+                className={`rt-tile ${p.status === "private" ? "rt-tile--private" : ""}`}
+                data-corner={p.id.replace("D · ", "NODE-")}
+              >
+                {content}
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>

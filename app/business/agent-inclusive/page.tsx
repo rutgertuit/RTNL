@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Nav } from "@/components/nav/Nav";
 import { Footer } from "@/components/footer/Footer";
 import { AppChrome } from "@/components/chrome/AppChrome";
@@ -281,6 +282,10 @@ export default function AgentInclusivePage() {
                   particularly if you have a board that still treats &quot;Agent Inclusive&quot;
                   as marketing language rather than an operating model — drop me a line. I would
                   like to know what you have built.
+                </p>
+                <p style={{ marginTop: "var(--space-6)", padding: "var(--space-4)", background: "var(--color-bg-surface)", borderLeft: "2px solid var(--color-accent-warm)", fontStyle: "normal" }}>
+                  <strong>Interactive Simulation:</strong> There is a working sim of this thesis at <Link href="/technical/agent-game">/technical/agent-game</Link> —
+                  survive 30 turns of exponential AI updates and try to hit $100B without falling into the documentation trap. Let me know how far you get.
                 </p>
                 <p>
                   <em>Let&apos;s build.</em>

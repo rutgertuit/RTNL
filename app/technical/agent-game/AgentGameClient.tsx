@@ -155,7 +155,7 @@ export const createInitialState = (difficulty: "boardroom" | "reality" | "zirp")
   const peMultiplier = 7;
   const initialValuation = (initialRev * 12 * peMultiplier) + startingCash;
 
-  const winThresholdLabel = difficulty === "boardroom" ? "$3B" : difficulty === "reality" ? "$65B" : "$120B";
+  const winThresholdLabel = difficulty === "boardroom" ? "$1.1B" : difficulty === "reality" ? "$25B" : "$140B";
 
   return {
     version: 1,
@@ -304,6 +304,15 @@ function gameReducer(state: GameState, action: Action): GameState {
 
     case "EMPLOY_WORKER": {
       if (state.isGameOver) return state;
+      if (state.hiredThisTurn) {
+        return {
+          ...state,
+          eventLog: [
+            ...state.eventLog,
+            "Already hired this turn. End the turn to hire again — pacing matters.",
+          ],
+        };
+      }
       const cost = 30000;
       if (state.cash < cost) {
         return {
@@ -339,9 +348,10 @@ function gameReducer(state: GameState, action: Action): GameState {
         ...state,
         cash: state.cash - cost,
         employees: [...state.employees, newEmployee],
+        hiredThisTurn: true,
         eventLog: [
           ...state.eventLog,
-          `💼 Hired employee ${name} (${traitInfo.displayName}) for $30,000 (starts onboarding: ${state.hasDocumentation ? "3" : "6"} turns left).`,
+          `💼 Hired ${traitInfo.displayName} for $30,000 (onboarding: ${state.hasDocumentation ? "3" : "6"} turns).`,
         ],
       };
     }
@@ -354,6 +364,15 @@ function gameReducer(state: GameState, action: Action): GameState {
           eventLog: [
             ...state.eventLog,
             `Cognitive Agents unlock at turn ${TURN_AGENT_UNLOCKED}. Frontier AI hasn't shipped yet.`,
+          ],
+        };
+      }
+      if (state.hiredThisTurn) {
+        return {
+          ...state,
+          eventLog: [
+            ...state.eventLog,
+            "Already hired this turn. One headcount move per turn — end the turn first.",
           ],
         };
       }
@@ -386,6 +405,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         ...state,
         cash: state.cash - cost,
         employees: [...state.employees, newAgent],
+        hiredThisTurn: true,
         eventLog: [
           ...state.eventLog,
           `🤖 Hired AI Cognitive Agent ${name} for $15,000. Required: Markdown Wiki documentation active for proper synergy.`,
@@ -498,6 +518,15 @@ function gameReducer(state: GameState, action: Action): GameState {
 
     case "REDEFINE_OKRS": {
       if (state.isGameOver) return state;
+      if (state.redefinedOkrsThisTurn) {
+        return {
+          ...state,
+          eventLog: [
+            ...state.eventLog,
+            "Already redefined OKRs this turn. The team can't handle two alignment meetings in a row.",
+          ],
+        };
+      }
       const cost = 10000;
       if (state.cash < cost) {
         return {
@@ -536,6 +565,15 @@ function gameReducer(state: GameState, action: Action): GameState {
           eventLog: [
             ...state.eventLog,
             `Cards unlock at turn ${TURN_CARDS_UNLOCKED}. Your playbook hasn't been published yet.`,
+          ],
+        };
+      }
+      if (state.playedCardThisTurn) {
+        return {
+          ...state,
+          eventLog: [
+            ...state.eventLog,
+            "Already played a card this turn. One card per turn — end the turn to play another.",
           ],
         };
       }
@@ -688,6 +726,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         employees: updatedEmployees,
         cardsHand: nextHand,
         cardsDiscard: nextDiscard,
+        playedCardThisTurn: true,
         eventLog: [...state.eventLog, ...logs],
       };
     }
@@ -1028,10 +1067,10 @@ function gameReducer(state: GameState, action: Action): GameState {
       let isGameOver = false;
       let gameResult: "win" | "lose" | null = null;
 
-      // Win thresholds tuned via scripts/sim_runner.mjs to hit 80%/45%/10% win rates.
-      // Final values (3 x 100-game runs): Boardroom 73%, Reality 51%, ZIRP 6%.
-      const winThreshold = state.difficulty === "boardroom" ? 3000000000 : state.difficulty === "reality" ? 65000000000 : 120000000000;
-      const winThresholdLabel = state.difficulty === "boardroom" ? "$3 Billion" : state.difficulty === "reality" ? "$65 Billion" : "$120 Billion";
+      // Win thresholds re-tuned after one-action-per-bucket-per-turn caps.
+      // 3 x 100-game runs: Boardroom 71-75%, Reality 47-58%, ZIRP 0-2%.
+      const winThreshold = state.difficulty === "boardroom" ? 1100000000 : state.difficulty === "reality" ? 25000000000 : 140000000000;
+      const winThresholdLabel = state.difficulty === "boardroom" ? "$1.1 Billion" : state.difficulty === "reality" ? "$25 Billion" : "$140 Billion";
 
       if (nextCash < -1000000) {
         isGameOver = true;
@@ -1078,6 +1117,8 @@ function gameReducer(state: GameState, action: Action): GameState {
         kantoortuinPenaltyTurns: nextKantoortuinTurns,
         redefinedOkrsThisTurn: false,
         promotionsThisTurn: 0, // Reset the per-turn promotion cap
+        hiredThisTurn: false,    // Reset hire-bucket cap (humans + agents)
+        playedCardThisTurn: false, // Reset card-play cap
         hypeTurnsLeft: nextHypeTurnsLeft,
         isGameOver,
         gameResult,
@@ -1110,8 +1151,8 @@ const TUTORIAL_STEPS: Record<number, TutorialStep> = {
     title: "Welcome to your new consultancy.",
     body: [
       "You inherited the company yesterday. The goal: keep this thing afloat for 30 turns and hit your difficulty's valuation target.",
-      "Today, three things you can do — pick ONE, then click NEXT TURN.",
-      "Hire a Human ($30k). Redefine OKRs ($10k — locks in a permanent productivity bump but burns 40% of this turn to a meeting). Or do nothing and bank the cash.",
+      "Pacing rule (all game): one hire, one OKR redefine, one card, and one promotion per turn — that's it. You play this game like chess, not Monopoly.",
+      "Today: meet your team. Each desk shows 🔨 productivity and ❤ loyalty. Pick ONE move (hire $30k, or redefine OKRs $10k), then NEXT TURN.",
     ],
     cta: "Got it — show me my desk",
   },
@@ -1120,7 +1161,7 @@ const TUTORIAL_STEPS: Record<number, TutorialStep> = {
     title: "Things take time.",
     body: [
       "Your hire is onboarding. They cost their full salary but only generate 10% revenue until they're fully ramped (6 turns by default).",
-      "Watch the Office Floor — that's your team. Hover any desk for the loyalty score.",
+      "Each desk shows the famous person you hired (Ronald Rump, Melon Husk, etc.) — each carries a passive trait. Hover the desk for their power.",
       "The dashboard shows the company's cash flow each turn: revenue from working humans minus salaries minus overhead. Net positive is the bar.",
     ],
     cta: "Got it",
@@ -1130,7 +1171,7 @@ const TUTORIAL_STEPS: Record<number, TutorialStep> = {
     title: "Move someone up.",
     body: [
       "Fully onboarded humans can be promoted. L1 → L2 → L3, each level grows revenue but salary scales too.",
-      "NEW RULE: you can only promote ONE person per turn. Pick the highest-loyalty employee — promotion resets their loyalty to 100 and inspires teammates.",
+      "One promotion per turn (just like one hire, one OKR, one card). Pick the highest-loyalty desk — promotion resets their loyalty to 100 and inspires teammates.",
       "Pro tip: from turn 5 you'll get a Build-Plan PDP card. Play it on someone BEFORE you promote them, or take a 30% productivity penalty.",
     ],
     cta: "Got it",
@@ -1496,7 +1537,7 @@ export default function AgentGameClient() {
   const turnsToUpgrade = upgradeCadence - ((state.turn - 1) % upgradeCadence);
 
   // Win-threshold label for the stats strip
-  const winThresholdLabel = state.difficulty === "boardroom" ? "$3B" : state.difficulty === "reality" ? "$65B" : "$120B";
+  const winThresholdLabel = state.difficulty === "boardroom" ? "$1.1B" : state.difficulty === "reality" ? "$25B" : "$140B";
 
   return (
     <div className="sim-fs-root">
@@ -1651,6 +1692,33 @@ export default function AgentGameClient() {
                     const isTargetable = !!(selectedCard && selectedCard.requiresTarget);
                     const isAgent = emp.type === "agent";
 
+                    // Famous-name as primary identity. Falls back to emp.name
+                    // only for legacy state without a trait assignment.
+                    const displayName = traitInfo?.displayName ?? emp.name;
+
+                    // Effective productivity for at-a-glance display.
+                    // Per-employee multipliers only (skips global ones like
+                    // OKR meeting / kantoor — those show on the dashboard).
+                    let productivity = 100;
+                    if (isAgent) {
+                      productivity = state.hasDocumentation ? 125 : 0;
+                    } else if (emp.isAsleep) {
+                      productivity = 0;
+                    } else if (!isOnboarded) {
+                      productivity = 10;
+                    } else {
+                      if (emp.inspirationTurnsLeft > 0) productivity *= 1.5;
+                      if (emp.pptPoisoningTurns > 0) productivity *= 0.8;
+                      if (emp.promotionLevel > 1 && !emp.hasPDP) productivity *= 0.7;
+                    }
+                    productivity = Math.round(productivity);
+
+                    // Loyalty tier — drives the heart color.
+                    const loyaltyTier =
+                      emp.loyalty <= 20 ? "critical" :
+                      emp.loyalty <= 50 ? "warn" :
+                      "good";
+
                     return (
                       <div
                         key={emp.id}
@@ -1668,19 +1736,19 @@ export default function AgentGameClient() {
                           isAgent && !state.hasDocumentation ? "is-malfunctioning" : "",
                         ].filter(Boolean).join(" ")}
                         role={isTargetable ? "button" : undefined}
-                        aria-label={`${emp.name}, ${isAgent ? "Cognitive Agent" : `Level ${emp.promotionLevel}`}, loyalty ${emp.loyalty}%`}
-                        title={traitInfo ? `${traitInfo.displayName} — ${traitInfo.passiveName}: ${traitInfo.description}` : undefined}
+                        aria-label={`${displayName}, ${isAgent ? "Cognitive Agent" : `Level ${emp.promotionLevel}`}, productivity ${productivity}%, loyalty ${emp.loyalty}%`}
+                        title={traitInfo ? `${traitInfo.passiveName}: ${traitInfo.description}` : undefined}
                       >
                         <div className="sim-desk__badges">
                           {emp.isAsleep && <span className="sim-desk__badge" title="Asleep this turn">💤</span>}
                           {emp.inspirationTurnsLeft > 0 && (
                             <span className="sim-desk__badge sim-desk__badge--inspired" title={`Inspired (${emp.inspirationTurnsLeft}t left)`}>✨</span>
                           )}
-                          {isCriticalLoyalty && (
-                            <span className="sim-desk__badge sim-desk__badge--critical" title={`Critical loyalty (${emp.loyalty}%)`}>!</span>
-                          )}
                           {emp.pptPoisoningTurns > 0 && (
                             <span className="sim-desk__badge" title={`PowerPoint fatigue (${emp.pptPoisoningTurns}t)`}>📊</span>
+                          )}
+                          {emp.hasPDP && !isAgent && (
+                            <span className="sim-desk__badge sim-desk__badge--pdp" title="Has Build-Plan PDP">📋</span>
                           )}
                           {isAgent && !state.hasDocumentation && (
                             <span className="sim-desk__badge sim-desk__badge--critical" title="Token hallucination — needs Markdown Wiki">⚠</span>
@@ -1717,24 +1785,36 @@ export default function AgentGameClient() {
                           )}
                         </svg>
                         <div className="sim-desk__info">
-                          <span className="sim-desk__name">{emp.name}</span>
+                          <span className="sim-desk__name">{displayName}</span>
                           <span className="sim-desk__level">
-                            {isAgent ? "HERMES" : `L${emp.promotionLevel}`}
-                            {emp.hasPDP && <span className="sim-desk__pdp" title="Has Build-Plan PDP">📋</span>}
+                            {isAgent ? "AI AGENT" : `L${emp.promotionLevel}`}
                             {!isOnboarded && !isAgent && (
-                              <span className="sim-desk__onboard" title="Still onboarding">
-                                {emp.turnsOnboarded}/{employeeOnboardingTarget}
+                              <span className="sim-desk__onboard" title={`Onboarding ${emp.turnsOnboarded}/${employeeOnboardingTarget}`}>
+                                {emp.turnsOnboarded}/{employeeOnboardingTarget}t
                               </span>
                             )}
                           </span>
-                          {traitInfo && (
-                            <span className="sim-desk__trait" title={`${traitInfo.passiveName}: ${traitInfo.description}`}>
-                              {traitInfo.displayName}
+                          <div className="sim-desk__metrics">
+                            <span
+                              className="sim-desk__metric sim-desk__metric--prod"
+                              title={
+                                isAgent
+                                  ? (state.hasDocumentation ? "Boosting humans +25% productivity" : "Inactive — needs Markdown Wiki")
+                                  : `Productivity this turn: ${productivity}%`
+                              }
+                              aria-label={`Productivity ${productivity}%`}
+                            >
+                              <span className="sim-desk__metric-icon" aria-hidden>🔨</span>
+                              <span className="sim-desk__metric-num">{productivity}%</span>
                             </span>
-                          )}
-                          <div className="sim-desk__loyalty" aria-label={`Loyalty ${emp.loyalty}%`}>
-                            <span className="sim-desk__loyalty-fill" style={{ width: `${Math.max(0, Math.min(100, emp.loyalty))}%` }} />
-                            <span className="sim-desk__loyalty-num">{emp.loyalty}%</span>
+                            <span
+                              className={`sim-desk__metric sim-desk__metric--loy sim-desk__metric--loy-${loyaltyTier}`}
+                              title={`Loyalty: ${emp.loyalty}%`}
+                              aria-label={`Loyalty ${emp.loyalty}%`}
+                            >
+                              <span className="sim-desk__metric-icon" aria-hidden>❤</span>
+                              <span className="sim-desk__metric-num">{emp.loyalty}%</span>
+                            </span>
                           </div>
                         </div>
                         {!isAgent && isOnboarded && emp.promotionLevel < 3 && state.turn >= TURN_PROMOTION_UNLOCKED && (
@@ -1745,11 +1825,11 @@ export default function AgentGameClient() {
                               (state.promotionsThisTurn ?? 0) >= MAX_PROMOTIONS_PER_TURN
                             }
                             className="sim-desk__promote"
-                            aria-label={`Promote ${emp.name}`}
+                            aria-label={`Promote ${displayName}`}
                             title={
                               (state.promotionsThisTurn ?? 0) >= MAX_PROMOTIONS_PER_TURN
                                 ? "One promotion per turn. End the turn to promote again."
-                                : `Promote ${emp.name} to level ${emp.promotionLevel + 1}`
+                                : `Promote ${displayName} to level ${emp.promotionLevel + 1}`
                             }
                           >
                             ▴ Promote
@@ -1775,20 +1855,38 @@ export default function AgentGameClient() {
             <button
               type="button"
               onClick={handleHireWorker}
-              disabled={state.cash < 30000 || state.activeEventId !== null || state.draftChoices !== null || !!state.freezeHiringNextTurn}
-              className="sim-fs__move-btn"
+              disabled={
+                state.cash < 30000 ||
+                state.activeEventId !== null ||
+                state.draftChoices !== null ||
+                !!state.freezeHiringNextTurn ||
+                !!state.hiredThisTurn
+              }
+              className={`sim-fs__move-btn ${state.hiredThisTurn ? "is-used" : ""}`}
+              title={state.hiredThisTurn ? "Already hired this turn — pacing matters." : ""}
             >
-              <span className="sim-fs__move-btn-name">Hire Human</span>
+              <span className="sim-fs__move-btn-name">
+                {state.hiredThisTurn ? "✓ Hired this turn" : "Hire Human"}
+              </span>
               <span className="sim-fs__move-btn-cost">$30k</span>
             </button>
             {state.turn >= TURN_AGENT_UNLOCKED ? (
               <button
                 type="button"
                 onClick={handleHireAgent}
-                disabled={state.cash < 15000 || state.activeEventId !== null || state.draftChoices !== null || !!state.freezeHiringNextTurn}
-                className="sim-fs__move-btn"
+                disabled={
+                  state.cash < 15000 ||
+                  state.activeEventId !== null ||
+                  state.draftChoices !== null ||
+                  !!state.freezeHiringNextTurn ||
+                  !!state.hiredThisTurn
+                }
+                className={`sim-fs__move-btn ${state.hiredThisTurn ? "is-used" : ""}`}
+                title={state.hiredThisTurn ? "Already hired this turn — pacing matters." : ""}
               >
-                <span className="sim-fs__move-btn-name">Hire Cognitive Agent</span>
+                <span className="sim-fs__move-btn-name">
+                  {state.hiredThisTurn ? "✓ Hired this turn" : "Hire Cognitive Agent"}
+                </span>
                 <span className="sim-fs__move-btn-cost">$15k</span>
               </button>
             ) : (
@@ -1805,19 +1903,31 @@ export default function AgentGameClient() {
             <button
               type="button"
               onClick={handleRedefineOkrs}
-              disabled={state.cash < 10000 || state.okrLevel >= 5 || state.activeEventId !== null || state.draftChoices !== null}
-              className="sim-fs__move-btn"
+              disabled={
+                state.cash < 10000 ||
+                state.okrLevel >= 5 ||
+                state.activeEventId !== null ||
+                state.draftChoices !== null ||
+                state.redefinedOkrsThisTurn
+              }
+              className={`sim-fs__move-btn ${state.redefinedOkrsThisTurn ? "is-used" : ""}`}
+              title={state.redefinedOkrsThisTurn ? "Already redefined this turn — the team can't handle two alignment meetings." : ""}
             >
-              <span className="sim-fs__move-btn-name">Redefine OKRs</span>
+              <span className="sim-fs__move-btn-name">
+                {state.redefinedOkrsThisTurn ? "✓ OKRs redefined" : "Redefine OKRs"}
+              </span>
               <span className="sim-fs__move-btn-cost">$10k</span>
             </button>
             {state.turn >= TURN_CARDS_UNLOCKED ? (
               <button
                 type="button"
                 onClick={() => setDrawer(drawer === "cards" ? null : "cards")}
-                className={`sim-fs__move-btn sim-fs__move-btn--cards ${drawer === "cards" ? "is-open" : ""}`}
+                className={`sim-fs__move-btn sim-fs__move-btn--cards ${drawer === "cards" ? "is-open" : ""} ${state.playedCardThisTurn ? "is-used" : ""}`}
+                title={state.playedCardThisTurn ? "Already played a card this turn." : ""}
               >
-                <span className="sim-fs__move-btn-name">Play a Card</span>
+                <span className="sim-fs__move-btn-name">
+                  {state.playedCardThisTurn ? "✓ Card played" : "Play a Card"}
+                </span>
                 <span className="sim-fs__move-btn-cost">{state.cardsHand.length} in hand</span>
               </button>
             ) : (
@@ -1902,7 +2012,12 @@ export default function AgentGameClient() {
 
         {drawer === "cards" && state.turn >= TURN_CARDS_UNLOCKED && (
           <div className="sim-fs__drawer-panel sim-fs__drawer-panel--cards" role="region" aria-label="Card hand">
-            {selectedCard && !selectedCard.requiresTarget && (
+            {state.playedCardThisTurn && (
+              <div className="sim-fs__warn" role="status">
+                ✓ You&apos;ve played a card this turn. End the turn to play another.
+              </div>
+            )}
+            {selectedCard && !selectedCard.requiresTarget && !state.playedCardThisTurn && (
               <div style={{ display: "flex", justifyContent: "center", marginBottom: "var(--space-2)" }}>
                 <button
                   type="button"
@@ -2145,7 +2260,7 @@ export default function AgentGameClient() {
                     {state.cash < -1000000 ? (
                       "Your cash fell below -$1,000,000. In trying to build wrappers and OKR loops, you neglected documentation hygiene. The token compliance audit fines have forced the business into receivership."
                     ) : (
-                      `The 30-turn sprint has expired, and you fell short of the ${state.difficulty === "boardroom" ? "$3 Billion" : state.difficulty === "reality" ? "$65 Billion" : "$120 Billion"} valuation target. Your organization could not adapt fast enough to the exponential rate of AI upgrades.`
+                      `The 30-turn sprint has expired, and you fell short of the ${state.difficulty === "boardroom" ? "$1.1 Billion" : state.difficulty === "reality" ? "$25 Billion" : "$140 Billion"} valuation target. Your organization could not adapt fast enough to the exponential rate of AI upgrades.`
                     )}
                   </p>
                 </>
@@ -2288,7 +2403,7 @@ export default function AgentGameClient() {
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)", fontSize: "13px", color: "var(--color-fg-2)", maxHeight: "400px", overflowY: "auto", paddingRight: "10px" }}>
                 <p>
                   Welcome to <strong>Agent Inclusive Sim</strong>, a corporate resource game that dramatises Rutger&apos;s org leadership principles. 
-                  Your goal is to reach the valuation target for your chosen difficulty (Boardroom <strong>$3B</strong>, Reality <strong>$65B</strong>, ZIRP <strong>$120B</strong>) within <strong>30 turns</strong>. If you run out of cash (&lt; -$1,000,000), you go bankrupt and lose. Difficulty levels target roughly 80% / 45% / 10% win rates against the same starting strategy.
+                  Your goal is to reach the valuation target for your chosen difficulty (Boardroom <strong>$1.1B</strong>, Reality <strong>$25B</strong>, ZIRP <strong>$140B</strong>) within <strong>30 turns</strong>. If you run out of cash (&lt; -$1,000,000), you go bankrupt and lose. Difficulty levels target roughly 80% / 45% / 10% win rates against the same starting strategy. Each turn, you can take <strong>one</strong> hire, <strong>one</strong> OKR redefine, <strong>one</strong> card, and <strong>one</strong> promotion — pacing matters more than spending.
                 </p>
 
                 <h3 style={{ fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--color-fg-1)", textTransform: "uppercase", margin: "0" }}>

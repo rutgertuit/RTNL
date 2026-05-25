@@ -34,9 +34,12 @@ const WIN_THRESHOLD = {
   // at v4 within the 30-turn budget, so the threshold has to respect that
   // economic ceiling. ZIRP starts at $30k cash so the economic ramp punishes
   // immediately — threshold tuned to be reachable in ~1-in-10 lucky runs.
-  boardroom:    3_000_000_000,
-  reality:     65_000_000_000,
-  zirp:       120_000_000_000,
+  // Per-turn action caps (one hire, one OKR, one card, one promotion)
+  // throttle the late-game compounding curve, so thresholds drop ~50% to
+  // keep target win rates within reach in 30 turns.
+  boardroom:    1_100_000_000,
+  reality:     25_000_000_000,
+  zirp:       140_000_000_000,
 };
 
 const AI_MULT_BY_VERSION = [1, 2, 4, 12, 40, 150, 600]; // index = agentVersion
@@ -374,6 +377,10 @@ const MAX_PROMOTIONS_PER_TURN = 1;
 function policyTurn(s) {
   let safety = 20;
   let promotionsUsed = 0;
+  // One-action-per-bucket-per-turn caps (mirrors AgentGameClient reducer).
+  let hiredThisTurn = false;
+  let okrThisTurn = false;
+  let cardThisTurn = false;
 
   while (safety-- > 0) {
     const cardsUnlocked = s.turn >= TURN_CARDS_UNLOCKED;
@@ -381,22 +388,26 @@ function policyTurn(s) {
     const agentUnlocked = s.turn >= TURN_AGENT_UNLOCKED;
 
     // 1. Play markdown_wiki the first turn it's in hand AND cards are unlocked
-    if (cardsUnlocked && !s.hasDocumentation && s.hand.includes("markdown_wiki") && s.cash >= 15_000) {
+    //    AND we haven't used our one card-play this turn.
+    if (cardsUnlocked && !cardThisTurn && !s.hasDocumentation && s.hand.includes("markdown_wiki") && s.cash >= 15_000) {
       playCard(s, "markdown_wiki");
+      cardThisTurn = true;
       continue;
     }
 
     // 2. Save critical loyalty with kroket
     const critical = s.employees.findIndex((e) => e.loyalty <= 30 && e.asleepTurns === 0);
-    if (cardsUnlocked && critical >= 0 && s.hand.includes("kroket_lunch") && s.cash >= 2_500) {
+    if (cardsUnlocked && !cardThisTurn && critical >= 0 && s.hand.includes("kroket_lunch") && s.cash >= 2_500) {
       playCard(s, "kroket_lunch", critical);
+      cardThisTurn = true;
       continue;
     }
 
     // 3. PDP a high-loyalty L1 before promoting
     const pdpTarget = s.employees.findIndex((e) => !e.hasPDP && e.onboarded && e.level === 1 && e.loyalty > 50);
-    if (cardsUnlocked && pdpTarget >= 0 && s.hand.includes("pdp") && s.cash >= 5_000) {
+    if (cardsUnlocked && !cardThisTurn && pdpTarget >= 0 && s.hand.includes("pdp") && s.cash >= 5_000) {
       playCard(s, "pdp", pdpTarget);
+      cardThisTurn = true;
       continue;
     }
 
@@ -411,38 +422,57 @@ function policyTurn(s) {
     }
 
     // 5. Permanent boosts (cards)
-    if (cardsUnlocked && !s.hasKoffieApparaat && s.hand.includes("koffie_apparaat") && s.cash >= 80_000) {
+    if (cardsUnlocked && !cardThisTurn && !s.hasKoffieApparaat && s.hand.includes("koffie_apparaat") && s.cash >= 80_000) {
       playCard(s, "koffie_apparaat");
+      cardThisTurn = true;
       continue;
     }
-    if (cardsUnlocked && !s.hasKroketLobby && s.hand.includes("kroket_lobby") && s.cash >= 120_000) {
+    if (cardsUnlocked && !cardThisTurn && !s.hasKroketLobby && s.hand.includes("kroket_lobby") && s.cash >= 120_000) {
       playCard(s, "kroket_lobby");
+      cardThisTurn = true;
       continue;
     }
 
-    // 6. Hire humans while onboarding budget exists
-    if (s.turn < 22 && s.employees.length < 6 && s.cash >= 100_000) {
-      hireWorker(s);
-      continue;
+    // 6. Hire one human while onboarding budget exists (one hire per turn cap)
+    if (!hiredThisTurn && s.turn < 22 && s.employees.length < 6 && s.cash >= 100_000) {
+      if (hireWorker(s)) {
+        hiredThisTurn = true;
+        continue;
+      }
     }
 
     // 7. Late-game GPT-5 wrapper push
-    if (cardsUnlocked && s.turn >= 12 && s.hasDocumentation && s.hand.includes("gpt5_wrapper") && s.cash >= 60_000) {
+    if (cardsUnlocked && !cardThisTurn && s.turn >= 12 && s.hasDocumentation && s.hand.includes("gpt5_wrapper") && s.cash >= 60_000) {
       playCard(s, "gpt5_wrapper");
+      cardThisTurn = true;
       continue;
     }
 
-    // 8. Hire agents once docs are active AND the unlock turn has passed
-    if (agentUnlocked && s.hasDocumentation && s.agents < 2 && s.cash >= 80_000) {
-      hireAgent(s);
-      continue;
+    // 8. Hire an agent (counts against the same hire bucket as humans)
+    if (!hiredThisTurn && agentUnlocked && s.hasDocumentation && s.agents < 2 && s.cash >= 80_000) {
+      if (hireAgent(s)) {
+        hiredThisTurn = true;
+        continue;
+      }
     }
 
-    // 9. OKR bump when loyalty buffer is healthy
-    if (cardsUnlocked && s.okrLevel < 3 && s.hand.includes("vage_okr") && s.cash >= 80_000) {
+    // 9. OKR bump when loyalty buffer is healthy (one OKR redefine per turn)
+    if (cardsUnlocked && !cardThisTurn && s.okrLevel < 3 && s.hand.includes("vage_okr") && s.cash >= 80_000) {
       const anyLowLoyalty = s.employees.some((e) => e.loyalty < 50);
       if (!anyLowLoyalty) {
         playCard(s, "vage_okr");
+        cardThisTurn = true;
+        continue;
+      }
+    }
+
+    // 10. Fixed-action OKR refine when the team's already in good shape
+    if (!okrThisTurn && s.okrLevel < 3 && s.cash >= 50_000) {
+      const anyLowLoyalty = s.employees.some((e) => e.loyalty < 50);
+      if (!anyLowLoyalty) {
+        s.cash -= 10_000;
+        s.okrLevel = Math.min(5, s.okrLevel + 1);
+        okrThisTurn = true;
         continue;
       }
     }

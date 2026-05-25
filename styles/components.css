@@ -2699,30 +2699,68 @@ body { padding-top: 0; }
   display: block;
   margin-top: 1px;
 }
-.sim-v2 .sim-desk__loyalty {
-  position: relative;
-  height: 4px;
+/* Loyalty bar (legacy) — kept hidden in v4. */
+.sim-v2 .sim-desk__loyalty,
+.sim-v2 .sim-desk__loyalty-fill,
+.sim-v2 .sim-desk__loyalty-num { display: none; }
+
+/* Metric pills under the desk — replaces the loyalty bar.
+   🔨 productivity / ❤ loyalty, color-coded by tier. */
+.sim-v2 .sim-desk__metrics {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
   margin-top: 4px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 2px;
-  overflow: visible;
 }
-.sim-v2 .sim-desk__loyalty-fill {
-  position: absolute; left: 0; top: 0; bottom: 0;
-  background: linear-gradient(90deg, #a3be8c 0%, goldenrod 80%, var(--color-accent-warm) 100%);
-  border-radius: 2px;
-  transition: width 400ms ease;
-}
-.sim-v2 .sim-desk.is-critical .sim-desk__loyalty-fill {
-  background: var(--color-accent-warm);
-}
-.sim-v2 .sim-desk__loyalty-num {
-  position: absolute;
-  right: 0; top: -12px;
+.sim-v2 .sim-desk__metric {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   font-family: var(--font-mono);
-  font-size: 9px;
-  color: var(--color-fg-3);
-  letter-spacing: 0.06em;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--color-fg-2);
+  line-height: 1;
+  white-space: nowrap;
+}
+.sim-v2 .sim-desk__metric-icon {
+  font-size: 11px;
+  line-height: 1;
+}
+.sim-v2 .sim-desk__metric-num {
+  font-weight: 600;
+}
+.sim-v2 .sim-desk__metric--prod {
+  background: rgba(218, 165, 32, 0.08);
+  border-color: rgba(218, 165, 32, 0.25);
+  color: goldenrod;
+}
+.sim-v2 .sim-desk__metric--loy-good {
+  background: rgba(163, 190, 140, 0.1);
+  border-color: rgba(163, 190, 140, 0.3);
+  color: #a3be8c;
+}
+.sim-v2 .sim-desk__metric--loy-warn {
+  background: rgba(218, 165, 32, 0.1);
+  border-color: rgba(218, 165, 32, 0.3);
+  color: goldenrod;
+}
+.sim-v2 .sim-desk__metric--loy-critical {
+  background: rgba(200, 85, 61, 0.15);
+  border-color: rgba(200, 85, 61, 0.5);
+  color: var(--color-accent-warm);
+  animation: sim-desk-pulse-warn 1s ease-in-out infinite;
+}
+
+/* PDP badge tweak for the new badge type */
+.sim-v2 .sim-desk__badge--pdp {
+  background: rgba(218, 165, 32, 0.15);
+  border-color: rgba(218, 165, 32, 0.4);
+  color: goldenrod;
 }
 
 /* Inline promote button */
@@ -3227,6 +3265,15 @@ body { padding-top: 0; }
   background: transparent;
   border-style: dashed;
   border-color: rgba(255, 255, 255, 0.1);
+}
+.sim-fs__move-btn.is-used {
+  background: linear-gradient(180deg, rgba(163, 190, 140, 0.1), rgba(163, 190, 140, 0.03));
+  border-color: rgba(163, 190, 140, 0.4);
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+.sim-fs__move-btn.is-used .sim-fs__move-btn-name {
+  color: #a3be8c;
 }
 .sim-fs__move-btn--cards.is-open {
   border-color: goldenrod;
