@@ -283,11 +283,13 @@ function gameReducer(state: GameState, action: Action): GameState {
     }
 
     case "DRAFT_CARD": {
+      // Single log emission — reducer is the source of truth. No useEffect re-fires this.
+      // Guard: if draftChoices already cleared (e.g. StrictMode double-dispatch), bail early.
       if (state.isGameOver || !state.draftChoices) return state;
       const card = CARD_DATABASE[action.cardId];
       if (!card) return state;
 
-      const logs = [`🃏 Drafted Card: ${card.name} has been added to your hand and deck discard pile.`];
+      const logs = [`🃏 Drafted Card: ${card.name} added to hand.`];
 
       // Add to hand and discard pile (deck structure)
       const nextHand = [...state.cardsHand, action.cardId];
@@ -297,7 +299,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         ...state,
         cardsHand: nextHand,
         cardsDiscard: nextDiscard,
-        draftChoices: null, // Clear draft overlay blocker
+        draftChoices: null, // Clear overlay — second dispatch sees draftChoices=null and returns early
         eventLog: [...state.eventLog, ...logs],
       };
     }
