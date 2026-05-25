@@ -192,6 +192,13 @@ export function Hero() {
         </div>
 
         <nav className="rt-hero__index" aria-label="Section index">
+          <a href="#hook" className="rt-hero__index-item">
+            <span className="rt-hero__index-num">00</span>
+            <span className="rt-hero__index-label">
+              The hook
+              <span className="rt-hero__index-arrow" aria-hidden>→</span>
+            </span>
+          </a>
           <a href="#business" className="rt-hero__index-item">
             <span className="rt-hero__index-num">01</span>
             <span className="rt-hero__index-label">
