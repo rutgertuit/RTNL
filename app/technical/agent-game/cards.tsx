@@ -169,6 +169,12 @@ export interface GameState {
   rtoActiveTurns?: number;
   surgeTurnsLeft?: number;
   surgeThrottledTurnsLeft?: number;
+  // Progressive-disclosure tutorial state.
+  // tutorialDismissed: list of turn numbers where the player closed the banner.
+  // promotionsThisTurn: enforces the "one promotion per turn" rule introduced
+  // in the turn-3 tutorial. Resets to 0 in END_TURN.
+  tutorialDismissed?: number[];
+  promotionsThisTurn?: number;
 }
 
 // ============================================================

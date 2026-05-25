@@ -2842,3 +2842,131 @@ body { padding-top: 0; }
   .sim-v2 .sim-flow-step__label { display: none; }
 }
 
+/* ============================================================
+   AGENT GAME V3.5 — Progressive-disclosure tutorial banner
+   + locked-mechanic placeholders for turns 1..5.
+   ============================================================ */
+
+/* Tutorial banner — sits between dashboard and flow strip on turns 1-5.
+   Image slot on the left (placeholder for now — drop art later via CSS
+   background-image), copy + CTA on the right. Dismissible per turn. */
+.sim-v2 .sim-tut {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: linear-gradient(180deg, #1c1a18 0%, #14110d 100%);
+  border: 1px solid rgba(218, 165, 32, 0.4);
+  border-radius: 6px;
+  position: relative;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.4);
+  flex: 0 0 auto;
+}
+.sim-v2 .sim-tut__art {
+  height: 140px;
+  background:
+    repeating-linear-gradient(45deg,
+      rgba(218, 165, 32, 0.04),
+      rgba(218, 165, 32, 0.04) 8px,
+      transparent 8px,
+      transparent 16px),
+    linear-gradient(180deg, #2a2419 0%, #14110d 100%);
+  border: 1px dashed rgba(218, 165, 32, 0.3);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sim-v2 .sim-tut__art-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-fg-3);
+  opacity: 0.6;
+}
+.sim-v2 .sim-tut__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.sim-v2 .sim-tut__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: goldenrod;
+  text-transform: uppercase;
+}
+.sim-v2 .sim-tut__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-400);
+  font-weight: var(--fw-semibold);
+  margin: 0;
+  color: var(--color-fg-1);
+  line-height: 1.2;
+}
+.sim-v2 .sim-tut__p {
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 0;
+  color: var(--color-fg-2);
+}
+.sim-v2 .sim-tut__cta {
+  align-self: flex-start;
+  margin-top: var(--space-2);
+  padding: 8px 14px;
+  font-size: 11px;
+}
+.sim-v2 .sim-tut__close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: transparent;
+  border: 0;
+  color: var(--color-fg-3);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 6px;
+}
+.sim-v2 .sim-tut__close:hover { color: var(--color-fg-1); }
+
+/* Locked panel state — used for the hand panel before turn 5 */
+.sim-v2 .sim-panel--locked {
+  opacity: 0.5;
+  border-style: dashed;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.1));
+}
+.sim-v2 .sim-panel__locked-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 80px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-fg-3);
+  text-align: center;
+  padding: var(--space-4);
+  letter-spacing: 0.06em;
+}
+
+/* Locked fixed-action button — used for Cognitive Agent before turn 4 */
+.sim-v2 .sim-btn-locked {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-style: dashed;
+}
+.sim-v2 .sim-btn-locked:hover { opacity: 0.4; }
+
+@media (max-width: 720px) {
+  .sim-v2 .sim-tut {
+    grid-template-columns: 1fr;
+  }
+  .sim-v2 .sim-tut__art { height: 80px; }
+}
+

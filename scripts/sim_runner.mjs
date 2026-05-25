@@ -364,68 +364,82 @@ function endTurn(s) {
 // not random-policy failure.
 // -----------------------------------------------------------------------------
 
+// Tutorial gates — mirror AgentGameClient.tsx constants so the simulator
+// honours the progressive-disclosure unlocks introduced in turns 1..5.
+const TURN_AGENT_UNLOCKED = 4;
+const TURN_CARDS_UNLOCKED = 5;
+const TURN_PROMOTION_UNLOCKED = 3;
+const MAX_PROMOTIONS_PER_TURN = 1;
+
 function policyTurn(s) {
-  // Action phase: play cards + take fixed actions until we've done all useful things this turn.
   let safety = 20;
+  let promotionsUsed = 0;
+
   while (safety-- > 0) {
-    // 1. Always play markdown_wiki the first turn it's in hand
-    if (!s.hasDocumentation && s.hand.includes("markdown_wiki") && s.cash >= 15_000) {
+    const cardsUnlocked = s.turn >= TURN_CARDS_UNLOCKED;
+    const promotionUnlocked = s.turn >= TURN_PROMOTION_UNLOCKED;
+    const agentUnlocked = s.turn >= TURN_AGENT_UNLOCKED;
+
+    // 1. Play markdown_wiki the first turn it's in hand AND cards are unlocked
+    if (cardsUnlocked && !s.hasDocumentation && s.hand.includes("markdown_wiki") && s.cash >= 15_000) {
       playCard(s, "markdown_wiki");
       continue;
     }
 
-    // 2. Save loyalty: if any human is <= 30 loyalty, play kroket on them
+    // 2. Save critical loyalty with kroket
     const critical = s.employees.findIndex((e) => e.loyalty <= 30 && e.asleepTurns === 0);
-    if (critical >= 0 && s.hand.includes("kroket_lunch") && s.cash >= 2_500) {
+    if (cardsUnlocked && critical >= 0 && s.hand.includes("kroket_lunch") && s.cash >= 2_500) {
       playCard(s, "kroket_lunch", critical);
       continue;
     }
 
-    // 3. Apply PDP to a level-1 employee with high loyalty before promotion
+    // 3. PDP a high-loyalty L1 before promoting
     const pdpTarget = s.employees.findIndex((e) => !e.hasPDP && e.onboarded && e.level === 1 && e.loyalty > 50);
-    if (pdpTarget >= 0 && s.hand.includes("pdp") && s.cash >= 5_000) {
+    if (cardsUnlocked && pdpTarget >= 0 && s.hand.includes("pdp") && s.cash >= 5_000) {
       playCard(s, "pdp", pdpTarget);
       continue;
     }
 
-    // 4. Promote a PDP-locked, fully-onboarded L1 if affordable + bank cushion
-    const promoteIdx = s.employees.findIndex((e) => e.hasPDP && e.onboarded && e.level === 1);
-    if (promoteIdx >= 0 && s.cash >= 50_000) {
-      promote(s, promoteIdx);
-      continue;
+    // 4. Promote — only after unlock, capped at one per turn (rule from turn 3 tutorial)
+    if (promotionUnlocked && promotionsUsed < MAX_PROMOTIONS_PER_TURN) {
+      const promoteIdx = s.employees.findIndex((e) => e.hasPDP && e.onboarded && e.level === 1);
+      if (promoteIdx >= 0 && s.cash >= 50_000) {
+        promote(s, promoteIdx);
+        promotionsUsed += 1;
+        continue;
+      }
     }
 
-    // 5. Permanent boosts when affordable + later game
-    if (!s.hasKoffieApparaat && s.hand.includes("koffie_apparaat") && s.cash >= 80_000) {
+    // 5. Permanent boosts (cards)
+    if (cardsUnlocked && !s.hasKoffieApparaat && s.hand.includes("koffie_apparaat") && s.cash >= 80_000) {
       playCard(s, "koffie_apparaat");
       continue;
     }
-    if (!s.hasKroketLobby && s.hand.includes("kroket_lobby") && s.cash >= 120_000) {
+    if (cardsUnlocked && !s.hasKroketLobby && s.hand.includes("kroket_lobby") && s.cash >= 120_000) {
       playCard(s, "kroket_lobby");
       continue;
     }
 
-    // 6. Hire when we have headroom and we still have time to onboard
+    // 6. Hire humans while onboarding budget exists
     if (s.turn < 22 && s.employees.length < 6 && s.cash >= 100_000) {
       hireWorker(s);
       continue;
     }
 
-    // 7. Late-game valuation push: GPT-5 Wrapper as soon as docs are up and
-    // we're past the early bootstrap. Stacks well — keeps playing if drawn again.
-    if (s.turn >= 12 && s.hasDocumentation && s.hand.includes("gpt5_wrapper") && s.cash >= 60_000) {
+    // 7. Late-game GPT-5 wrapper push
+    if (cardsUnlocked && s.turn >= 12 && s.hasDocumentation && s.hand.includes("gpt5_wrapper") && s.cash >= 60_000) {
       playCard(s, "gpt5_wrapper");
       continue;
     }
 
-    // 8. Hire cognitive agents once docs are up and bank is healthy
-    if (s.hasDocumentation && s.agents < 2 && s.cash >= 80_000) {
+    // 8. Hire agents once docs are active AND the unlock turn has passed
+    if (agentUnlocked && s.hasDocumentation && s.agents < 2 && s.cash >= 80_000) {
       hireAgent(s);
       continue;
     }
 
-    // 9. Bump OKR level if loyalty buffer is fat and cash is healthy
-    if (s.okrLevel < 3 && s.hand.includes("vage_okr") && s.cash >= 80_000) {
+    // 9. OKR bump when loyalty buffer is healthy
+    if (cardsUnlocked && s.okrLevel < 3 && s.hand.includes("vage_okr") && s.cash >= 80_000) {
       const anyLowLoyalty = s.employees.some((e) => e.loyalty < 50);
       if (!anyLowLoyalty) {
         playCard(s, "vage_okr");

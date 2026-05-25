@@ -28,7 +28,20 @@ export type Action =
   | { type: "RESET_GAME"; difficulty: "boardroom" | "reality" | "zirp" }
   | { type: "LOAD_STATE"; state: GameState }
   | { type: "CHOOSE_EVENT_OPTION"; option: "A" | "B" }
-  | { type: "DRAFT_CARD"; cardId: string };
+  | { type: "DRAFT_CARD"; cardId: string }
+  | { type: "DISMISS_TUTORIAL"; turn: number };
+
+// Tutorial gating — mechanics unlock by turn so new players see one
+// concept at a time instead of all of them on turn 1.
+//   Turn 1: Hire Human, Redefine OKRs, advance.
+//   Turn 2: revenue/onboarding becomes visible (just status).
+//   Turn 3: promotion unlocks (capped at 1/turn).
+//   Turn 4: cognitive agent unlocks (deliberately unproductive at first).
+//   Turn 5: card hand unlocks.
+const TURN_AGENT_UNLOCKED = 4;
+const TURN_CARDS_UNLOCKED = 5;
+const TURN_PROMOTION_UNLOCKED = 3;
+const MAX_PROMOTIONS_PER_TURN = 1;
 
 const EMPLOYEE_NAMES = [
   "Edgar",
@@ -197,6 +210,12 @@ function gameReducer(state: GameState, action: Action): GameState {
     case "RESET_GAME":
       return createInitialState(action.difficulty);
 
+    case "DISMISS_TUTORIAL": {
+      const dismissed = state.tutorialDismissed ?? [];
+      if (dismissed.includes(action.turn)) return state;
+      return { ...state, tutorialDismissed: [...dismissed, action.turn] };
+    }
+
     case "CHOOSE_EVENT_OPTION": {
       if (state.isGameOver || !state.activeEventId) return state;
       const event = EVENT_DATABASE[state.activeEventId];
@@ -329,6 +348,15 @@ function gameReducer(state: GameState, action: Action): GameState {
 
     case "EMPLOY_AGENT": {
       if (state.isGameOver) return state;
+      if (state.turn < TURN_AGENT_UNLOCKED) {
+        return {
+          ...state,
+          eventLog: [
+            ...state.eventLog,
+            `Cognitive Agents unlock at turn ${TURN_AGENT_UNLOCKED}. Frontier AI hasn't shipped yet.`,
+          ],
+        };
+      }
       const cost = 15000;
       if (state.cash < cost) {
         return {
@@ -367,6 +395,25 @@ function gameReducer(state: GameState, action: Action): GameState {
 
     case "PROMOTE_WORKER": {
       if (state.isGameOver) return state;
+      if (state.turn < TURN_PROMOTION_UNLOCKED) {
+        return {
+          ...state,
+          eventLog: [
+            ...state.eventLog,
+            `Promotion is unlocked from turn ${TURN_PROMOTION_UNLOCKED}. End the turn to advance the tutorial.`,
+          ],
+        };
+      }
+      const promotionsUsed = state.promotionsThisTurn ?? 0;
+      if (promotionsUsed >= MAX_PROMOTIONS_PER_TURN) {
+        return {
+          ...state,
+          eventLog: [
+            ...state.eventLog,
+            `You can only promote one employee per turn. End the turn to promote again next round.`,
+          ],
+        };
+      }
       const emp = state.employees.find((e) => e.id === action.employeeId);
       if (!emp) return state;
       if (emp.type === "agent") {
@@ -444,6 +491,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         ...state,
         cash: state.cash - cost,
         employees: updatedEmployees,
+        promotionsThisTurn: (state.promotionsThisTurn ?? 0) + 1,
         eventLog: [...state.eventLog, ...logs],
       };
     }
@@ -482,6 +530,15 @@ function gameReducer(state: GameState, action: Action): GameState {
 
     case "PLAY_CARD": {
       if (state.isGameOver) return state;
+      if (state.turn < TURN_CARDS_UNLOCKED) {
+        return {
+          ...state,
+          eventLog: [
+            ...state.eventLog,
+            `Cards unlock at turn ${TURN_CARDS_UNLOCKED}. Your playbook hasn't been published yet.`,
+          ],
+        };
+      }
       const card = CARD_DATABASE[action.cardId];
       if (!card) return state;
 
@@ -1020,6 +1077,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         cardsDiscard: currentDiscard,
         kantoortuinPenaltyTurns: nextKantoortuinTurns,
         redefinedOkrsThisTurn: false,
+        promotionsThisTurn: 0, // Reset the per-turn promotion cap
         hypeTurnsLeft: nextHypeTurnsLeft,
         isGameOver,
         gameResult,
@@ -1035,6 +1093,69 @@ function gameReducer(state: GameState, action: Action): GameState {
     }
   }
 }
+
+// --- Tutorial copy for turns 1..5 ---
+// One screen per turn introducing exactly one new mechanic. Concise on
+// purpose — the player should read it once and play. Image-slot is a
+// CSS rendering, not an asset, so future iterations can swap art in.
+interface TutorialStep {
+  eyebrow: string;
+  title: string;
+  body: string[];
+  cta: string;
+}
+const TUTORIAL_STEPS: Record<number, TutorialStep> = {
+  1: {
+    eyebrow: "DAY ONE",
+    title: "Welcome to your new consultancy.",
+    body: [
+      "You inherited the company yesterday. The goal: keep this thing afloat for 30 turns and hit your difficulty's valuation target.",
+      "Today, three things you can do — pick ONE, then click NEXT TURN.",
+      "Hire a Human ($30k). Redefine OKRs ($10k — locks in a permanent productivity bump but burns 40% of this turn to a meeting). Or do nothing and bank the cash.",
+    ],
+    cta: "Got it — show me my desk",
+  },
+  2: {
+    eyebrow: "TURN TWO · ONBOARDING",
+    title: "Things take time.",
+    body: [
+      "Your hire is onboarding. They cost their full salary but only generate 10% revenue until they're fully ramped (6 turns by default).",
+      "Watch the Office Floor — that's your team. Hover any desk for the loyalty score.",
+      "The dashboard shows the company's cash flow each turn: revenue from working humans minus salaries minus overhead. Net positive is the bar.",
+    ],
+    cta: "Got it",
+  },
+  3: {
+    eyebrow: "TURN THREE · PROMOTION",
+    title: "Move someone up.",
+    body: [
+      "Fully onboarded humans can be promoted. L1 → L2 → L3, each level grows revenue but salary scales too.",
+      "NEW RULE: you can only promote ONE person per turn. Pick the highest-loyalty employee — promotion resets their loyalty to 100 and inspires teammates.",
+      "Pro tip: from turn 5 you'll get a Build-Plan PDP card. Play it on someone BEFORE you promote them, or take a 30% productivity penalty.",
+    ],
+    cta: "Got it",
+  },
+  4: {
+    eyebrow: "TURN FOUR · ENTER THE MACHINE",
+    title: "Frontier AI just shipped.",
+    body: [
+      "You can now hire a Cognitive Agent — cheap upfront ($15k, no recurring salary), tireless, but erratic without proper documentation.",
+      "Without docs: the agent costs $10k/turn maintenance, drains team loyalty, and provides no productivity boost. With docs: every human gets a 25% boost per agent.",
+      "Hire one anyway — feel the pain. Next turn we'll fix it.",
+    ],
+    cta: "OK, deploy the chaos",
+  },
+  5: {
+    eyebrow: "TURN FIVE · THE PLAYBOOK",
+    title: "Cards have arrived.",
+    body: [
+      "Your hand is on the right: the playbook moves. Most useful first one: Markdown Wiki ($15k) — activates documentation, halves onboarding, makes the agent useful.",
+      "Each turn you can play cards alongside your fixed actions. From here it's your call.",
+      "Good luck. Don't optimise the horse.",
+    ],
+    cta: "Let me play",
+  },
+};
 
 const playSound = (soundName: string) => {
   if (typeof window === "undefined") return;
@@ -1377,6 +1498,43 @@ export default function AgentGameClient() {
       <Nav />
 
       <main className="sim-container sim-v2" id="game-content">
+        {/* Progressive-disclosure tutorial banner — turns 1 through 5,
+            dismissible per turn so it only auto-shows once. */}
+        {(() => {
+          const step = TUTORIAL_STEPS[state.turn];
+          const dismissed = state.tutorialDismissed ?? [];
+          if (!step || dismissed.includes(state.turn)) return null;
+          return (
+            <div className="sim-tut" role="dialog" aria-live="polite" aria-label={step.title}>
+              <div className="sim-tut__art" aria-hidden>
+                <span className="sim-tut__art-label">IMAGE · Turn {state.turn}</span>
+              </div>
+              <div className="sim-tut__body">
+                <div className="sim-tut__eyebrow">{step.eyebrow}</div>
+                <h3 className="sim-tut__title">{step.title}</h3>
+                {step.body.map((p, i) => (
+                  <p key={i} className="sim-tut__p">{p}</p>
+                ))}
+                <button
+                  type="button"
+                  className="button button--warm sim-tut__cta"
+                  onClick={() => dispatch({ type: "DISMISS_TUTORIAL", turn: state.turn })}
+                >
+                  {step.cta} <span aria-hidden>→</span>
+                </button>
+              </div>
+              <button
+                type="button"
+                className="sim-tut__close"
+                onClick={() => dispatch({ type: "DISMISS_TUTORIAL", turn: state.turn })}
+                aria-label="Dismiss tutorial"
+              >
+                ×
+              </button>
+            </div>
+          );
+        })()}
+
         <header className="sim-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "var(--space-4)" }}>
           <div>
             <Link href="/#technical" className="sim-header__back" style={{ display: "block" }}>
@@ -1663,13 +1821,23 @@ export default function AgentGameClient() {
                               </div>
                             </div>
 
-                            {/* Inline promote button — only shown when usable */}
-                            {!isAgent && isOnboarded && emp.promotionLevel < 3 && (
+                            {/* Inline promote button — only shown when usable
+                                and after the promotion mechanic unlocks at turn 3.
+                                One promotion per turn (rule introduced in turn-3 tutorial). */}
+                            {!isAgent && isOnboarded && emp.promotionLevel < 3 && state.turn >= TURN_PROMOTION_UNLOCKED && (
                               <button
                                 onClick={(e) => { e.stopPropagation(); handlePromoteWorker(emp.id); }}
-                                disabled={state.cash < (emp.promotionLevel === 1 ? 15000 : 40000)}
+                                disabled={
+                                  state.cash < (emp.promotionLevel === 1 ? 15000 : 40000) ||
+                                  (state.promotionsThisTurn ?? 0) >= MAX_PROMOTIONS_PER_TURN
+                                }
                                 className="sim-desk__promote"
                                 aria-label={`Promote ${emp.name}`}
+                                title={
+                                  (state.promotionsThisTurn ?? 0) >= MAX_PROMOTIONS_PER_TURN
+                                    ? "One promotion per turn. End the turn to promote again."
+                                    : `Promote ${emp.name} to level ${emp.promotionLevel + 1}`
+                                }
                               >
                                 ▴ Promote
                                 <span className="sim-desk__promote-cost">${emp.promotionLevel === 1 ? "15k" : "40k"}</span>
@@ -1684,7 +1852,21 @@ export default function AgentGameClient() {
               </div>
             </section>
 
-            {/* Tactical Cards Hand */}
+            {/* Tactical Cards Hand — locked until turn 5 */}
+            {state.turn < TURN_CARDS_UNLOCKED ? (
+              <section className="sim-panel sim-panel--locked" aria-label="Card hand (locked)">
+                <h2 className="sim-panel__title">
+                  <span>🔒 Tactical Hand</span>
+                  <span style={{ fontSize: "10px", color: "var(--color-fg-3)" }}>
+                    unlocks turn {TURN_CARDS_UNLOCKED}
+                  </span>
+                </h2>
+                <div className="sim-panel__locked-body">
+                  Your playbook arrives at turn {TURN_CARDS_UNLOCKED}. For now, use the fixed
+                  actions on the right.
+                </div>
+              </section>
+            ) : (
             <section className="sim-panel" aria-labelledby="hand-title">
               <h2 className="sim-panel__title" id="hand-title">
                 <span>Tactical Hand Shelf</span>
@@ -1745,6 +1927,7 @@ export default function AgentGameClient() {
                 })}
               </div>
             </section>
+            )}
           </div>
 
           {/* Right Column: Actions & Event Log */}
@@ -1770,15 +1953,28 @@ export default function AgentGameClient() {
                   <span className="sim-btn-fixed__cost">$30,000</span>
                 </button>
 
-                <button
-                  onClick={handleHireAgent}
-                  disabled={state.cash < 15000 || state.activeEventId !== null || state.draftChoices !== null || !!state.freezeHiringNextTurn}
-                  className="sim-btn-fixed"
-                  aria-label="Hire AI Cognitive Agent for $15,000"
-                >
-                  <span>Hire Cognitive Agent</span>
-                  <span className="sim-btn-fixed__cost">$15,000</span>
-                </button>
+                {state.turn >= TURN_AGENT_UNLOCKED && (
+                  <button
+                    onClick={handleHireAgent}
+                    disabled={state.cash < 15000 || state.activeEventId !== null || state.draftChoices !== null || !!state.freezeHiringNextTurn}
+                    className="sim-btn-fixed"
+                    aria-label="Hire AI Cognitive Agent for $15,000"
+                  >
+                    <span>Hire Cognitive Agent</span>
+                    <span className="sim-btn-fixed__cost">$15,000</span>
+                  </button>
+                )}
+                {state.turn < TURN_AGENT_UNLOCKED && (
+                  <button
+                    disabled
+                    className="sim-btn-fixed sim-btn-locked"
+                    aria-label={`Cognitive Agent unlocks at turn ${TURN_AGENT_UNLOCKED}`}
+                    title={`Cognitive Agents unlock at turn ${TURN_AGENT_UNLOCKED}`}
+                  >
+                    <span>🔒 Cognitive Agent</span>
+                    <span className="sim-btn-fixed__cost">turn {TURN_AGENT_UNLOCKED}</span>
+                  </button>
+                )}
 
                 <button
                   onClick={handleRedefineOkrs}
