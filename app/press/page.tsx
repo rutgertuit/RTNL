@@ -6,7 +6,7 @@ import { AppChrome } from "@/components/chrome/AppChrome";
 
 const TITLE = "Press, interviews, and conversations";
 const DESCRIPTION =
-  "Twenty-four interviews, articles, podcast appearances, video panels and speaking engagements with or about Rutger Tuit, 2021–2025. Sourced from Think with Google, Adformatie, Marketing Tribune, Emerce, Fonk Magazine, Dutch Cowboys, ESNS, Amsterdam Dance Event, and others.";
+  "Twenty-four interviews, articles, podcast appearances, video panels and speaking engagements with or about Rutger Tuit, 2021 → 2025. Sourced from Think with Google, Adformatie, Marketing Tribune, Emerce, Fonk Magazine, Dutch Cowboys, ESNS, Amsterdam Dance Event, and others.";
 
 export const metadata: Metadata = {
   title: TITLE,
