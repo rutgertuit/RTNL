@@ -1553,6 +1553,10 @@ export default function AgentGameClient() {
             <span className="sim-fs__home-arrow" aria-hidden>←</span>
             <span className="sim-fs__home-label">rt.nl</span>
           </Link>
+          <Link href="/business/agent-inclusive" className="sim-fs__born-from" aria-label="Read the source article: Agent Inclusive">
+            <span className="eyebrow">BORN FROM</span>
+            <span>Agent Inclusive →</span>
+          </Link>
           <div className="sim-fs__head-mid">
             <span className="sim-fs__game-name">AGENT INCLUSIVE SIM</span>
             <span className="sim-fs__head-meta">

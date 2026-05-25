@@ -240,6 +240,23 @@ export default function AgentInclusivePage() {
             ),
           },
           {
+            num: "+",
+            label: "Play the article",
+            children: (
+              <aside className="rt-tuit__sim-callout">
+                <div className="eyebrow eyebrow--warm">PLAY THE ARTICLE</div>
+                <p>
+                  There&apos;s a turn-based sim of every claim in this piece. You start with a
+                  consultancy, 30 turns, a $25B valuation target, and four people. Bankruptcy
+                  is a real option.
+                </p>
+                <Link href="/technical/agent-game" className="button button--warm">
+                  Open the Agent Inclusive Sim <span aria-hidden>→</span>
+                </Link>
+              </aside>
+            ),
+          },
+          {
             num: "04",
             label: "Invitation to growth",
             children: (
