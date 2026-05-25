@@ -91,7 +91,7 @@
   position: relative;
   width: 100%;
   background: var(--color-bg-sunken);
-  border: 1px solid var(--color-fg-4);
+  border: var(--border-hairline);
   overflow: hidden;
   isolation: isolate;
 }

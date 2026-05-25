@@ -168,7 +168,7 @@ export function BriefingInversion() {
             id={`bi-tab-${s.index}`}
             role="tab"
             aria-selected={s.index === activeIndex}
-            aria-controls={`bi-tabpanel-${s.index}`}
+            aria-controls="bi-brief-tabpanel"
             tabIndex={s.index === activeIndex ? 0 : -1}
             className={`rt-bi-brief__step ${
               s.index === activeIndex ? "is-active" : ""
@@ -186,7 +186,7 @@ export function BriefingInversion() {
       <div
         className="rt-bi-brief__body"
         role="tabpanel"
-        id={`bi-tabpanel-${activeStop.index}`}
+        id="bi-brief-tabpanel"
         aria-labelledby={`bi-tab-${activeStop.index}`}
       >
         <div className="rt-bi-brief__column rt-bi-brief__column--prompt">

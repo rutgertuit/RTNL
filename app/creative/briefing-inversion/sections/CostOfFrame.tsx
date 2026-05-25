@@ -153,12 +153,7 @@ export function CostOfFrame() {
         every roadmap conversation a CMO is about to have with a vendor.
       </p>
 
-      <div
-        className="rt-bi-cost__calc"
-        role="tabpanel"
-        id="cost-tabpanel"
-        aria-labelledby={`cost-tab-${modality}`}
-      >
+      <div className="rt-bi-cost__calc">
         <div className="rt-bi-cost__controls">
           <div className="rt-bi-cost__modalities" role="tablist" aria-label="Modality">
             {(Object.keys(MODALITY_META) as Modality[]).map((m) => (
@@ -200,7 +195,12 @@ export function CostOfFrame() {
           <p className="rt-bi-cost__caption">{meta.caption}</p>
         </div>
 
-        <div className="rt-bi-cost__outputs">
+        <div
+          className="rt-bi-cost__outputs"
+          role="tabpanel"
+          id="cost-tabpanel"
+          aria-labelledby={`cost-tab-${modality}`}
+        >
           <div className="rt-bi-cost__total">
             <span className="rt-bi-cost__total-label">TOTAL ENERGY</span>
             <span className="rt-bi-cost__total-value">
