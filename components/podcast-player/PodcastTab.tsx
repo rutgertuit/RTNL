@@ -64,6 +64,17 @@ export function PodcastTab({
     return () => window.removeEventListener("keydown", onKey);
   }, [isOpen]);
 
+  // Open from elsewhere on the page (e.g. the inline "Listen to podcast"
+  // button in the article header — see components/article/PodcastInlineButton).
+  useEffect(() => {
+    const onOpen = () => {
+      setIsOpen(true);
+      setIsLocked(true);
+    };
+    window.addEventListener("rt-podcast-open", onOpen);
+    return () => window.removeEventListener("rt-podcast-open", onOpen);
+  }, []);
+
   // Click outside closes the panel
   useEffect(() => {
     if (!isOpen) return;

@@ -479,11 +479,52 @@ html, body { margin: 0; }
 }
 .rt-tuit__meta {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-3);
   font-family: var(--font-mono);
   font-size: var(--fs-50);
   letter-spacing: var(--tracking-eyebrow);
   color: var(--color-fg-3);
+}
+
+/* Inline action button (e.g. 'Listen to podcast' or 'Play the sim') that
+   sits at the end of the article meta line. Slightly elevated visual
+   weight than the static meta spans so it reads as actionable, not as
+   another filed-under chip. */
+.rt-tuit__meta-action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  background: transparent;
+  border: 1px solid var(--color-accent-warm);
+  color: var(--color-accent-warm);
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--duration-ui) var(--ease-swing),
+              color var(--duration-ui) var(--ease-swing),
+              border-color var(--duration-ui) var(--ease-swing);
+}
+.rt-tuit__meta-action:hover,
+.rt-tuit__meta-action:focus-visible {
+  background: rgba(200, 85, 61, 0.08);
+  color: var(--color-accent-warm-strong);
+  border-color: var(--color-accent-warm-strong);
+}
+.rt-tuit__meta-action--warm {
+  /* default warm variant already applies; modifier kept for parity with
+     the .button--warm pattern in case a neutral variant is added later */
+}
+.rt-tuit__meta-action-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .rt-tuit__stage {
   display: grid;

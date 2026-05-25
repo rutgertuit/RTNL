@@ -89,6 +89,7 @@ export default function MultiplierMythPage() {
         title="The Multiplier Myth."
         readTime="13 min read"
         publishedLabel="May 2026"
+        podcast={{ label: "Listen to podcast version" }}
         stages={[
           {
             num: "01",

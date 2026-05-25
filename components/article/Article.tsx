@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { PodcastInlineButton } from "./PodcastInlineButton";
 
 /**
  * Reusable Article layout — renders the Tuit Post 4-stage structure
@@ -27,6 +28,18 @@ export interface ArticleProps {
    * on Multiplier Myth. Inherits the article container width.
    */
   intro?: ReactNode;
+  /**
+   * When set, render an inline "Listen to podcast version" CTA in the
+   * header meta line. The sticky PodcastTab must also be rendered by the
+   * page (the inline button dispatches an event the tab listens for).
+   */
+  podcast?: { label?: string };
+  /**
+   * When set, render an inline link to a companion interactive (e.g. the
+   * Agent Inclusive Sim). Lives in the header meta line, same row as the
+   * read-time and filed-under spans.
+   */
+  game?: { href: string; label: string };
 }
 
 export function Article({
@@ -37,6 +50,8 @@ export function Article({
   publishedLabel,
   stages,
   intro,
+  podcast,
+  game,
 }: ArticleProps) {
   return (
     <article className="rt-tuit section section--surface">
@@ -52,6 +67,24 @@ export function Article({
             <span>PUBLISHED {publishedLabel.toUpperCase()}</span>
             <span>·</span>
             <span>FILED UNDER {filedUnder.toUpperCase()}</span>
+            {podcast && <PodcastInlineButton label={podcast.label} />}
+            {game && (
+              <Link
+                href={game.href}
+                className="rt-tuit__meta-action rt-tuit__meta-action--warm"
+              >
+                <span className="rt-tuit__meta-action-icon" aria-hidden>
+                  <svg viewBox="0 0 24 24" width="14" height="14">
+                    <path
+                      d="M6 4l14 8-14 8V4z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+                {game.label}
+                <span aria-hidden>→</span>
+              </Link>
+            )}
           </div>
         </div>
 

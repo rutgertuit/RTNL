@@ -42,6 +42,7 @@ export default function AgentInclusivePage() {
         title="Agent Inclusive."
         readTime="13 min read"
         publishedLabel="May 2026"
+        game={{ href: "/technical/agent-game", label: "Play the sim" }}
         stages={[
           {
             num: "01",
