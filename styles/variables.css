@@ -433,23 +433,18 @@ hr {
   border: var(--border-bright);
   background: transparent;
   padding: var(--space-3) var(--space-5);
-  /* Organic blob radius — each instance can override --blob-r for varied shapes */
-  --blob-r: 42% 58% 48% 52% / 52% 44% 56% 48%;
-  border-radius: var(--blob-r);
+  border-radius: var(--radius-1);
   cursor: pointer;
   text-decoration: none;
   transition:
     background var(--duration-trans) var(--ease-swing),
     border-color var(--duration-trans) var(--ease-swing),
-    border-radius var(--duration-trans) var(--ease-swing),
     transform var(--duration-ui) var(--ease-swing);
 }
 
 .button:hover {
   background: rgba(242, 238, 229, 0.04);
   border-color: var(--color-fg-1);
-  /* Subtly re-mould the blob on hover */
-  border-radius: 56% 44% 60% 40% / 48% 56% 44% 52%;
 }
 
 .button:active {
