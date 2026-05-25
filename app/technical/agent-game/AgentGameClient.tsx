@@ -14,6 +14,7 @@ import {
   TRAIT_DATABASE,
   EVENT_DATABASE,
 } from "./cards";
+import { createRng, type Rng } from "./rng";
 
 // ============================================================
 // Types & Actions
@@ -82,15 +83,8 @@ function getDisplayName(emp: { name: string; traitId?: string }): string {
   return (emp.traitId ? TRAIT_DATABASE[emp.traitId]?.displayName : undefined) ?? emp.name;
 }
 
-function shuffleArray<T>(array: T[]): T[] {
-  const arr = [...array];
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const temp = arr[i]!;
-    arr[i] = arr[j]!;
-    arr[j] = temp;
-  }
-  return arr;
+function shuffleArray<T>(array: readonly T[], rng: Rng): T[] {
+  return rng.shuffle([...array]);
 }
 
 // Initial state builder based on difficulty
@@ -101,7 +95,7 @@ export const createInitialState = (difficulty: "boardroom" | "reality" | "zirp")
   if (wikiIdx > -1) {
     deckWithoutWiki.splice(wikiIdx, 1);
   }
-  const shuffledRest = shuffleArray(deckWithoutWiki);
+  const shuffledRest = shuffleArray(deckWithoutWiki, createRng(0));
   const cardsHand = ["markdown_wiki", ...shuffledRest.slice(0, 4)];
   const cardsDeck = shuffledRest.slice(4);
 
@@ -110,7 +104,7 @@ export const createInitialState = (difficulty: "boardroom" | "reality" | "zirp")
   if (difficulty === "zirp") startingCash = 30000; // ZIRP Nightmare edge starts
 
   const traitKeys = Object.keys(TRAIT_DATABASE);
-  const shuffledTraits = shuffleArray(traitKeys);
+  const shuffledTraits = shuffleArray(traitKeys, createRng(0));
 
   const initialEmployees: Employee[] = [
     {
@@ -1064,7 +1058,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         for (let i = 0; i < cardsNeeded; i++) {
           if (currentDeck.length === 0) {
             if (currentDiscard.length === 0) break;
-            currentDeck = shuffleArray(currentDiscard);
+            currentDeck = shuffleArray(currentDiscard, createRng(0));
             currentDiscard = [];
             logs.push(`🎴 Deck shuffled from discard pile.`);
           }
@@ -1127,7 +1121,7 @@ function gameReducer(state: GameState, action: Action): GameState {
       let nextDraftChoices: string[] | null = null;
       if (!isGameOver) {
         const cardKeys = Object.keys(CARD_DATABASE);
-        nextDraftChoices = shuffleArray(cardKeys).slice(0, 3);
+        nextDraftChoices = shuffleArray(cardKeys, createRng(0)).slice(0, 3);
       }
 
       return {
