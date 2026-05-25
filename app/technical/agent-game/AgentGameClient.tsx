@@ -1198,35 +1198,6 @@ const TUTORIAL_STEPS: Record<number, TutorialStep> = {
   },
 };
 
-const playSound = (soundName: string) => {
-  if (typeof window === "undefined") return;
-  try {
-    const audio = new Audio(`/audio/sfx/${soundName}.mp3`);
-    audio.volume = 0.25; // Subtle, non-intrusive volume
-    audio.play().catch((err) => {
-      if (err.name !== "AbortError") {
-        console.warn("Audio playback failed:", err);
-      }
-    });
-  } catch (e) {
-    console.warn("Audio init failed:", e);
-  }
-};
-
-const playVoice = (voiceName: string) => {
-  if (typeof window === "undefined") return;
-  try {
-    const audio = new Audio(`/audio/voice/${voiceName}.mp3`);
-    audio.volume = 0.45; // Balanced voiceover volume
-    audio.play().catch((err) => {
-      if (err.name !== "AbortError") {
-        console.warn("Voice playback failed:", err);
-      }
-    });
-  } catch (e) {
-    console.warn("Voice init failed:", e);
-  }
-};
 
 // ============================================================
 // Main Client UI
@@ -1267,44 +1238,6 @@ export default function AgentGameClient() {
   // Full-screen v3: bottom-drawer state — at most one drawer open at a time.
   const [drawer, setDrawer] = useState<"log" | "cards" | "details" | null>(null);
 
-  const [musicPlaying, setMusicPlaying] = useState(false);
-  const [musicVolume, setMusicVolume] = useState(0.15);
-  const bgMusicRef = useRef<HTMLAudioElement | null>(null);
-
-  // Initialize background music
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const audio = new window.Audio("/audio/music/background.mp3");
-    audio.loop = true;
-    bgMusicRef.current = audio;
-
-    return () => {
-      audio.pause();
-      bgMusicRef.current = null;
-    };
-  }, []);
-
-  // Update play state
-  useEffect(() => {
-    if (!bgMusicRef.current) return;
-    if (musicPlaying) {
-      bgMusicRef.current.play().catch((err) => {
-        if (err.name !== "AbortError") {
-          console.warn("Background music play failed:", err);
-        }
-      });
-    } else {
-      bgMusicRef.current.pause();
-    }
-  }, [musicPlaying]);
-
-  // Update volume state
-  useEffect(() => {
-    if (bgMusicRef.current) {
-      bgMusicRef.current.volume = musicVolume;
-    }
-  }, [musicVolume]);
-  
   const logContainerRef = useRef<HTMLDivElement | null>(null);
   const cardElementsRef = useRef<(HTMLDivElement | null)[]>([]);
   const resetTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -1360,39 +1293,6 @@ export default function AgentGameClient() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [state]);
 
-  // 5. Audio effects triggers for turn progression and game ending states
-  useEffect(() => {
-    if (state.turn > 1 && !state.isGameOver) {
-      playSound("card-draw");
-    }
-  }, [state.turn, state.isGameOver]);
-
-  useEffect(() => {
-    if (state.isGameOver) {
-      if (state.gameResult === "win") {
-        playSound("game-win");
-      } else if (state.gameResult === "lose") {
-        playSound("game-lose");
-      }
-    }
-  }, [state.isGameOver, state.gameResult]);
-
-  // 6. Voiceover playback when a new employee is hired
-  const prevEmployeesCountRef = useRef(state.employees.length);
-  useEffect(() => {
-    if (state.employees.length > prevEmployeesCountRef.current && state.turn > 1) {
-      const newEmp = state.employees[state.employees.length - 1];
-      if (newEmp && newEmp.type === "human") {
-        const voiceKey = ["edgar", "jochem", "lous"].includes(newEmp.name.toLowerCase())
-          ? newEmp.name.toLowerCase()
-          : (newEmp.traitId || newEmp.name.toLowerCase());
-        setTimeout(() => {
-          playVoice(voiceKey);
-        }, 300);
-      }
-    }
-    prevEmployeesCountRef.current = state.employees.length;
-  }, [state.employees, state.turn]);
 
   // Double-tap timer for reset
   const handleResetInitiate = () => {
@@ -1411,7 +1311,6 @@ export default function AgentGameClient() {
   };
 
   const handleDifficultySelect = (difficulty: "boardroom" | "reality" | "zirp") => {
-    playSound("ui-click");
     dispatch({ type: "RESET_GAME", difficulty });
     setShowDifficultySelector(false);
     setSelectedCardId(null);
@@ -1419,7 +1318,6 @@ export default function AgentGameClient() {
 
   const handleCardClick = (cardId: string) => {
     if (state.isGameOver || state.activeEventId || state.draftChoices) return;
-    playSound("ui-click");
     if (selectedCardId === cardId) {
       setSelectedCardId(null);
     } else {
@@ -1429,7 +1327,6 @@ export default function AgentGameClient() {
 
   const handlePlayNoTargetCard = () => {
     if (!selectedCardId || state.activeEventId || state.draftChoices) return;
-    playSound("card-play");
     dispatch({ type: "PLAY_CARD", cardId: selectedCardId });
     setSelectedCardId(null);
   };
@@ -1440,7 +1337,6 @@ export default function AgentGameClient() {
     if (selectedCardId) {
       const card = CARD_DATABASE[selectedCardId];
       if (card && card.requiresTarget) {
-        playSound("card-play");
         dispatch({ type: "PLAY_CARD", cardId: selectedCardId, targetEmployeeId: employeeId });
         setSelectedCardId(null);
       }
@@ -1449,42 +1345,26 @@ export default function AgentGameClient() {
 
   const handlePromoteWorker = (employeeId: string) => {
     if (state.isGameOver || state.activeEventId || state.draftChoices) return;
-    playSound("ui-click");
     dispatch({ type: "PROMOTE_WORKER", employeeId });
-
-    // Play voiceover for promotion
-    const emp = state.employees.find((e) => e.id === employeeId);
-    if (emp && emp.type === "human") {
-      const voiceKey = ["edgar", "jochem", "lous"].includes(emp.name.toLowerCase())
-        ? emp.name.toLowerCase()
-        : (emp.traitId || emp.name.toLowerCase());
-      setTimeout(() => {
-        playVoice(voiceKey);
-      }, 300);
-    }
   };
 
   const handleHireWorker = () => {
     if (state.activeEventId || state.draftChoices) return;
-    playSound("ui-click");
     dispatch({ type: "EMPLOY_WORKER" });
   };
 
   const handleHireAgent = () => {
     if (state.activeEventId || state.draftChoices) return;
-    playSound("ui-click");
     dispatch({ type: "EMPLOY_AGENT" });
   };
 
   const handleRedefineOkrs = () => {
     if (state.activeEventId || state.draftChoices) return;
-    playSound("ui-click");
     dispatch({ type: "REDEFINE_OKRS" });
   };
 
   const handleEndTurn = () => {
     if (state.activeEventId || state.draftChoices) return;
-    playSound("turn-end");
     dispatch({ type: "END_TURN" });
     setSelectedCardId(null);
   };
@@ -1564,15 +1444,6 @@ export default function AgentGameClient() {
             </span>
           </div>
           <div className="sim-fs__head-tools">
-            <button
-              type="button"
-              className="sim-fs__head-btn"
-              onClick={() => setMusicPlaying(p => !p)}
-              title={musicPlaying ? "Mute music" : "Play music"}
-              aria-pressed={musicPlaying}
-            >
-              {musicPlaying ? "♫" : "🔇"}
-            </button>
             <button
               type="button"
               className="sim-fs__head-btn"
@@ -2046,7 +1917,6 @@ export default function AgentGameClient() {
                     ref={(el) => { cardElementsRef.current[index] = el; }}
                     tabIndex={0}
                     className={`mtg-card mtg-card--${card.class} ${isSelected ? "mtg-card--selected" : ""}`}
-                    onMouseEnter={() => playSound("ui-hover")}
                     role="button"
                     aria-label={`${card.name}, Cost: ${card.cost}. ${card.rulesText}`}
                   >
@@ -2115,7 +1985,6 @@ export default function AgentGameClient() {
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
                   <button
                     onClick={() => {
-                      playSound("ui-click");
                       dispatch({ type: "CHOOSE_EVENT_OPTION", option: "A" });
                     }}
                     className="button button--warm"
@@ -2130,7 +1999,6 @@ export default function AgentGameClient() {
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
                   <button
                     onClick={() => {
-                      playSound("ui-click");
                       dispatch({ type: "CHOOSE_EVENT_OPTION", option: "B" });
                     }}
                     className="button"
@@ -2218,7 +2086,6 @@ export default function AgentGameClient() {
                       {/* Slot Pull Button */}
                       <button
                         onClick={() => {
-                          playSound("card-draw");
                           dispatch({ type: "DRAFT_CARD", cardId });
                         }}
                         className="button button--warm"
