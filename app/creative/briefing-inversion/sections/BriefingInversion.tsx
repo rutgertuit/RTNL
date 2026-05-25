@@ -1,7 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type KeyboardEvent } from "react";
 import { ClipPanel } from "../ClipPanel";
+
+function splitLabel(text: string): { label: string; rest: string } {
+  const idx = text.indexOf(":");
+  if (idx === -1) return { label: "", rest: text };
+  return {
+    label: text.slice(0, idx + 1),
+    rest: text.slice(idx + 1).trimStart(),
+  };
+}
 
 interface Stop {
   index: number;
@@ -105,6 +114,26 @@ export function BriefingInversion() {
   const [activeIndex, setActiveIndex] = useState<number>(1);
   const activeStop = STOPS.find((s) => s.index === activeIndex) ?? STOPS[0]!;
 
+  const handleStepperKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
+    const total = STOPS.length;
+    let nextIndex: number | null = null;
+    if (e.key === "ArrowRight") {
+      nextIndex = activeIndex === total ? 1 : activeIndex + 1;
+    } else if (e.key === "ArrowLeft") {
+      nextIndex = activeIndex === 1 ? total : activeIndex - 1;
+    } else if (e.key === "Home") {
+      nextIndex = 1;
+    } else if (e.key === "End") {
+      nextIndex = total;
+    }
+    if (nextIndex !== null) {
+      e.preventDefault();
+      setActiveIndex(nextIndex);
+      const el = document.getElementById(`bi-tab-${nextIndex}`);
+      el?.focus();
+    }
+  };
+
   return (
     <section
       className="rt-bi__section rt-bi-brief"
@@ -136,12 +165,16 @@ export function BriefingInversion() {
         {STOPS.map((s) => (
           <button
             key={s.index}
+            id={`bi-tab-${s.index}`}
             role="tab"
             aria-selected={s.index === activeIndex}
+            aria-controls={`bi-tabpanel-${s.index}`}
+            tabIndex={s.index === activeIndex ? 0 : -1}
             className={`rt-bi-brief__step ${
               s.index === activeIndex ? "is-active" : ""
             }`}
             onClick={() => setActiveIndex(s.index)}
+            onKeyDown={handleStepperKeyDown}
           >
             <span className="rt-bi-brief__step-num">{`0${s.index}`}</span>
             <span className="rt-bi-brief__step-model">{s.modelLine}</span>
@@ -150,7 +183,12 @@ export function BriefingInversion() {
         ))}
       </div>
 
-      <div className="rt-bi-brief__body">
+      <div
+        className="rt-bi-brief__body"
+        role="tabpanel"
+        id={`bi-tabpanel-${activeStop.index}`}
+        aria-labelledby={`bi-tab-${activeStop.index}`}
+      >
         <div className="rt-bi-brief__column rt-bi-brief__column--prompt">
           <div className="rt-bi-brief__col-head">
             <span className="rt-bi-brief__col-label">BRIEF</span>
@@ -208,17 +246,28 @@ export function BriefingInversion() {
         </div>
       </div>
 
-      <div className="rt-bi-brief__rail">
-        <p>
-          <strong>Architectural state:</strong> {activeStop.annotationState}
-        </p>
-        <p>{activeStop.annotationDelta}</p>
-        {activeStop.annotationHonest && (
-          <p className="rt-bi-brief__rail-honest">
-            {activeStop.annotationHonest}
-          </p>
-        )}
-      </div>
+      {(() => {
+        const a = splitLabel(activeStop.annotationState);
+        const b = splitLabel(activeStop.annotationDelta);
+        const c = activeStop.annotationHonest
+          ? splitLabel(activeStop.annotationHonest)
+          : null;
+        return (
+          <div className="rt-bi-brief__rail">
+            <p>
+              {a.label && <strong>{a.label}</strong>} {a.rest}
+            </p>
+            <p>
+              {b.label && <strong>{b.label}</strong>} {b.rest}
+            </p>
+            {c && (
+              <p className="rt-bi-brief__rail-honest">
+                {c.label && <strong>{c.label}</strong>} {c.rest}
+              </p>
+            )}
+          </div>
+        );
+      })()}
 
       <p className="rt-bi__closer">
         Call it the <strong>Briefing Inversion.</strong> The relationship
