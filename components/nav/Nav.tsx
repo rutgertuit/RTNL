@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { NavMobileMenu } from "./NavMobileMenu";
 
 const SECTIONS = [
   { id: "top", num: "00", label: "Home", short: "Home" },
@@ -66,6 +67,7 @@ export function Nav() {
       <Link href="/#contact" className="rt-nav__cta">
         Get in touch <span aria-hidden>→</span>
       </Link>
+      <NavMobileMenu sections={SECTIONS.slice(1)} />
       <div className="rt-nav__progress" aria-hidden>
         <div className="rt-nav__progress-fill" id="nav-progress-fill" />
       </div>

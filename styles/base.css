@@ -90,6 +90,83 @@ html, body { margin: 0; }
 }
 .rt-nav__cta:hover { background: rgba(242, 238, 229, 0.04); border-color: var(--color-fg-1); }
 
+/* ----------------------------------------
+   Mobile hamburger + off-canvas panel
+   ---------------------------------------- */
+.rt-nav__hamburger {
+  display: none;
+  background: none;
+  border: 0;
+  width: 44px;
+  height: 44px;
+  padding: 12px;
+  cursor: pointer;
+  color: var(--color-fg-1);
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+.rt-nav__hamburger-bar {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: currentColor;
+  transition: opacity var(--duration-ui) var(--ease-swing);
+}
+
+.rt-nav__panel {
+  position: fixed;
+  inset: 0 0 0 0;
+  top: 64px; /* sits below the sticky nav bar */
+  background: var(--color-bg-sunken);
+  z-index: calc(var(--z-nav) - 1);
+  padding: var(--space-8) var(--space-5);
+  overflow-y: auto;
+}
+.rt-nav__panel-list {
+  display: flex;
+  flex-direction: column;
+}
+.rt-nav__panel-item {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  padding: var(--space-5) 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-500);
+  font-style: italic;
+  line-height: var(--lh-display);
+  border-bottom: 1px solid var(--color-fg-4);
+  text-decoration: none;
+  color: var(--color-fg-1);
+  transition: color var(--duration-ui) var(--ease-swing);
+}
+.rt-nav__panel-item:hover { color: var(--color-accent-warm-strong); }
+.rt-nav__panel-cta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-5) 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--color-accent-warm-strong);
+  transition: color var(--duration-ui) var(--ease-swing);
+}
+.rt-nav__panel-cta:hover { color: var(--color-fg-1); }
+.rt-nav__panel-num {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  font-style: normal;
+  color: var(--color-fg-3);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+}
+
 /* ============================================================
    HERO
    ============================================================ */
@@ -1438,6 +1515,8 @@ html, body { margin: 0; }
 @media (max-width: 920px) {
   .rt-nav { grid-template-columns: auto 1fr auto; gap: var(--space-4); }
   .rt-nav__items { display: none; }
+  .rt-nav__cta { display: none; }
+  .rt-nav__hamburger { display: flex; }
   .rt-editorial__head, .rt-editorial__grid { grid-template-columns: 1fr; }
   .rt-editorial__sidebar { position: static; }
   .rt-tuit__stage { grid-template-columns: 1fr; }
