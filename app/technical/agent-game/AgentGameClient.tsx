@@ -1924,7 +1924,7 @@ export default function AgentGameClient() {
                   >
                     <div className="mtg-card__header">
                       <h3 className="mtg-card__name" style={{ fontSize: "13px" }}>{card.name}</h3>
-                      <span className="mtg-card__cost">${(card.cost / 1000)}k</span>
+                      <span className="mtg-card__cost">play ${(card.cost / 1000)}k</span>
                     </div>
                     <div className="mtg-card__type">Sorcery — {card.class}</div>
                     <div className="mtg-card__art-window">
@@ -2027,7 +2027,7 @@ export default function AgentGameClient() {
                   FEBO Card Automat
                 </h2>
                 <p className="sim-modal__text" style={{ fontSize: "12px", color: "var(--color-fg-3)" }}>
-                  Insert alignment credits. Pull the glass window to draft your 5th card for this sprint turn.
+                  Pull a window to add one card to your hand. Free to draft — pay the play cost later.
                 </p>
               </div>
 
@@ -2074,7 +2074,7 @@ export default function AgentGameClient() {
                       <div className={`mtg-card mtg-card--${card.class}`} style={{ transform: "scale(0.85)", transformOrigin: "top center", marginBottom: "-20px" }}>
                         <div className="mtg-card__header">
                           <h3 className="mtg-card__name" style={{ fontSize: "13px" }}>{card.name}</h3>
-                          <span className="mtg-card__cost">${(card.cost / 1000)}k</span>
+                          <span className="mtg-card__cost">play ${(card.cost / 1000)}k</span>
                         </div>
                         <div className="mtg-card__type">Sorcery — {card.class}</div>
                         <div className="mtg-card__art-window">
