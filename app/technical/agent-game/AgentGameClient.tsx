@@ -1470,7 +1470,7 @@ export default function AgentGameClient() {
           const dismissed = state.tutorialDismissed ?? [];
           if (!step || dismissed.includes(state.turn)) return null;
           return (
-            <div className="sim-tut" role="dialog" aria-live="polite" aria-label={step.title}>
+            <aside className="sim-tut sim-tut--banner" aria-live="polite" aria-label={step.title}>
               <div className="sim-tut__art" aria-hidden>
                 <span className="sim-tut__art-label">IMAGE · Turn {state.turn}</span>
               </div>
@@ -1496,7 +1496,7 @@ export default function AgentGameClient() {
               >
                 ×
               </button>
-            </div>
+            </aside>
           );
         })()}
 

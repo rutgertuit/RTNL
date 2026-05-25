@@ -2973,6 +2973,15 @@ body { padding-top: 0; }
 }
 .sim-v2 .sim-tut__close:hover { color: var(--color-fg-1); }
 
+/* Banner modifier — demotes the tutorial from a dialog overlay to an
+   inline informational banner. Overrides any potential overlay positioning
+   from the base rule and ensures it stays in document flow. */
+.sim-v2 .sim-tut.sim-tut--banner {
+  position: relative;
+  border-color: var(--color-accent-warm);
+  margin-bottom: 1rem;
+}
+
 /* Locked panel state — used for the hand panel before turn 5 */
 .sim-v2 .sim-panel--locked {
   opacity: 0.5;
