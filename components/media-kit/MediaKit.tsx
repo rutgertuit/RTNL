@@ -34,7 +34,7 @@ const NAV_ITEMS: ReadonlyArray<readonly [string, string, string]> = [
   ["mk-logos", "03", "Logos"],
   ["mk-topics", "04", "Topics"],
   ["mk-events", "05", "Events"],
-  ["mk-book", "06", "Book"],
+  ["mk-book", "06", "Booking"],
 ];
 
 export function MediaKit() {
@@ -200,7 +200,7 @@ export function MediaKit() {
         {/* Book */}
         <div className="rt-mk__section" id="mk-book">
           <div className="rt-mk__row-head">
-            <div className="rt-mk__row-label">06 · BOOK</div>
+            <div className="rt-mk__row-label">06 · BOOKING</div>
           </div>
           <p className="rt-mk__book">
             For speaking enquiries, podcast appearances, or strategic engagements with Dutch-market
