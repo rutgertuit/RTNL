@@ -866,7 +866,9 @@ body { padding-top: 0; }
    ============================================================ */
 .rt-tech {
   background: var(--color-bg-sunken);
-  padding: var(--space-11) 0;
+  /* Fix N (H-12): reduce bottom padding to close dead-air gap before Media Kit.
+     --space-11 (192px) → --space-9 (96px) at bottom; full 192px retained at top. */
+  padding: var(--space-11) 0 var(--space-9);
 }
 .rt-tech__topology {
   position: relative;
@@ -988,7 +990,9 @@ body { padding-top: 0; }
    ============================================================ */
 .rt-mk {
   background: var(--color-bg-base);
-  padding: var(--space-11) 0;
+  /* Fix N (H-12): reduce top padding to close dead-air gap after Technical section.
+     --space-11 (192px) → --space-10 (128px) at top; full 192px retained at bottom. */
+  padding: var(--space-10) 0 var(--space-11);
 }
 .rt-mk__nav {
   top: 68px;     /* sit below fixed nav */
