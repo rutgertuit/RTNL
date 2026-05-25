@@ -42,10 +42,15 @@ export default function AgentInclusivePage() {
         title="Agent Inclusive."
         readTime="13 min read"
         publishedLabel="May 2026"
+        game={{ href: "/technical/agent-game", label: "Play the sim" }}
         stages={[
           {
             num: "01",
             label: "Anecdotal hook",
+            image: {
+              src: "/assets/business/agent-inclusive/01.jpeg",
+              alt: "Antique clockwork mechanism in shadow with one gear conspicuously missing, brass rim-lit warm, fading to absolute black.",
+            },
             children: (
               <>
                 <p className="lead">
@@ -85,6 +90,10 @@ export default function AgentInclusivePage() {
           {
             num: "02",
             label: "Conceptual swing",
+            image: {
+              src: "/assets/business/agent-inclusive/02.jpeg",
+              alt: "An empty office chair at a wooden desk at twilight, chair silhouette translucent from amber smoke, single laptop glow.",
+            },
             children: (
               <>
                 <p>
@@ -137,6 +146,10 @@ export default function AgentInclusivePage() {
           {
             num: "03",
             label: "Framework solution",
+            image: {
+              src: "/assets/business/agent-inclusive/03.jpeg",
+              alt: "An organisational chart drawn in white chalk on a black slate wall, one box filled with glowing molten metal in Rotterdam-brick rust.",
+            },
             children: (
               <>
                 <p>
@@ -265,6 +278,10 @@ export default function AgentInclusivePage() {
           {
             num: "04",
             label: "Invitation to growth",
+            image: {
+              src: "/assets/business/agent-inclusive/04.jpeg",
+              alt: "A chess board mid-game viewed low, most pieces tipped over, a single warm-lit king standing as silhouettes fade to black.",
+            },
             children: (
               <>
                 <p>

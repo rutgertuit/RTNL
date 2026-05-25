@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { PodcastInlineButton } from "./PodcastInlineButton";
 
 /**
  * Reusable Article layout — renders the Tuit Post 4-stage structure
@@ -12,6 +13,14 @@ export interface ArticleStage {
   num: string; // "01" | "02" | "03" | "04"
   label: string; // "Anecdotal hook" | "Conceptual swing" | etc.
   children: ReactNode;
+  /**
+   * Optional 9:16 illustration that sits beside the stage body. Renders on
+   * alternating sides per stage (odd nums right, even nums left) so the page
+   * reads with editorial rhythm. The asset is expected to be a dark, edge-
+   * fading 9:16 render — see drop/article-image-prompts.md for the locked
+   * visual vocabulary.
+   */
+  image?: { src: string; alt: string };
 }
 
 export interface ArticleProps {
@@ -27,6 +36,18 @@ export interface ArticleProps {
    * on Multiplier Myth. Inherits the article container width.
    */
   intro?: ReactNode;
+  /**
+   * When set, render an inline "Listen to podcast version" CTA in the
+   * header meta line. The sticky PodcastTab must also be rendered by the
+   * page (the inline button dispatches an event the tab listens for).
+   */
+  podcast?: { label?: string };
+  /**
+   * When set, render an inline link to a companion interactive (e.g. the
+   * Agent Inclusive Sim). Lives in the header meta line, same row as the
+   * read-time and filed-under spans.
+   */
+  game?: { href: string; label: string };
 }
 
 export function Article({
@@ -37,6 +58,8 @@ export function Article({
   publishedLabel,
   stages,
   intro,
+  podcast,
+  game,
 }: ArticleProps) {
   return (
     <article className="rt-tuit section section--surface">
@@ -52,20 +75,63 @@ export function Article({
             <span>PUBLISHED {publishedLabel.toUpperCase()}</span>
             <span>·</span>
             <span>FILED UNDER {filedUnder.toUpperCase()}</span>
+            {podcast && <PodcastInlineButton label={podcast.label} />}
+            {game && (
+              <Link
+                href={game.href}
+                className="rt-tuit__meta-action rt-tuit__meta-action--warm"
+              >
+                <span className="rt-tuit__meta-action-icon" aria-hidden>
+                  <svg viewBox="0 0 24 24" width="14" height="14">
+                    <path
+                      d="M6 4l14 8-14 8V4z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+                {game.label}
+                <span aria-hidden>→</span>
+              </Link>
+            )}
           </div>
         </div>
 
         {intro && <div className="rt-tuit__intro">{intro}</div>}
 
-        {stages.map((stage) => (
-          <div className="rt-tuit__stage" key={stage.num}>
-            <h2 className="rt-tuit__stage-marker">
-              <span className="rt-tuit__stage-num">{stage.num}</span>
-              <span className="rt-tuit__stage-label">{stage.label}</span>
-            </h2>
-            <div className="rt-tuit__stage-body">{stage.children}</div>
-          </div>
-        ))}
+        {stages.map((stage, i) => {
+          const hasImage = Boolean(stage.image);
+          const imageSide: "left" | "right" = i % 2 === 0 ? "right" : "left";
+          return (
+            <div
+              className={`rt-tuit__stage ${
+                hasImage ? `rt-tuit__stage--with-image rt-tuit__stage--image-${imageSide}` : ""
+              }`}
+              key={stage.num}
+            >
+              <h2 className="rt-tuit__stage-marker">
+                <span className="rt-tuit__stage-num">{stage.num}</span>
+                <span className="rt-tuit__stage-label">{stage.label}</span>
+              </h2>
+              <div className="rt-tuit__stage-body">{stage.children}</div>
+              {stage.image && (
+                <figure className="rt-tuit__stage-image" aria-hidden="false">
+                  {/* Static JPEG — explicit width/height + sizes keep CLS at zero.
+                      Using <img> with eslint disable rather than next/image because
+                      these 9:16 renders are already optimised JPEGs that don't need
+                      AVIF/WebP transcoding (they were generated as a one-time set). */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={stage.image.src}
+                    alt={stage.image.alt}
+                    width={720}
+                    height={1280}
+                    loading="lazy"
+                  />
+                </figure>
+              )}
+            </div>
+          );
+        })}
 
         <nav className="rt-tuit__nav" aria-label="Article navigation">
           <Link className="button" href="/business">

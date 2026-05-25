@@ -73,6 +73,10 @@ export default function ThirtyMinuteKitchenPage() {
           {
             num: "01",
             label: "Anecdotal hook",
+            image: {
+              src: "/assets/business/thirty-minute-kitchen/01.jpeg",
+              alt: "A demolition wrecking ball mid-swing about to hit a wall built from stacked copper pans and stainless mixing bowls, single warm spotlight.",
+            },
             children: (
               <>
                 <p className="lead">
@@ -120,6 +124,10 @@ export default function ThirtyMinuteKitchenPage() {
           {
             num: "02",
             label: "Conceptual swing",
+            image: {
+              src: "/assets/business/thirty-minute-kitchen/02.jpeg",
+              alt: "A Michelin restaurant pass with printed spreadsheet cells clipped to its rail instead of food orders, steam rising into black.",
+            },
             children: (
               <>
                 <p>
@@ -163,6 +171,10 @@ export default function ThirtyMinuteKitchenPage() {
           {
             num: "03",
             label: "Framework solution",
+            image: {
+              src: "/assets/business/thirty-minute-kitchen/03.jpeg",
+              alt: "Three vintage industrial sliders on a brushed steel panel, only the middle one lit warm amber, edges fading to black.",
+            },
             children: (
               <>
                 <p>
@@ -260,6 +272,10 @@ export default function ThirtyMinuteKitchenPage() {
           {
             num: "04",
             label: "Invitation to growth",
+            image: {
+              src: "/assets/business/thirty-minute-kitchen/04.jpeg",
+              alt: "An empty professional restaurant kitchen at 4pm, stainless table under a warm pendant light, steam from a stock-pot, doorway fading to black.",
+            },
             children: (
               <>
                 <p>

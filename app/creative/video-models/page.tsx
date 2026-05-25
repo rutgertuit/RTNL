@@ -4,7 +4,7 @@ import { Footer } from "@/components/footer/Footer";
 import { AppChrome } from "@/components/chrome/AppChrome";
 import { BriefingInversionClient } from "./BriefingInversionClient";
 
-const TITLE = "The Briefing Inversion";
+const TITLE = "The Evolution of Video Models";
 const DESCRIPTION =
   "The same eight-second clip, four Veo generations apart. The output got better. The brief got shorter. Notes on the architectural shift from cascaded pipelines to unified Gemini Omni — and why the contract between director and renderer is flipping.";
 
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     title: `${TITLE} — Rutger Tuit`,
     description: DESCRIPTION,
     type: "article",
-    url: "https://rutgertuit.nl/creative/briefing-inversion",
+    url: "https://rutgertuit.nl/creative/video-models",
   },
 };
 
@@ -32,7 +32,7 @@ const articleLd = {
   datePublished: "2026-05-25",
   mainEntityOfPage: {
     "@type": "WebPage",
-    "@id": "https://rutgertuit.nl/creative/briefing-inversion",
+    "@id": "https://rutgertuit.nl/creative/video-models",
   },
 };
 
