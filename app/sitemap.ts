@@ -69,7 +69,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.85,
     },
     {
-      url: `${BASE}/creative/briefing-inversion`,
+      url: `${BASE}/creative/video-models`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.85,

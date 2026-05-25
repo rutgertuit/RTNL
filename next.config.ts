@@ -35,6 +35,17 @@ const config: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      // The video-models article was originally shipped as /creative/briefing-inversion.
+      // Keep the old URL alive for anyone who linked to it during the early hours.
+      {
+        source: "/creative/briefing-inversion",
+        destination: "/creative/video-models",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default config;
