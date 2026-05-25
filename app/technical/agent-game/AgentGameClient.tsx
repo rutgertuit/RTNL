@@ -74,6 +74,12 @@ const INITIAL_DECK = [
   "koffie_apparaat",
 ];
 
+/** Returns the famous-person display name for log messages and tooltips.
+ *  Falls back to emp.name for legacy state without a traitId. */
+function getDisplayName(emp: { name: string; traitId?: string }): string {
+  return (emp.traitId ? TRAIT_DATABASE[emp.traitId]?.displayName : undefined) ?? emp.name;
+}
+
 function shuffleArray<T>(array: T[]): T[] {
   const arr = [...array];
   for (let i = arr.length - 1; i > 0; i--) {
@@ -441,13 +447,13 @@ function gameReducer(state: GameState, action: Action): GameState {
       if (emp.type === "agent") {
         return {
           ...state,
-          eventLog: [...state.eventLog, `Cannot promote ${emp.name}: AI Agents do not receive human title promotions.`],
+          eventLog: [...state.eventLog, `Cannot promote ${getDisplayName(emp)}: AI Agents do not receive human title promotions.`],
         };
       }
       if (emp.promotionLevel >= 3) {
         return {
           ...state,
-          eventLog: [...state.eventLog, `Cannot promote ${emp.name}: already at max Level 3.`],
+          eventLog: [...state.eventLog, `Cannot promote ${getDisplayName(emp)}: already at max Level 3.`],
         };
       }
 
@@ -457,18 +463,18 @@ function gameReducer(state: GameState, action: Action): GameState {
           ...state,
           eventLog: [
             ...state.eventLog,
-            `Cannot promote ${emp.name}: insufficient cash (requires $${cost.toLocaleString()}).`,
+            `Cannot promote ${getDisplayName(emp)}: insufficient cash (requires $${cost.toLocaleString()}).`,
           ],
         };
       }
 
       const nextLevel = (emp.promotionLevel + 1) as 1 | 2 | 3;
       const hasPDP = emp.hasPDP;
-      const logs = [`📈 Promoted ${emp.name} to Level ${nextLevel} for $${cost.toLocaleString()}.`];
+      const logs = [`📈 Promoted ${getDisplayName(emp)} to Level ${nextLevel} for $${cost.toLocaleString()}.`];
 
       if (!hasPDP) {
         logs.push(
-          `⚠️ WARNING: ${emp.name} promoted without a Build-Plan PDP! -30% productivity penalty and double loyalty decay applied.`
+          `⚠️ WARNING: ${getDisplayName(emp)} promoted without a Build-Plan PDP! -30% productivity penalty and double loyalty decay applied.`
         );
       }
 
@@ -494,7 +500,7 @@ function gameReducer(state: GameState, action: Action): GameState {
             loyaltyVal = Math.min(100, loyaltyVal + 8);
           }
           if (!isMargaretPatcher && e.promotionLevel < nextLevel && e.type === "human") {
-            logs.push(`✨ ${e.name} is inspired by ${emp.name}'s promotion! (+50% productivity for 5 turns)`);
+            logs.push(`✨ ${getDisplayName(e)} is inspired by ${getDisplayName(emp)}'s promotion! (+50% productivity for 5 turns)`);
             return {
               ...e,
               inspirationTurnsLeft: 5,
@@ -618,7 +624,7 @@ function gameReducer(state: GameState, action: Action): GameState {
       } else if (card.id === "pdp") {
         updatedEmployees = updatedEmployees.map((e) => {
           if (e.id === action.targetEmployeeId) {
-            logs.push(`📋 Applied Build-Plan PDP to ${e.name}. They can now be promoted safely.`);
+            logs.push(`📋 Applied Build-Plan PDP to ${getDisplayName(e)}. They can now be promoted safely.`);
             return { ...e, hasPDP: true };
           }
           return e;
@@ -628,7 +634,7 @@ function gameReducer(state: GameState, action: Action): GameState {
           if (e.id === action.targetEmployeeId) {
             const isMarieFurie = e.traitId === "furie";
             const loyaltyGain = isMarieFurie ? 50 : 35;
-            logs.push(`🍔 ${e.name} ate two kroketten. Loyalty +${loyaltyGain}${isMarieFurie ? " (Marie Furie Radical Energy bonus!)" : ""}, but fell asleep ('tapped') for 1 turn.`);
+            logs.push(`🍔 ${getDisplayName(e)} ate two kroketten. Loyalty +${loyaltyGain}${isMarieFurie ? " (Marie Furie Radical Energy bonus!)" : ""}, but fell asleep ('tapped') for 1 turn.`);
             return { ...e, loyalty: Math.min(100, e.loyalty + loyaltyGain), isAsleep: true };
           }
           return e;
@@ -636,12 +642,12 @@ function gameReducer(state: GameState, action: Action): GameState {
       } else if (card.id === "hei_sessie") {
         const promoter = updatedEmployees.find((e) => e.id === action.targetEmployeeId);
         if (promoter) {
-          logs.push(`🌲 Hei-sessie: ${promoter.name} is inspired (+20 Loyalty, +50% productivity for 5 turns).`);
+          logs.push(`🌲 Hei-sessie: ${getDisplayName(promoter)} is inspired (+20 Loyalty, +50% productivity for 5 turns).`);
           updatedEmployees = updatedEmployees.map((e) => {
             if (e.id === action.targetEmployeeId) {
               return { ...e, loyalty: Math.min(100, e.loyalty + 20), inspirationTurnsLeft: 5 };
             } else if (e.promotionLevel < promoter.promotionLevel && e.type === "human") {
-              logs.push(`✨ ${e.name} is inspired by ${promoter.name}'s leadership!`);
+              logs.push(`✨ ${getDisplayName(e)} is inspired by ${getDisplayName(promoter)}'s leadership!`);
               return { ...e, inspirationTurnsLeft: 5 };
             }
             return e;
@@ -694,7 +700,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         updatedEmployees = updatedEmployees.map((e) => {
           if (e.id === action.targetEmployeeId) {
             logs.push(
-              `📊 ${e.name} attended PowerPoint Clinic. Loyalty +40, but PowerPoint Poisoning applied (-20% productivity for 3 turns).`
+              `📊 ${getDisplayName(e)} attended PowerPoint Clinic. Loyalty +40, but PowerPoint Poisoning applied (-20% productivity for 3 turns).`
             );
             return { ...e, loyalty: Math.min(100, e.loyalty + 40), pptPoisoningTurns: 3 };
           }
@@ -757,9 +763,9 @@ function gameReducer(state: GameState, action: Action): GameState {
         if (e.turnsOnboarded < employeeOnboardingTarget) {
           const nextOnboard = e.turnsOnboarded + 1;
           if (nextOnboard === employeeOnboardingTarget) {
-            logs.push(`🎉 ${e.name} is now fully onboarded and ready at 100% capacity.`);
+            logs.push(`🎉 ${getDisplayName(e)} is now fully onboarded and ready at 100% capacity.`);
           } else {
-            logs.push(`📈 ${e.name} onboarding progress: ${nextOnboard}/${employeeOnboardingTarget} turns.`);
+            logs.push(`📈 ${getDisplayName(e)} onboarding progress: ${nextOnboard}/${employeeOnboardingTarget} turns.`);
           }
           return {
             ...e,
@@ -819,7 +825,7 @@ function gameReducer(state: GameState, action: Action): GameState {
           let agentLoyalty = e.loyalty;
           if (!state.hasDocumentation) {
             agentLoyalty = Math.max(0, agentLoyalty - 15);
-            logs.push(`⚠️ ${e.name} is hallucinating due to lack of docs. Core alignment drops.`);
+            logs.push(`⚠️ ${getDisplayName(e)} is hallucinating due to lack of docs. Core alignment drops.`);
           }
           if (agentLoyalty > 0) {
             activeEmployeesAfterTurn.push({
@@ -828,7 +834,7 @@ function gameReducer(state: GameState, action: Action): GameState {
               isAsleep: false,
             });
           } else {
-            logs.push(`❌ CRASH: AI Agent ${e.name} has suffered token collapse and crashed.`);
+            logs.push(`❌ CRASH: AI Agent ${getDisplayName(e)} has suffered token collapse and crashed.`);
           }
           return;
         }
@@ -940,10 +946,10 @@ function gameReducer(state: GameState, action: Action): GameState {
         }
 
         if (nextLoyalty === 0) {
-          logs.push(`❌ RESIGNATION: ${e.name} has resigned in protest of corporate alignment meetings.`);
+          logs.push(`❌ RESIGNATION: ${getDisplayName(e)} has resigned in protest of corporate alignment meetings.`);
         } else if (nextLoyalty <= 20) {
           logs.push(
-            `⚠️ WARNING: ${e.name} loyalty is critical (${Math.floor(nextLoyalty)}%)! Promote them or play Broodje Kroket.`
+            `⚠️ WARNING: ${getDisplayName(e)} loyalty is critical (${Math.floor(nextLoyalty)}%)! Promote them or play Broodje Kroket.`
           );
         }
 
