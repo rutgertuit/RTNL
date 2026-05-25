@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { NavMobileMenu } from "./NavMobileMenu";
 
 const SECTIONS = [
@@ -15,6 +16,8 @@ const SECTIONS = [
 export function Nav() {
   const [active, setActive] = useState("top");
   const [scrolled, setScrolled] = useState(false);
+  const path = usePathname();
+  const onContact = path === "/contact";
 
   useEffect(() => {
     const sections = SECTIONS.map((s) => document.getElementById(s.id)).filter(
@@ -64,9 +67,11 @@ export function Nav() {
           </Link>
         ))}
       </div>
-      <Link href="/#contact" className="rt-nav__cta">
-        Get in touch <span aria-hidden>→</span>
-      </Link>
+      {!onContact && (
+        <Link href="/#contact" className="rt-nav__cta">
+          Get in touch <span aria-hidden>→</span>
+        </Link>
+      )}
       <NavMobileMenu sections={SECTIONS.slice(1)} />
       <div className="rt-nav__progress" aria-hidden>
         <div className="rt-nav__progress-fill" id="nav-progress-fill" />

@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 type Section = { id: string; num: string; label: string };
 
@@ -9,6 +10,8 @@ export function NavMobileMenu({ sections }: { sections: Section[] }) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
+  const path = usePathname();
+  const onContact = path === "/contact";
 
   // Lock body scroll while open
   useEffect(() => {
@@ -71,13 +74,15 @@ export function NavMobileMenu({ sections }: { sections: Section[] }) {
                 <span>{s.label}</span>
               </Link>
             ))}
-            <Link
-              href="/#contact"
-              onClick={() => setOpen(false)}
-              className="rt-nav__panel-cta"
-            >
-              Get in touch <span aria-hidden="true">→</span>
-            </Link>
+            {!onContact && (
+              <Link
+                href="/#contact"
+                onClick={() => setOpen(false)}
+                className="rt-nav__panel-cta"
+              >
+                Get in touch <span aria-hidden="true">→</span>
+              </Link>
+            )}
           </nav>
         </div>
       )}
