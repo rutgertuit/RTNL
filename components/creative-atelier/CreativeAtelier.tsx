@@ -153,7 +153,7 @@ export function CreativeAtelier() {
                 differently I had to write the brief each time.
               </p>
               <a className="button" href="/creative/briefing-inversion">
-                Read: The Briefing Inversion <span aria-hidden>→</span>
+                Read the Briefing Inversion <span aria-hidden>→</span>
               </a>
             </div>
           </article>
