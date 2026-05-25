@@ -2,9 +2,9 @@
 
 import React, { useReducer, useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { Nav } from "@/components/nav/Nav";
-import { Footer } from "@/components/footer/Footer";
-import { AppChrome } from "@/components/chrome/AppChrome";
+// Site Nav/Footer/AppChrome intentionally NOT imported — this route is
+// a full-screen game canvas. A small "← rt.nl" link inside the game header
+// gives the player a way back to the rest of the site.
 import {
   Employee,
   GameState,
@@ -1223,6 +1223,8 @@ export default function AgentGameClient() {
   const [showTutorial, setShowTutorial] = useState(false);
   const [resetConfirmMode, setResetConfirmMode] = useState(false);
   const [copiedText, setCopiedText] = useState(false);
+  // Full-screen v3: bottom-drawer state — at most one drawer open at a time.
+  const [drawer, setDrawer] = useState<"log" | "cards" | "details" | null>(null);
 
   const [musicPlaying, setMusicPlaying] = useState(false);
   const [musicVolume, setMusicVolume] = useState(0.15);
@@ -1493,13 +1495,60 @@ export default function AgentGameClient() {
     state.difficulty === "boardroom" ? 7 : state.difficulty === "zirp" ? 4 : 5;
   const turnsToUpgrade = upgradeCadence - ((state.turn - 1) % upgradeCadence);
 
-  return (
-    <div style={{ position: "relative" }}>
-      <Nav />
+  // Win-threshold label for the stats strip
+  const winThresholdLabel = state.difficulty === "boardroom" ? "$3B" : state.difficulty === "reality" ? "$65B" : "$120B";
 
-      <main className="sim-container sim-v2" id="game-content">
-        {/* Progressive-disclosure tutorial banner — turns 1 through 5,
-            dismissible per turn so it only auto-shows once. */}
+  return (
+    <div className="sim-fs-root">
+      {/* Full-screen game canvas — no site Nav/Footer/AppChrome on this route.
+          The website chrome was colliding with the dashboard at the top of the
+          viewport and competing with the game for attention. This page now
+          renders as its own application. */}
+
+      <main className="sim-fs" id="game-content">
+        {/* Compact game-canvas header */}
+        <header className="sim-fs__head">
+          <Link href="/" className="sim-fs__home" aria-label="Back to rutgertuit.nl">
+            <span className="sim-fs__home-arrow" aria-hidden>←</span>
+            <span className="sim-fs__home-label">rt.nl</span>
+          </Link>
+          <div className="sim-fs__head-mid">
+            <span className="sim-fs__game-name">AGENT INCLUSIVE SIM</span>
+            <span className="sim-fs__head-meta">
+              {state.difficulty.toUpperCase()} · Turn <strong>{state.turn}</strong> / 30
+            </span>
+          </div>
+          <div className="sim-fs__head-tools">
+            <button
+              type="button"
+              className="sim-fs__head-btn"
+              onClick={() => setMusicPlaying(p => !p)}
+              title={musicPlaying ? "Mute music" : "Play music"}
+              aria-pressed={musicPlaying}
+            >
+              {musicPlaying ? "♫" : "🔇"}
+            </button>
+            <button
+              type="button"
+              className="sim-fs__head-btn"
+              onClick={() => setShowTutorial(true)}
+              title="Show tutorial"
+              aria-label="Show tutorial"
+            >
+              ?
+            </button>
+            <button
+              type="button"
+              className={`sim-fs__head-btn sim-fs__head-btn--reset ${resetConfirmMode ? "is-confirm" : ""}`}
+              onClick={handleResetInitiate}
+              title="Restart the simulation"
+            >
+              {resetConfirmMode ? "Confirm?" : "Reset"}
+            </button>
+          </div>
+        </header>
+
+        {/* Progressive-disclosure tutorial banner — turns 1..5, dismissible */}
         {(() => {
           const step = TUTORIAL_STEPS[state.turn];
           const dismissed = state.tutorialDismissed ?? [];
@@ -1535,533 +1584,400 @@ export default function AgentGameClient() {
           );
         })()}
 
-        <header className="sim-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "var(--space-4)" }}>
-          <div>
-            <Link href="/#technical" className="sim-header__back" style={{ display: "block" }}>
-              <span>←</span> Back to Technical Index
-            </Link>
-            <h1 className="sim-header__title">Agent Inclusive.</h1>
-            <p className="sim-header__desc">
-              Organisations take 12 months to restructure. AI models update every 6 weeks. Fulfill the thesis:
-              structure your documentation and PDPs so your human employees survive exponential AI upgrades
-              and hit a <strong>{state.difficulty === "boardroom" ? "$3 Billion" : state.difficulty === "reality" ? "$65 Billion" : "$120 Billion"} valuation</strong> within a <strong>30-turn sprint</strong>.
-            </p>
-          </div>
-          <div style={{ display: "flex", gap: "var(--space-3)", alignItems: "center", flexWrap: "wrap" }}>
-            {/* Background Music Controller */}
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              padding: "4px 10px",
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              borderRadius: "20px",
-              fontSize: "11px",
-              color: "var(--color-fg-2)",
-              boxShadow: "inset 0 1px 2px rgba(255,255,255,0.05)"
-            }}>
-              <button
-                onClick={() => setMusicPlaying(prev => !prev)}
-                style={{
-                  padding: "4px 10px",
-                  fontSize: "10px",
-                  fontWeight: "bold",
-                  borderRadius: "15px",
-                  background: musicPlaying ? "var(--color-accent-warm)" : "rgba(255,255,255,0.08)",
-                  color: musicPlaying ? "#000" : "var(--color-fg-1)",
-                  border: "none",
-                  cursor: "pointer",
-                  transition: "all 0.2s ease",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "4px"
-                }}
-                title={musicPlaying ? "Mute Background Music" : "Play Background Music"}
-              >
-                <span style={{ fontSize: "12px" }}>{musicPlaying ? "♫" : "🔇"}</span>
-                {musicPlaying ? "BGM ON" : "BGM OFF"}
-              </button>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <span style={{ opacity: 0.6, fontSize: "9px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Vol</span>
-                <input
-                  type="range"
-                  min="0"
-                  max="0.4"
-                  step="0.02"
-                  value={musicVolume}
-                  onChange={(e) => setMusicVolume(parseFloat(e.target.value))}
-                  style={{
-                    width: "55px",
-                    cursor: "pointer",
-                    accentColor: "var(--color-accent-warm)",
-                    height: "3px",
-                    borderRadius: "2px"
-                  }}
-                  title={`Music Volume: ${Math.round(musicVolume * 250)}%`}
-                />
-              </div>
-            </div>
-
-            <Link href="/business/agent-inclusive" className="button button--warm" style={{ padding: "6px 12px", fontSize: "11px" }}>
-              Read the thesis →
-            </Link>
-            <button
-              onClick={() => setShowTutorial(true)}
-              className="button"
-              style={{ padding: "6px 12px", fontSize: "11px" }}
-            >
-              How to Play (Tutorial)
-            </button>
-          </div>
-        </header>
-
-        {/* Global Dashboard */}
-        <section className="sim-dashboard" aria-label="Game Dashboard">
-          <div className="sim-stat" title="Turns survived out of 30 sprint turns.">
-            <span className="sim-stat__label">Sprint Time</span>
-            <span className="sim-stat__value sim-stat__value--highlight">
-              Turn {state.turn} <span style={{ fontSize: "12px", color: "var(--color-fg-3)" }}>/ 30</span>
+        {/* Primary stats — large and legible at a glance */}
+        <section className="sim-fs__stats" aria-label="Game stats">
+          <div className={`sim-fs__stat ${state.cash < 0 ? "is-warn" : ""}`} title="Available cash. Bankruptcy below -$1M.">
+            <span className="sim-fs__stat-label">Cash</span>
+            <span className="sim-fs__stat-value">
+              {state.cash < 0 ? "-" : ""}${
+                Math.abs(state.cash) >= 1_000_000
+                  ? `${(state.cash / 1_000_000).toFixed(1)}M`
+                  : `${Math.round(state.cash / 1000)}k`
+              }
             </span>
           </div>
-          <div className="sim-stat" title="Available cash. Bankruptcy occurs if this drops below -$1,000,000. Earns a 2% dividend yield at the end of each turn if positive.">
-            <span className="sim-stat__label">Company Cash</span>
-            <span className={`sim-stat__value ${state.cash < 0 ? "sim-stat__value--negative" : "sim-stat__value--positive"}`}>
-              ${state.cash.toLocaleString()}
+          <div className="sim-fs__stat sim-fs__stat--primary" title={`Win at ${winThresholdLabel}`}>
+            <span className="sim-fs__stat-label">Valuation</span>
+            <span className="sim-fs__stat-value">
+              ${state.valuation >= 1e9 ? `${(state.valuation / 1e9).toFixed(1)}B` : `${(state.valuation / 1e6).toFixed(0)}M`}
             </span>
+            <span className="sim-fs__stat-target">goal {winThresholdLabel}</span>
           </div>
-          <div className="sim-stat" title={`Valuation is based on (annualized revenue * P/E multiplier) + cash. You win when this hits ${state.difficulty === "boardroom" ? "$3B" : state.difficulty === "reality" ? "$65B" : "$120B"}. P/E multiplier increases with AI updates if documentation is active.`}>
-            <span className="sim-stat__label">Valuation (Goal: {state.difficulty === "boardroom" ? "$3B" : state.difficulty === "reality" ? "$65B" : "$120B"})</span>
-            <span className="sim-stat__value sim-stat__value--highlight" style={{ color: "goldenrod" }}>
-              ${state.valuation.toLocaleString()}
-            </span>
+          <div className="sim-fs__stat" title="Current frontier AI version.">
+            <span className="sim-fs__stat-label">AI</span>
+            <span className="sim-fs__stat-value">v{state.agentVersion}</span>
+            {state.agentVersion < 6 && (
+              <span className="sim-fs__stat-target">{turnsToUpgrade}t to v{state.agentVersion + 1}</span>
+            )}
+            {state.agentVersion > 2 && !state.hasDocumentation && (
+              <span className="sim-fs__stat-target sim-fs__stat-target--warn">⚠ token leakage</span>
+            )}
           </div>
-          <div className="sim-stat" title="Current frontier AI version. Upgrades automatically, accelerating human productivity.">
-            <span className="sim-stat__label">AI Version</span>
-            <span className="sim-stat__value" style={{ display: "flex", alignItems: "center", gap: "6.5px", flexWrap: "wrap" }}>
-              v{state.agentVersion}
-              <span style={{ fontSize: "10px", color: "var(--color-accent-warm)" }}>
-                ({turnsToUpgrade}t to next)
-              </span>
-              {state.agentVersion > 2 && !state.hasDocumentation && (
-                <span className="sim-stat__warning-badge" title="Token Leakage Active: causing cash fines and loyalty decay!">
-                  ⚠️ Leakage
-                </span>
-              )}
-            </span>
-          </div>
-          <div className="sim-stat" title="Adjust OKRs to permanently increase human productivity. However, redefining OKRs causes an immediate -40% alignment meeting productivity penalty for that turn and increases base loyalty decay.">
-            <span className="sim-stat__label">OKR Level</span>
-            <span className="sim-stat__value">
-              Lvl {state.okrLevel} <span style={{ fontSize: "10px", color: "var(--color-fg-3)" }}>/ 5</span>
-            </span>
-          </div>
-          <div className="sim-stat" title="Markdown Wiki status. Reduces onboarding times from 6 to 3 turns, eliminates compliance fines, and connects homelab AI agents correctly.">
-            <span className="sim-stat__label">Documentation</span>
-            <span className={`sim-stat__value ${state.hasDocumentation ? "sim-stat__value--positive" : "sim-stat__value--negative"}`}>
-              {state.hasDocumentation ? "WIKI ACTIVE" : "NOT READY"}
-            </span>
+          <div className={`sim-fs__stat ${state.hasDocumentation ? "is-good" : "is-warn"}`} title="Markdown documentation status.">
+            <span className="sim-fs__stat-label">Docs</span>
+            <span className="sim-fs__stat-value">{state.hasDocumentation ? "✓" : "✗"}</span>
+            <span className="sim-fs__stat-target">{state.hasDocumentation ? "Wiki active" : "missing"}</span>
           </div>
         </section>
 
-        {/* Turn-flow phase indicator — signals the 3-step loop */}
-        <div className="sim-flow-strip" aria-label="Turn flow">
-          <div className="sim-flow-step is-active">
-            <span className="sim-flow-step__num">1</span>
-            <span className="sim-flow-step__label">Read Status</span>
-          </div>
-          <span className="sim-flow-arrow" aria-hidden>→</span>
-          <div className={`sim-flow-step ${selectedCard ? "is-active" : ""}`}>
-            <span className="sim-flow-step__num">2</span>
-            <span className="sim-flow-step__label">Pick a Move</span>
-          </div>
-          <span className="sim-flow-arrow" aria-hidden>→</span>
-          <div className="sim-flow-step">
-            <span className="sim-flow-step__num">3</span>
-            <span className="sim-flow-step__label">Next Turn</span>
-          </div>
-        </div>
-
-        {/* Main Grid */}
-        <div className="sim-grid">
-          {/* Main Left: Board & Hand */}
-          <div className="sim-main">
-            {/* The Board: Active Employees */}
-            <section className="sim-panel" aria-labelledby="board-title">
-              <h2 className="sim-panel__title" id="board-title">
-                <span>🏢 The Office Floor</span>
-                <span style={{ fontSize: "10px", color: "var(--color-fg-3)" }}>
-                  {state.employees.length} at their desk{state.employees.length !== 1 && "s"}
-                </span>
-              </h2>
-
-              {selectedCard && selectedCard.requiresTarget && (
-                <div className="sim-target-hint">
-                  🎯 Click a desk to target <strong>{selectedCard.name}</strong>
-                </div>
-              )}
-
-              <div className="sim-employees-grid sim-office-floor">
-                {state.employees.length === 0 ? (
-                  <div className="sim-office-empty">
-                    <span style={{ fontSize: "32px" }}>🏚️</span>
-                    <span>Empty office.</span>
-                    <span style={{ fontSize: "11px" }}>Hire someone to start generating revenue.</span>
-                  </div>
-                ) : (
-                  <>
-                    <div className="sim-office-windows" aria-hidden>
-                      {Array.from({ length: 6 }).map((_, i) => (
-                        <span key={i} className="sim-office-window" />
-                      ))}
-                    </div>
-                    <div className="sim-office-desks">
-                      {state.employees.map((emp) => {
-                        const onboardingTarget = state.hasDocumentation ? 3 : 6;
-                        const employeeOnboardingTarget = emp.traitId === "zweistein" ? Math.max(1, Math.floor(onboardingTarget / 2)) : onboardingTarget;
-                        const isOnboarded = emp.turnsOnboarded >= employeeOnboardingTarget;
-                        const isCriticalLoyalty = emp.loyalty <= 20;
-                        const traitInfo = emp.traitId ? TRAIT_DATABASE[emp.traitId] : undefined;
-                        const isTargetable = !!(selectedCard && selectedCard.requiresTarget);
-                        const isAgent = emp.type === "agent";
-
-                        return (
-                          <div
-                            key={emp.id}
-                            onClick={() => isTargetable && handleEmployeeClick(emp.id)}
-                            onKeyDown={(e) => isTargetable && handleEmployeeKeyDown(e, emp.id)}
-                            tabIndex={isTargetable ? 0 : -1}
-                            className={[
-                              "sim-desk",
-                              isTargetable ? "is-targetable" : "",
-                              emp.isAsleep ? "is-asleep" : "",
-                              emp.inspirationTurnsLeft > 0 ? "is-inspired" : "",
-                              isCriticalLoyalty ? "is-critical" : "",
-                              !isOnboarded ? "is-onboarding" : "",
-                              isAgent ? "is-agent" : "",
-                              isAgent && !state.hasDocumentation ? "is-malfunctioning" : "",
-                            ].filter(Boolean).join(" ")}
-                            role={isTargetable ? "button" : undefined}
-                            aria-label={`${emp.name}, ${isAgent ? "Cognitive Agent" : `Level ${emp.promotionLevel}`}, loyalty ${emp.loyalty}%`}
-                            title={traitInfo ? `${traitInfo.displayName} — ${traitInfo.passiveName}: ${traitInfo.description}` : undefined}
-                          >
-                            {/* Status badges floating above */}
-                            <div className="sim-desk__badges">
-                              {emp.isAsleep && <span className="sim-desk__badge" title="Asleep this turn">💤</span>}
-                              {emp.inspirationTurnsLeft > 0 && (
-                                <span className="sim-desk__badge sim-desk__badge--inspired" title={`Inspired (${emp.inspirationTurnsLeft}t left)`}>✨</span>
-                              )}
-                              {isCriticalLoyalty && (
-                                <span className="sim-desk__badge sim-desk__badge--critical" title={`Critical loyalty (${emp.loyalty}%)`}>!</span>
-                              )}
-                              {emp.pptPoisoningTurns > 0 && (
-                                <span className="sim-desk__badge" title={`PowerPoint fatigue (${emp.pptPoisoningTurns}t)`}>📊</span>
-                              )}
-                              {isAgent && !state.hasDocumentation && (
-                                <span className="sim-desk__badge sim-desk__badge--critical" title="Token hallucination — needs Markdown Wiki">⚠</span>
-                              )}
-                            </div>
-
-                            {/* Character at desk */}
-                            <svg className="sim-desk__character" viewBox="0 0 60 70" aria-hidden>
-                              {isAgent ? (
-                                <>
-                                  {/* Server rack box for agent */}
-                                  <rect x="14" y="14" width="32" height="40" rx="3" fill="currentColor" />
-                                  <rect x="18" y="20" width="24" height="2" fill="#0B0B0C" />
-                                  <rect x="18" y="26" width="24" height="2" fill="#0B0B0C" />
-                                  <rect x="18" y="32" width="24" height="2" fill="#0B0B0C" />
-                                  <circle cx="20" cy="46" r="1.5" fill="goldenrod" />
-                                  <circle cx="26" cy="46" r="1.5" fill="#a3be8c" />
-                                </>
-                              ) : (
-                                <>
-                                  {/* Stylised human silhouette */}
-                                  <circle cx="30" cy="18" r="10" fill="currentColor" />
-                                  <path d="M14 50 L14 38 Q14 28 30 28 Q46 28 46 38 L46 50 Z" fill="currentColor" />
-                                </>
-                              )}
-                            </svg>
-
-                            {/* Desk + monitor */}
-                            <svg className="sim-desk__furniture" viewBox="0 0 100 36" aria-hidden>
-                              <rect x="0" y="20" width="100" height="14" rx="2" fill="#3a352e" />
-                              <rect x="0" y="20" width="100" height="2" fill="rgba(255,255,255,0.08)" />
-                              <rect x="32" y="4" width="36" height="18" rx="2" fill="#0a0a0c" stroke="#3a352e" strokeWidth="0.8" />
-                              <rect x="34" y="6" width="32" height="14" fill={emp.isAsleep ? "#0a0a0c" : (isOnboarded ? "#1c2a3a" : "#2a1c14")} />
-                              {!emp.isAsleep && isOnboarded && (
-                                <>
-                                  <rect x="36" y="9" width="14" height="1" fill="rgba(163,190,140,0.55)" />
-                                  <rect x="36" y="12" width="22" height="1" fill="rgba(163,190,140,0.4)" />
-                                  <rect x="36" y="15" width="18" height="1" fill="rgba(163,190,140,0.4)" />
-                                </>
-                              )}
-                            </svg>
-
-                            {/* Info row */}
-                            <div className="sim-desk__info">
-                              <span className="sim-desk__name">{emp.name}</span>
-                              <span className="sim-desk__level">
-                                {isAgent ? "HERMES" : `L${emp.promotionLevel}`}
-                                {emp.hasPDP && <span className="sim-desk__pdp" title="Has Build-Plan PDP">📋</span>}
-                                {!isOnboarded && !isAgent && (
-                                  <span className="sim-desk__onboard" title="Still onboarding">
-                                    {emp.turnsOnboarded}/{employeeOnboardingTarget}
-                                  </span>
-                                )}
-                              </span>
-                              {traitInfo && (
-                                <span className="sim-desk__trait" title={`${traitInfo.passiveName}: ${traitInfo.description}`}>
-                                  {traitInfo.displayName}
-                                </span>
-                              )}
-                              <div className="sim-desk__loyalty" aria-label={`Loyalty ${emp.loyalty}%`}>
-                                <span className="sim-desk__loyalty-fill" style={{ width: `${Math.max(0, Math.min(100, emp.loyalty))}%` }} />
-                                <span className="sim-desk__loyalty-num">{emp.loyalty}%</span>
-                              </div>
-                            </div>
-
-                            {/* Inline promote button — only shown when usable
-                                and after the promotion mechanic unlocks at turn 3.
-                                One promotion per turn (rule introduced in turn-3 tutorial). */}
-                            {!isAgent && isOnboarded && emp.promotionLevel < 3 && state.turn >= TURN_PROMOTION_UNLOCKED && (
-                              <button
-                                onClick={(e) => { e.stopPropagation(); handlePromoteWorker(emp.id); }}
-                                disabled={
-                                  state.cash < (emp.promotionLevel === 1 ? 15000 : 40000) ||
-                                  (state.promotionsThisTurn ?? 0) >= MAX_PROMOTIONS_PER_TURN
-                                }
-                                className="sim-desk__promote"
-                                aria-label={`Promote ${emp.name}`}
-                                title={
-                                  (state.promotionsThisTurn ?? 0) >= MAX_PROMOTIONS_PER_TURN
-                                    ? "One promotion per turn. End the turn to promote again."
-                                    : `Promote ${emp.name} to level ${emp.promotionLevel + 1}`
-                                }
-                              >
-                                ▴ Promote
-                                <span className="sim-desk__promote-cost">${emp.promotionLevel === 1 ? "15k" : "40k"}</span>
-                              </button>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </>
-                )}
+        {/* Office floor — the visual centerpiece */}
+        <section className="sim-fs__office" aria-label="Office Floor">
+          {selectedCard && selectedCard.requiresTarget && (
+            <div className="sim-target-hint">
+              🎯 Click a desk to target <strong>{selectedCard.name}</strong>
+            </div>
+          )}
+          <div className="sim-employees-grid sim-office-floor">
+            {state.employees.length === 0 ? (
+              <div className="sim-office-empty">
+                <span style={{ fontSize: "32px" }}>🏚️</span>
+                <span>Empty office.</span>
+                <span style={{ fontSize: "11px" }}>Hire someone to start generating revenue.</span>
               </div>
-            </section>
-
-            {/* Tactical Cards Hand — locked until turn 5 */}
-            {state.turn < TURN_CARDS_UNLOCKED ? (
-              <section className="sim-panel sim-panel--locked" aria-label="Card hand (locked)">
-                <h2 className="sim-panel__title">
-                  <span>🔒 Tactical Hand</span>
-                  <span style={{ fontSize: "10px", color: "var(--color-fg-3)" }}>
-                    unlocks turn {TURN_CARDS_UNLOCKED}
-                  </span>
-                </h2>
-                <div className="sim-panel__locked-body">
-                  Your playbook arrives at turn {TURN_CARDS_UNLOCKED}. For now, use the fixed
-                  actions on the right.
-                </div>
-              </section>
             ) : (
-            <section className="sim-panel" aria-labelledby="hand-title">
-              <h2 className="sim-panel__title" id="hand-title">
-                <span>Tactical Hand Shelf</span>
-                <span style={{ fontSize: "10px", color: "var(--color-fg-3)" }}>
-                  {state.cardsHand.length} Card{state.cardsHand.length !== 1 && "s"} in Hand (Deck: {state.cardsDeck.length})
-                </span>
-              </h2>
-
-              {selectedCard && !selectedCard.requiresTarget && (
-                <div style={{ display: "flex", justifyContent: "center", marginBottom: "var(--space-2)" }}>
-                  <button
-                    onClick={handlePlayNoTargetCard}
-                    className="sim-btn-primary"
-                    style={{ maxWidth: "300px", padding: "8px 16px" }}
-                  >
-                    Play {selectedCard.name}
-                  </button>
+              <>
+                <div className="sim-office-windows" aria-hidden>
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <span key={i} className="sim-office-window" />
+                  ))}
                 </div>
-              )}
+                <div className="sim-office-desks">
+                  {state.employees.map((emp) => {
+                    const onboardingTarget = state.hasDocumentation ? 3 : 6;
+                    const employeeOnboardingTarget = emp.traitId === "zweistein" ? Math.max(1, Math.floor(onboardingTarget / 2)) : onboardingTarget;
+                    const isOnboarded = emp.turnsOnboarded >= employeeOnboardingTarget;
+                    const isCriticalLoyalty = emp.loyalty <= 20;
+                    const traitInfo = emp.traitId ? TRAIT_DATABASE[emp.traitId] : undefined;
+                    const isTargetable = !!(selectedCard && selectedCard.requiresTarget);
+                    const isAgent = emp.type === "agent";
 
-              <div className="sim-hand-shelf" role="group" aria-label="Cards in hand">
-                {state.cardsHand.map((cardId, index) => {
-                  const card = CARD_DATABASE[cardId];
-                  if (!card) return null;
-                  const isSelected = selectedCardId === cardId;
-
-                  return (
-                    <div
-                      key={`${cardId}-${index}`}
-                      onClick={() => handleCardClick(cardId)}
-                      onKeyDown={(e) => handleCardKeyDown(e, cardId)}
-                      ref={(el) => { cardElementsRef.current[index] = el; }}
-                      tabIndex={0}
-                      className={`mtg-card mtg-card--${card.class} ${isSelected ? "mtg-card--selected" : ""}`}
-                      onMouseEnter={() => playSound("ui-hover")}
-                      role="button"
-                      aria-label={`${card.name}, Cost: ${card.cost} cash. ${card.rulesText}`}
-                    >
-                      <div className="mtg-card__header">
-                        <h3 className="mtg-card__name" style={{ fontSize: "13px" }}>{card.name}</h3>
-                        <span className="mtg-card__cost">${(card.cost / 1000)}k</span>
+                    return (
+                      <div
+                        key={emp.id}
+                        onClick={() => isTargetable && handleEmployeeClick(emp.id)}
+                        onKeyDown={(e) => isTargetable && handleEmployeeKeyDown(e, emp.id)}
+                        tabIndex={isTargetable ? 0 : -1}
+                        className={[
+                          "sim-desk",
+                          isTargetable ? "is-targetable" : "",
+                          emp.isAsleep ? "is-asleep" : "",
+                          emp.inspirationTurnsLeft > 0 ? "is-inspired" : "",
+                          isCriticalLoyalty ? "is-critical" : "",
+                          !isOnboarded ? "is-onboarding" : "",
+                          isAgent ? "is-agent" : "",
+                          isAgent && !state.hasDocumentation ? "is-malfunctioning" : "",
+                        ].filter(Boolean).join(" ")}
+                        role={isTargetable ? "button" : undefined}
+                        aria-label={`${emp.name}, ${isAgent ? "Cognitive Agent" : `Level ${emp.promotionLevel}`}, loyalty ${emp.loyalty}%`}
+                        title={traitInfo ? `${traitInfo.displayName} — ${traitInfo.passiveName}: ${traitInfo.description}` : undefined}
+                      >
+                        <div className="sim-desk__badges">
+                          {emp.isAsleep && <span className="sim-desk__badge" title="Asleep this turn">💤</span>}
+                          {emp.inspirationTurnsLeft > 0 && (
+                            <span className="sim-desk__badge sim-desk__badge--inspired" title={`Inspired (${emp.inspirationTurnsLeft}t left)`}>✨</span>
+                          )}
+                          {isCriticalLoyalty && (
+                            <span className="sim-desk__badge sim-desk__badge--critical" title={`Critical loyalty (${emp.loyalty}%)`}>!</span>
+                          )}
+                          {emp.pptPoisoningTurns > 0 && (
+                            <span className="sim-desk__badge" title={`PowerPoint fatigue (${emp.pptPoisoningTurns}t)`}>📊</span>
+                          )}
+                          {isAgent && !state.hasDocumentation && (
+                            <span className="sim-desk__badge sim-desk__badge--critical" title="Token hallucination — needs Markdown Wiki">⚠</span>
+                          )}
+                        </div>
+                        <svg className="sim-desk__character" viewBox="0 0 60 70" aria-hidden>
+                          {isAgent ? (
+                            <>
+                              <rect x="14" y="14" width="32" height="40" rx="3" fill="currentColor" />
+                              <rect x="18" y="20" width="24" height="2" fill="#0B0B0C" />
+                              <rect x="18" y="26" width="24" height="2" fill="#0B0B0C" />
+                              <rect x="18" y="32" width="24" height="2" fill="#0B0B0C" />
+                              <circle cx="20" cy="46" r="1.5" fill="goldenrod" />
+                              <circle cx="26" cy="46" r="1.5" fill="#a3be8c" />
+                            </>
+                          ) : (
+                            <>
+                              <circle cx="30" cy="18" r="10" fill="currentColor" />
+                              <path d="M14 50 L14 38 Q14 28 30 28 Q46 28 46 38 L46 50 Z" fill="currentColor" />
+                            </>
+                          )}
+                        </svg>
+                        <svg className="sim-desk__furniture" viewBox="0 0 100 36" aria-hidden>
+                          <rect x="0" y="20" width="100" height="14" rx="2" fill="#3a352e" />
+                          <rect x="0" y="20" width="100" height="2" fill="rgba(255,255,255,0.08)" />
+                          <rect x="32" y="4" width="36" height="18" rx="2" fill="#0a0a0c" stroke="#3a352e" strokeWidth="0.8" />
+                          <rect x="34" y="6" width="32" height="14" fill={emp.isAsleep ? "#0a0a0c" : (isOnboarded ? "#1c2a3a" : "#2a1c14")} />
+                          {!emp.isAsleep && isOnboarded && (
+                            <>
+                              <rect x="36" y="9" width="14" height="1" fill="rgba(163,190,140,0.55)" />
+                              <rect x="36" y="12" width="22" height="1" fill="rgba(163,190,140,0.4)" />
+                              <rect x="36" y="15" width="18" height="1" fill="rgba(163,190,140,0.4)" />
+                            </>
+                          )}
+                        </svg>
+                        <div className="sim-desk__info">
+                          <span className="sim-desk__name">{emp.name}</span>
+                          <span className="sim-desk__level">
+                            {isAgent ? "HERMES" : `L${emp.promotionLevel}`}
+                            {emp.hasPDP && <span className="sim-desk__pdp" title="Has Build-Plan PDP">📋</span>}
+                            {!isOnboarded && !isAgent && (
+                              <span className="sim-desk__onboard" title="Still onboarding">
+                                {emp.turnsOnboarded}/{employeeOnboardingTarget}
+                              </span>
+                            )}
+                          </span>
+                          {traitInfo && (
+                            <span className="sim-desk__trait" title={`${traitInfo.passiveName}: ${traitInfo.description}`}>
+                              {traitInfo.displayName}
+                            </span>
+                          )}
+                          <div className="sim-desk__loyalty" aria-label={`Loyalty ${emp.loyalty}%`}>
+                            <span className="sim-desk__loyalty-fill" style={{ width: `${Math.max(0, Math.min(100, emp.loyalty))}%` }} />
+                            <span className="sim-desk__loyalty-num">{emp.loyalty}%</span>
+                          </div>
+                        </div>
+                        {!isAgent && isOnboarded && emp.promotionLevel < 3 && state.turn >= TURN_PROMOTION_UNLOCKED && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handlePromoteWorker(emp.id); }}
+                            disabled={
+                              state.cash < (emp.promotionLevel === 1 ? 15000 : 40000) ||
+                              (state.promotionsThisTurn ?? 0) >= MAX_PROMOTIONS_PER_TURN
+                            }
+                            className="sim-desk__promote"
+                            aria-label={`Promote ${emp.name}`}
+                            title={
+                              (state.promotionsThisTurn ?? 0) >= MAX_PROMOTIONS_PER_TURN
+                                ? "One promotion per turn. End the turn to promote again."
+                                : `Promote ${emp.name} to level ${emp.promotionLevel + 1}`
+                            }
+                          >
+                            ▴ Promote
+                            <span className="sim-desk__promote-cost">${emp.promotionLevel === 1 ? "15k" : "40k"}</span>
+                          </button>
+                        )}
                       </div>
-
-                      <div className="mtg-card__type">
-                        Sorcery — {card.class}
-                      </div>
-
-                      <div className="mtg-card__art-window">
-                        {renderCardArt(card.id)}
-                      </div>
-
-                      <div className="mtg-card__textbox">
-                        <p className="mtg-card__rules">{card.rulesText}</p>
-                        <p className="mtg-card__flavor">{card.flavor}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
+                    );
+                  })}
+                </div>
+              </>
             )}
           </div>
+        </section>
 
-          {/* Right Column: Actions & Event Log */}
-          <aside className="sim-sidebar">
-            {/* Fixed Actions Panel */}
-            <section className="sim-panel" aria-labelledby="actions-title">
-              <h2 className="sim-panel__title" id="actions-title">⚡ Pick your next move</h2>
+        {/* Your move — action chips */}
+        <section className="sim-fs__move" aria-label="Your Move">
+          <h2 className="sim-fs__move-title">⚡ Your move</h2>
+          {state.freezeHiringNextTurn && (
+            <p className="sim-fs__warn">❄️ Board has frozen hiring this turn.</p>
+          )}
+          <div className="sim-fs__move-grid">
+            <button
+              type="button"
+              onClick={handleHireWorker}
+              disabled={state.cash < 30000 || state.activeEventId !== null || state.draftChoices !== null || !!state.freezeHiringNextTurn}
+              className="sim-fs__move-btn"
+            >
+              <span className="sim-fs__move-btn-name">Hire Human</span>
+              <span className="sim-fs__move-btn-cost">$30k</span>
+            </button>
+            {state.turn >= TURN_AGENT_UNLOCKED ? (
+              <button
+                type="button"
+                onClick={handleHireAgent}
+                disabled={state.cash < 15000 || state.activeEventId !== null || state.draftChoices !== null || !!state.freezeHiringNextTurn}
+                className="sim-fs__move-btn"
+              >
+                <span className="sim-fs__move-btn-name">Hire Cognitive Agent</span>
+                <span className="sim-fs__move-btn-cost">$15k</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="sim-fs__move-btn is-locked"
+                title={`Cognitive Agents unlock at turn ${TURN_AGENT_UNLOCKED}`}
+              >
+                <span className="sim-fs__move-btn-name">🔒 Cognitive Agent</span>
+                <span className="sim-fs__move-btn-cost">turn {TURN_AGENT_UNLOCKED}</span>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={handleRedefineOkrs}
+              disabled={state.cash < 10000 || state.okrLevel >= 5 || state.activeEventId !== null || state.draftChoices !== null}
+              className="sim-fs__move-btn"
+            >
+              <span className="sim-fs__move-btn-name">Redefine OKRs</span>
+              <span className="sim-fs__move-btn-cost">$10k</span>
+            </button>
+            {state.turn >= TURN_CARDS_UNLOCKED ? (
+              <button
+                type="button"
+                onClick={() => setDrawer(drawer === "cards" ? null : "cards")}
+                className={`sim-fs__move-btn sim-fs__move-btn--cards ${drawer === "cards" ? "is-open" : ""}`}
+              >
+                <span className="sim-fs__move-btn-name">Play a Card</span>
+                <span className="sim-fs__move-btn-cost">{state.cardsHand.length} in hand</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="sim-fs__move-btn is-locked"
+                title={`Cards unlock at turn ${TURN_CARDS_UNLOCKED}`}
+              >
+                <span className="sim-fs__move-btn-name">🔒 Play a Card</span>
+                <span className="sim-fs__move-btn-cost">turn {TURN_CARDS_UNLOCKED}</span>
+              </button>
+            )}
+          </div>
+          {state.turn >= TURN_PROMOTION_UNLOCKED && (
+            <p className="sim-fs__move-hint">
+              + Click <em>Promote</em> on a desk to promote one employee per turn.
+            </p>
+          )}
+        </section>
 
-              {state.freezeHiringNextTurn && (
-                <div style={{ color: "var(--color-accent-warm-strong)", fontSize: "11px", marginBottom: "var(--space-2)", fontFamily: "var(--font-mono)", fontWeight: "bold" }}>
-                  ❄️ BOARD ORDER: HIRING IS FROZEN THIS TURN
-                </div>
-              )}
-
-              <div className="sim-actions-grid">
-                <button
-                  onClick={handleHireWorker}
-                  disabled={state.cash < 30000 || state.activeEventId !== null || state.draftChoices !== null || !!state.freezeHiringNextTurn}
-                  className="sim-btn-fixed"
-                  aria-label="Employ a new human worker for $30,000"
-                >
-                  <span>Hire Human</span>
-                  <span className="sim-btn-fixed__cost">$30,000</span>
-                </button>
-
-                {state.turn >= TURN_AGENT_UNLOCKED && (
-                  <button
-                    onClick={handleHireAgent}
-                    disabled={state.cash < 15000 || state.activeEventId !== null || state.draftChoices !== null || !!state.freezeHiringNextTurn}
-                    className="sim-btn-fixed"
-                    aria-label="Hire AI Cognitive Agent for $15,000"
-                  >
-                    <span>Hire Cognitive Agent</span>
-                    <span className="sim-btn-fixed__cost">$15,000</span>
-                  </button>
-                )}
-                {state.turn < TURN_AGENT_UNLOCKED && (
-                  <button
-                    disabled
-                    className="sim-btn-fixed sim-btn-locked"
-                    aria-label={`Cognitive Agent unlocks at turn ${TURN_AGENT_UNLOCKED}`}
-                    title={`Cognitive Agents unlock at turn ${TURN_AGENT_UNLOCKED}`}
-                  >
-                    <span>🔒 Cognitive Agent</span>
-                    <span className="sim-btn-fixed__cost">turn {TURN_AGENT_UNLOCKED}</span>
-                  </button>
-                )}
-
-                <button
-                  onClick={handleRedefineOkrs}
-                  disabled={state.cash < 10000 || state.okrLevel >= 5 || state.activeEventId !== null || state.draftChoices !== null}
-                  className="sim-btn-fixed"
-                  aria-label="Redefine corporate OKRs for $10,000"
-                >
-                  <span>Redefine OKRs</span>
-                  <span className="sim-btn-fixed__cost">$10,000</span>
-                </button>
-              </div>
-
-              <div className="sim-next-turn-wrap">
-                <button
-                  onClick={handleEndTurn}
-                  disabled={state.activeEventId !== null || state.draftChoices !== null}
-                  className="sim-btn-primary sim-btn-next-turn"
-                  aria-label="End Sprint Turn"
-                >
-                  Next Turn <span aria-hidden>→</span>
-                </button>
-                <div
-                  style={{
-                    textAlign: "center",
-                    marginTop: "var(--space-2)",
-                    fontSize: "10px",
-                    color: "var(--color-fg-3)",
-                    fontFamily: "var(--font-mono)",
-                  }}
-                >
-                  Shortcut:{" "}
-                  <kbd
-                    style={{
-                      background: "var(--color-bg-sunken)",
-                      padding: "2px 4px",
-                      border: "var(--border-hairline)",
-                    }}
-                  >
-                    Ctrl + Enter
-                  </kbd>
-                </div>
-              </div>
-            </section>
-
-            {/* Event Log Panel */}
-            <section className="sim-panel" style={{ flexGrow: 1, display: "flex", flexDirection: "column" }} aria-labelledby="log-title">
-              <h2 className="sim-panel__title" id="log-title">
-                <span>Corporate Ledger Log</span>
-                <span style={{ fontSize: "9px", color: "var(--color-fg-3)" }}>↓ CHRONOLOGICAL (NEWEST AT BOTTOM)</span>
-              </h2>
-
-              <div className="sim-log-box" ref={logContainerRef}>
-                <div style={{ color: "var(--color-fg-3)", borderBottom: "1px dashed var(--color-fg-4)", paddingBottom: "var(--space-2)", marginBottom: "var(--space-2)" }}>
-                  [ --- START SPRINT LEDGER --- ]
-                </div>
-                {state.eventLog.map((log, index) => (
-                  <div key={index} className="sim-log-entry">
-                    {log}
-                  </div>
-                ))}
-              </div>
-
-              {/* Invisible live region for screen readers */}
-              <div className="sr-only" aria-live="polite">
-                {state.eventLog[state.eventLog.length - 1]}
-              </div>
-
-              <div style={{ marginTop: "var(--space-4)", display: "flex", gap: "var(--space-2)" }}>
-                <button
-                  onClick={handleResetInitiate}
-                  className="sim-btn-fixed"
-                  style={{
-                    width: "100%",
-                    textAlign: "center",
-                    fontSize: "11px",
-                    background: resetConfirmMode ? "var(--color-accent-warm-strong)" : "var(--color-bg-sunken)",
-                    borderColor: resetConfirmMode ? "var(--color-fg-1)" : "var(--color-fg-4)",
-                    color: "var(--color-fg-1)"
-                  }}
-                  aria-label={resetConfirmMode ? "Click again to confirm reset" : "Reset simulation and restart"}
-                >
-                  {resetConfirmMode ? "⚠️ TAP AGAIN TO RESET" : "Wipe & Restart"}
-                </button>
-              </div>
-            </section>
-          </aside>
+        {/* Next Turn — primary CTA */}
+        <div className="sim-fs__next-wrap">
+          <button
+            type="button"
+            onClick={handleEndTurn}
+            disabled={state.activeEventId !== null || state.draftChoices !== null}
+            className="sim-fs__next"
+          >
+            Next Turn <span aria-hidden>→</span>
+          </button>
+          <div className="sim-fs__next-hint">
+            Shortcut: <kbd>Ctrl + Enter</kbd>
+          </div>
         </div>
+
+        {/* Drawer tabs — Log / Cards / Details, only one open at a time */}
+        <nav className="sim-fs__drawer-tabs" aria-label="More info">
+          <button
+            type="button"
+            onClick={() => setDrawer(drawer === "log" ? null : "log")}
+            className={`sim-fs__drawer-tab ${drawer === "log" ? "is-open" : ""}`}
+            aria-expanded={drawer === "log"}
+          >
+            {drawer === "log" ? "▾" : "▸"} Log ({state.eventLog.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setDrawer(drawer === "cards" ? null : "cards")}
+            className={`sim-fs__drawer-tab ${drawer === "cards" ? "is-open" : ""}`}
+            aria-expanded={drawer === "cards"}
+            disabled={state.turn < TURN_CARDS_UNLOCKED}
+            title={state.turn < TURN_CARDS_UNLOCKED ? `Cards unlock at turn ${TURN_CARDS_UNLOCKED}` : ""}
+          >
+            {drawer === "cards" ? "▾" : "▸"} Cards {state.turn < TURN_CARDS_UNLOCKED ? "🔒" : `(${state.cardsHand.length})`}
+          </button>
+          <button
+            type="button"
+            onClick={() => setDrawer(drawer === "details" ? null : "details")}
+            className={`sim-fs__drawer-tab ${drawer === "details" ? "is-open" : ""}`}
+            aria-expanded={drawer === "details"}
+          >
+            {drawer === "details" ? "▾" : "▸"} Details
+          </button>
+        </nav>
+
+        {drawer === "log" && (
+          <div className="sim-fs__drawer-panel sim-fs__drawer-panel--log" role="region" aria-label="Game log">
+            <div className="sim-log-box" ref={logContainerRef}>
+              <div style={{ color: "var(--color-fg-3)", borderBottom: "1px dashed var(--color-fg-4)", paddingBottom: "var(--space-2)", marginBottom: "var(--space-2)" }}>
+                [ --- LIVE SPRINT LEDGER --- ]
+              </div>
+              {state.eventLog.map((log, index) => (
+                <div key={index} className="sim-log-entry">{log}</div>
+              ))}
+            </div>
+            <div className="sr-only" aria-live="polite">
+              {state.eventLog[state.eventLog.length - 1]}
+            </div>
+          </div>
+        )}
+
+        {drawer === "cards" && state.turn >= TURN_CARDS_UNLOCKED && (
+          <div className="sim-fs__drawer-panel sim-fs__drawer-panel--cards" role="region" aria-label="Card hand">
+            {selectedCard && !selectedCard.requiresTarget && (
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: "var(--space-2)" }}>
+                <button
+                  type="button"
+                  onClick={handlePlayNoTargetCard}
+                  className="button button--warm"
+                  style={{ maxWidth: "300px", padding: "8px 16px" }}
+                >
+                  ▶ Play {selectedCard.name}
+                </button>
+              </div>
+            )}
+            <div className="sim-hand-shelf" role="group" aria-label="Cards in hand">
+              {state.cardsHand.map((cardId, index) => {
+                const card = CARD_DATABASE[cardId];
+                if (!card) return null;
+                const isSelected = selectedCardId === cardId;
+                return (
+                  <div
+                    key={`${cardId}-${index}`}
+                    onClick={() => handleCardClick(cardId)}
+                    onKeyDown={(e) => handleCardKeyDown(e, cardId)}
+                    ref={(el) => { cardElementsRef.current[index] = el; }}
+                    tabIndex={0}
+                    className={`mtg-card mtg-card--${card.class} ${isSelected ? "mtg-card--selected" : ""}`}
+                    onMouseEnter={() => playSound("ui-hover")}
+                    role="button"
+                    aria-label={`${card.name}, Cost: ${card.cost}. ${card.rulesText}`}
+                  >
+                    <div className="mtg-card__header">
+                      <h3 className="mtg-card__name" style={{ fontSize: "13px" }}>{card.name}</h3>
+                      <span className="mtg-card__cost">${(card.cost / 1000)}k</span>
+                    </div>
+                    <div className="mtg-card__type">Sorcery — {card.class}</div>
+                    <div className="mtg-card__art-window">
+                      {renderCardArt(card.id)}
+                    </div>
+                    <div className="mtg-card__textbox">
+                      <p className="mtg-card__rules">{card.rulesText}</p>
+                      <p className="mtg-card__flavor">{card.flavor}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {drawer === "details" && (
+          <div className="sim-fs__drawer-panel sim-fs__drawer-panel--details" role="region" aria-label="Game details">
+            <div className="sim-fs__details-grid">
+              <div className="sim-fs__detail">
+                <span className="sim-fs__detail-label">OKR Level</span>
+                <span className="sim-fs__detail-value">Lvl {state.okrLevel} / 5</span>
+                <span className="sim-fs__detail-hint">+{state.okrLevel * 15}% baseline productivity</span>
+              </div>
+              <div className="sim-fs__detail">
+                <span className="sim-fs__detail-label">Employees</span>
+                <span className="sim-fs__detail-value">{state.employees.length}</span>
+                <span className="sim-fs__detail-hint">
+                  {state.employees.filter(e => e.type === "agent").length} agent · {state.employees.filter(e => e.type === "human").length} human
+                </span>
+              </div>
+              <div className="sim-fs__detail">
+                <span className="sim-fs__detail-label">Deck</span>
+                <span className="sim-fs__detail-value">{state.cardsDeck.length}</span>
+                <span className="sim-fs__detail-hint">{state.cardsDiscard.length} in discard</span>
+              </div>
+              <div className="sim-fs__detail">
+                <span className="sim-fs__detail-label">Hype</span>
+                <span className="sim-fs__detail-value">{state.hypeTurnsLeft > 0 ? `${state.hypeTurnsLeft}t left` : "—"}</span>
+                <span className="sim-fs__detail-hint">+8× P/E during hype</span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Corporate Event Modal */}
         {state.activeEventId && (
@@ -2426,9 +2342,6 @@ export default function AgentGameClient() {
           </div>
         )}
       </main>
-
-      <Footer />
-      <AppChrome />
     </div>
   );
 }

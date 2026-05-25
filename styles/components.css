@@ -2970,3 +2970,447 @@ body { padding-top: 0; }
   .sim-v2 .sim-tut__art { height: 80px; }
 }
 
+/* ============================================================
+   AGENT GAME V4 — Full-screen canvas
+   This route renders without the site Nav/Footer/AppChrome.
+   The game gets its own visual language: deeper background, larger
+   stats, chunkier action chips, dedicated primary CTA, and bottom
+   drawers for log/cards/details.
+   ============================================================ */
+
+/* Hide site grain on the game route (AppChrome already isn't rendered,
+   but in case any other site-wide overlays bleed in) */
+.sim-fs-root {
+  position: fixed;
+  inset: 0;
+  background: #0a0907;
+  color: var(--color-fg-1);
+  z-index: 100;
+  overflow-y: auto;
+}
+.sim-fs-root .rt-grain { display: none; }
+
+.sim-fs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  min-height: 100vh;
+  width: 100%;
+  background: radial-gradient(ellipse at top, #1a1611 0%, #0a0907 70%);
+}
+
+/* === Header === */
+.sim-fs__head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: linear-gradient(180deg, #1c1a18 0%, #14110d 100%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  flex: 0 0 auto;
+}
+.sim-fs__home {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--color-fg-2);
+  text-decoration: none;
+  transition: all 150ms ease;
+}
+.sim-fs__home:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-fg-1);
+}
+.sim-fs__home-arrow { font-family: var(--font-mono); }
+
+.sim-fs__head-mid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.sim-fs__game-name {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 0.22em;
+  color: goldenrod;
+}
+.sim-fs__head-meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--color-fg-3);
+}
+.sim-fs__head-meta strong {
+  color: var(--color-fg-1);
+  font-weight: bold;
+}
+
+.sim-fs__head-tools {
+  display: flex;
+  gap: 6px;
+}
+.sim-fs__head-btn {
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  color: var(--color-fg-2);
+  cursor: pointer;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  transition: all 150ms ease;
+}
+.sim-fs__head-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-fg-1);
+}
+.sim-fs__head-btn--reset {
+  width: auto;
+  padding: 0 10px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+.sim-fs__head-btn--reset.is-confirm {
+  background: var(--color-accent-warm);
+  color: #fff;
+  border-color: var(--color-accent-warm-strong);
+}
+
+/* === Stats strip === */
+.sim-fs__stats {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 1fr 1fr;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: linear-gradient(180deg, #1c1a18 0%, #14110d 100%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  flex: 0 0 auto;
+}
+.sim-fs__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 var(--space-3);
+  border-left: 1px solid rgba(255, 255, 255, 0.04);
+}
+.sim-fs__stat:first-child { border-left: 0; padding-left: 0; }
+.sim-fs__stat-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-fg-3);
+}
+.sim-fs__stat-value {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: var(--fw-bold);
+  color: var(--color-fg-1);
+  line-height: 1.1;
+}
+.sim-fs__stat--primary .sim-fs__stat-value { color: goldenrod; }
+.sim-fs__stat.is-warn .sim-fs__stat-value { color: var(--color-accent-warm); }
+.sim-fs__stat.is-good .sim-fs__stat-value { color: #a3be8c; }
+.sim-fs__stat-target {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--color-fg-3);
+}
+.sim-fs__stat-target--warn { color: var(--color-accent-warm); }
+
+/* === Office floor section === */
+.sim-fs__office {
+  flex: 1 1 auto;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.sim-fs__office .sim-employees-grid {
+  flex: 1 1 auto;
+  min-height: 240px;
+}
+
+/* === Your Move panel === */
+.sim-fs__move {
+  padding: var(--space-4);
+  background: linear-gradient(180deg, #1c1a18 0%, #14110d 100%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  flex: 0 0 auto;
+}
+.sim-fs__move-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: goldenrod;
+  margin: 0 0 var(--space-3) 0;
+}
+.sim-fs__warn {
+  margin: 0 0 var(--space-3) 0;
+  padding: var(--space-2) var(--space-3);
+  background: rgba(200, 85, 61, 0.1);
+  border: 1px solid rgba(200, 85, 61, 0.3);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-accent-warm);
+}
+.sim-fs__move-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-2);
+}
+.sim-fs__move-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: var(--space-3) var(--space-4);
+  background: linear-gradient(180deg, #2a2522 0%, #1c1a18 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: var(--color-fg-1);
+  cursor: pointer;
+  text-align: left;
+  transition: all 150ms ease;
+}
+.sim-fs__move-btn:hover:not(:disabled) {
+  background: linear-gradient(180deg, #3a3530 0%, #2a2522 100%);
+  border-color: goldenrod;
+  transform: translateY(-1px);
+}
+.sim-fs__move-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+.sim-fs__move-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.sim-fs__move-btn-name {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.02em;
+}
+.sim-fs__move-btn-cost {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--color-fg-3);
+  text-transform: uppercase;
+}
+.sim-fs__move-btn.is-locked {
+  background: transparent;
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+.sim-fs__move-btn--cards.is-open {
+  border-color: goldenrod;
+  background: linear-gradient(180deg, rgba(218, 165, 32, 0.1), #1c1a18);
+}
+.sim-fs__move-hint {
+  margin: var(--space-3) 0 0 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--color-fg-3);
+}
+.sim-fs__move-hint em {
+  font-style: normal;
+  color: goldenrod;
+  letter-spacing: 0.04em;
+}
+
+/* === Next Turn primary CTA === */
+.sim-fs__next-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+.sim-fs__next {
+  width: 100%;
+  max-width: 420px;
+  padding: 18px var(--space-5);
+  background: linear-gradient(180deg, goldenrod 0%, #b8910f 100%);
+  color: #0B0B0C;
+  border: 1px solid #8d6f0b;
+  border-radius: 6px;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 4px 16px rgba(218, 165, 32, 0.22);
+  transition: all 150ms ease;
+}
+.sim-fs__next:hover:not(:disabled) {
+  background: linear-gradient(180deg, #e6b528 0%, #c89a1c 100%);
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 6px 22px rgba(218, 165, 32, 0.35);
+}
+.sim-fs__next:active:not(:disabled) {
+  transform: translateY(0);
+}
+.sim-fs__next:disabled {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-fg-3);
+  border-color: rgba(255, 255, 255, 0.06);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.sim-fs__next-hint {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--color-fg-3);
+}
+.sim-fs__next-hint kbd {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 1px 5px;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: var(--font-mono);
+}
+
+/* === Bottom drawers === */
+.sim-fs__drawer-tabs {
+  display: flex;
+  gap: 2px;
+  flex: 0 0 auto;
+}
+.sim-fs__drawer-tab {
+  flex: 1;
+  padding: 10px var(--space-3);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 0;
+  border-radius: 6px 6px 0 0;
+  color: var(--color-fg-2);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-align: left;
+  transition: all 150ms ease;
+}
+.sim-fs__drawer-tab:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-fg-1);
+}
+.sim-fs__drawer-tab.is-open {
+  background: #1c1a18;
+  color: goldenrod;
+  border-color: rgba(218, 165, 32, 0.3);
+}
+.sim-fs__drawer-tab:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sim-fs__drawer-panel {
+  padding: var(--space-4);
+  background: #1c1a18;
+  border: 1px solid rgba(218, 165, 32, 0.3);
+  border-top: 0;
+  border-radius: 0 0 6px 6px;
+  max-height: 360px;
+  overflow-y: auto;
+  flex: 0 0 auto;
+}
+.sim-fs__drawer-panel--log .sim-log-box {
+  max-height: 320px;
+}
+.sim-fs__drawer-panel--cards .sim-hand-shelf {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--space-2);
+}
+
+.sim-fs__details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-4);
+}
+.sim-fs__detail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-3);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
+}
+.sim-fs__detail-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-fg-3);
+}
+.sim-fs__detail-value {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: var(--fw-semibold);
+  color: var(--color-fg-1);
+}
+.sim-fs__detail-hint {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--color-fg-3);
+  line-height: 1.4;
+}
+
+/* Mobile responsive */
+@media (max-width: 720px) {
+  .sim-fs { padding: var(--space-2) var(--space-3); gap: var(--space-2); }
+  .sim-fs__head {
+    grid-template-columns: auto 1fr auto;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+  }
+  .sim-fs__game-name { font-size: 10px; }
+  .sim-fs__head-meta { font-size: 9px; }
+  .sim-fs__stats {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+    padding: var(--space-3);
+  }
+  .sim-fs__stat-value { font-size: 22px; }
+  .sim-fs__stat { padding: 0 var(--space-2); }
+  .sim-fs__move-grid {
+    grid-template-columns: 1fr;
+  }
+  .sim-fs__next { padding: 14px; font-size: 15px; }
+  .sim-fs__drawer-panel--cards .sim-hand-shelf {
+    grid-template-columns: 1fr 1fr;
+  }
+  .sim-fs__details-grid { grid-template-columns: 1fr 1fr; }
+}
+
