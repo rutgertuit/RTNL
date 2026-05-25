@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type KeyboardEvent } from "react";
 
 type Modality = "video" | "audio" | "image" | "text";
 
@@ -101,9 +101,34 @@ export function CostOfFrame() {
   const meta = MODALITY_META[modality];
   const totalsWh = meta.whPerUnit * count;
 
+  const handleModalityKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
+    const modalities = Object.keys(MODALITY_META) as Modality[];
+    const currentIdx = modalities.indexOf(modality);
+    let nextIdx: number | null = null;
+    if (e.key === "ArrowRight") {
+      nextIdx = currentIdx >= modalities.length - 1 ? 0 : currentIdx + 1;
+    } else if (e.key === "ArrowLeft") {
+      nextIdx = currentIdx <= 0 ? modalities.length - 1 : currentIdx - 1;
+    } else if (e.key === "Home") {
+      nextIdx = 0;
+    } else if (e.key === "End") {
+      nextIdx = modalities.length - 1;
+    }
+    if (nextIdx !== null) {
+      e.preventDefault();
+      const nextModality = modalities[nextIdx];
+      if (!nextModality) return; // satisfies noUncheckedIndexedAccess
+      setModality(nextModality);
+      setCount((c) => Math.min(c, MODALITY_META[nextModality].sliderMax));
+      document.getElementById(`cost-tab-${nextModality}`)?.focus();
+    }
+  };
+
   const computed = useMemo(() => {
     const totalKwh = totalsWh / 1000;
-    const microwaveMin = totalsWh * 0.06;
+    // Anchored to the framing prose: "two minutes of microwave for every second of video."
+    // At video=200 Wh/sec, that's 2 min per 200 Wh => 0.01 min/Wh.
+    const microwaveMin = totalsWh * 0.01;
     const phoneCharges = totalsWh / 12;
     const ledHours = totalsWh / 9;
     return {
@@ -128,18 +153,30 @@ export function CostOfFrame() {
         every roadmap conversation a CMO is about to have with a vendor.
       </p>
 
-      <div className="rt-bi-cost__calc">
+      <div
+        className="rt-bi-cost__calc"
+        role="tabpanel"
+        id="cost-tabpanel"
+        aria-labelledby={`cost-tab-${modality}`}
+      >
         <div className="rt-bi-cost__controls">
           <div className="rt-bi-cost__modalities" role="tablist" aria-label="Modality">
             {(Object.keys(MODALITY_META) as Modality[]).map((m) => (
               <button
                 key={m}
+                id={`cost-tab-${m}`}
                 role="tab"
                 aria-selected={m === modality}
+                aria-controls="cost-tabpanel"
+                tabIndex={m === modality ? 0 : -1}
                 className={`rt-bi-cost__modality ${
                   m === modality ? "is-active" : ""
                 }`}
-                onClick={() => setModality(m)}
+                onClick={() => {
+                  setModality(m);
+                  setCount((c) => Math.min(c, MODALITY_META[m].sliderMax));
+                }}
+                onKeyDown={handleModalityKeyDown}
               >
                 {MODALITY_META[m].label}
               </button>
@@ -157,7 +194,7 @@ export function CostOfFrame() {
               step={meta.sliderStep}
               value={count}
               onChange={(e) => setCount(Number(e.target.value))}
-              aria-label={`${meta.label} ${meta.unitLabel}`}
+              aria-label={`${meta.label}: ${count} ${meta.unitLabel}`}
             />
           </label>
           <p className="rt-bi-cost__caption">{meta.caption}</p>
