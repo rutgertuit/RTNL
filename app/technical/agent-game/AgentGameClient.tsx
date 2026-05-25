@@ -1506,6 +1506,24 @@ export default function AgentGameClient() {
           </div>
         </section>
 
+        {/* Turn-flow phase indicator — signals the 3-step loop */}
+        <div className="sim-flow-strip" aria-label="Turn flow">
+          <div className="sim-flow-step is-active">
+            <span className="sim-flow-step__num">1</span>
+            <span className="sim-flow-step__label">Read Status</span>
+          </div>
+          <span className="sim-flow-arrow" aria-hidden>→</span>
+          <div className={`sim-flow-step ${selectedCard ? "is-active" : ""}`}>
+            <span className="sim-flow-step__num">2</span>
+            <span className="sim-flow-step__label">Pick a Move</span>
+          </div>
+          <span className="sim-flow-arrow" aria-hidden>→</span>
+          <div className="sim-flow-step">
+            <span className="sim-flow-step__num">3</span>
+            <span className="sim-flow-step__label">Next Turn</span>
+          </div>
+        </div>
+
         {/* Main Grid */}
         <div className="sim-grid">
           {/* Main Left: Board & Hand */}
@@ -1513,173 +1531,155 @@ export default function AgentGameClient() {
             {/* The Board: Active Employees */}
             <section className="sim-panel" aria-labelledby="board-title">
               <h2 className="sim-panel__title" id="board-title">
-                <span>Active Personnel Field</span>
+                <span>🏢 The Office Floor</span>
                 <span style={{ fontSize: "10px", color: "var(--color-fg-3)" }}>
-                  {state.employees.length} Active Node{state.employees.length !== 1 && "s"}
+                  {state.employees.length} at their desk{state.employees.length !== 1 && "s"}
                 </span>
               </h2>
 
               {selectedCard && selectedCard.requiresTarget && (
-                <div
-                  className="eyebrow eyebrow--warm"
-                  style={{
-                    padding: "var(--space-2)",
-                    background: "rgba(200, 85, 61, 0.1)",
-                    border: "var(--border-accent)",
-                    textAlign: "center",
-                    fontSize: "12px",
-                  }}
-                >
-                  🎯 Select an Employee below to target with <strong>{selectedCard.name}</strong>
+                <div className="sim-target-hint">
+                  🎯 Click a desk to target <strong>{selectedCard.name}</strong>
                 </div>
               )}
 
-              <div className="sim-employees-grid">
+              <div className="sim-employees-grid sim-office-floor">
                 {state.employees.length === 0 ? (
-                  <div style={{ gridColumn: "1/-1", textAlign: "center", padding: "var(--space-6)", color: "var(--color-fg-3)" }}>
-                    No active personnel. Your productivity is 0%. Hire workers immediately to generate revenue!
+                  <div className="sim-office-empty">
+                    <span style={{ fontSize: "32px" }}>🏚️</span>
+                    <span>Empty office.</span>
+                    <span style={{ fontSize: "11px" }}>Hire someone to start generating revenue.</span>
                   </div>
                 ) : (
-                  state.employees.map((emp) => {
-                    const onboardingTarget = state.hasDocumentation ? 3 : 6;
-                    const employeeOnboardingTarget = emp.traitId === "zweistein" ? Math.max(1, Math.floor(onboardingTarget / 2)) : onboardingTarget;
-                    const isOnboarded = emp.turnsOnboarded >= employeeOnboardingTarget;
-                    const isCriticalLoyalty = emp.loyalty <= 20;
-                    const traitInfo = emp.traitId ? TRAIT_DATABASE[emp.traitId] : undefined;
+                  <>
+                    <div className="sim-office-windows" aria-hidden>
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <span key={i} className="sim-office-window" />
+                      ))}
+                    </div>
+                    <div className="sim-office-desks">
+                      {state.employees.map((emp) => {
+                        const onboardingTarget = state.hasDocumentation ? 3 : 6;
+                        const employeeOnboardingTarget = emp.traitId === "zweistein" ? Math.max(1, Math.floor(onboardingTarget / 2)) : onboardingTarget;
+                        const isOnboarded = emp.turnsOnboarded >= employeeOnboardingTarget;
+                        const isCriticalLoyalty = emp.loyalty <= 20;
+                        const traitInfo = emp.traitId ? TRAIT_DATABASE[emp.traitId] : undefined;
+                        const isTargetable = !!(selectedCard && selectedCard.requiresTarget);
+                        const isAgent = emp.type === "agent";
 
-                    return (
-                      <div
-                        key={emp.id}
-                        onClick={() => handleEmployeeClick(emp.id)}
-                        onKeyDown={(e) => handleEmployeeKeyDown(e, emp.id)}
-                        tabIndex={selectedCard && selectedCard.requiresTarget ? 0 : -1}
-                        className={`mtg-card mtg-card--worker 
-                          ${selectedCard && selectedCard.requiresTarget ? "mtg-card--targetable" : ""} 
-                          ${emp.type === "agent" && !state.hasDocumentation ? "mtg-card--agent-malfunction" : ""}
-                          ${emp.inspirationTurnsLeft > 0 ? "mtg-card--worker-inspired" : ""} 
-                          ${emp.isAsleep ? "mtg-card--tapped" : ""}`}
-                        role="button"
-                        aria-label={`Personnel: ${emp.name}, ${emp.type === "agent" ? "Cognitive Agent" : `Level ${emp.promotionLevel} Human`}, Loyalty ${emp.loyalty} percent`}
-                      >
-                        <div className="mtg-card__header">
-                          <h3 className="mtg-card__name">{emp.name}</h3>
-                          <span className="mtg-card__cost">
-                            {emp.type === "agent" ? "Hermes" : `Lvl ${emp.promotionLevel}`}
-                          </span>
-                        </div>
-
-                        <div className="mtg-card__type">
-                          {emp.type === "agent" ? "Cognitive AI Agent" : "Legendary Human Employee"}
-                        </div>
-
-                        <div className="mtg-card__art-window">
-                          {renderEmployeeArt(emp.type)}
-                          {emp.isAsleep && (
-                            <div className="zzz-container">
-                              <span className="zzz-letter zzz-letter--1">Z</span>
-                              <span className="zzz-letter zzz-letter--2">z</span>
-                              <span className="zzz-letter zzz-letter--3">z</span>
+                        return (
+                          <div
+                            key={emp.id}
+                            onClick={() => isTargetable && handleEmployeeClick(emp.id)}
+                            onKeyDown={(e) => isTargetable && handleEmployeeKeyDown(e, emp.id)}
+                            tabIndex={isTargetable ? 0 : -1}
+                            className={[
+                              "sim-desk",
+                              isTargetable ? "is-targetable" : "",
+                              emp.isAsleep ? "is-asleep" : "",
+                              emp.inspirationTurnsLeft > 0 ? "is-inspired" : "",
+                              isCriticalLoyalty ? "is-critical" : "",
+                              !isOnboarded ? "is-onboarding" : "",
+                              isAgent ? "is-agent" : "",
+                              isAgent && !state.hasDocumentation ? "is-malfunctioning" : "",
+                            ].filter(Boolean).join(" ")}
+                            role={isTargetable ? "button" : undefined}
+                            aria-label={`${emp.name}, ${isAgent ? "Cognitive Agent" : `Level ${emp.promotionLevel}`}, loyalty ${emp.loyalty}%`}
+                            title={traitInfo ? `${traitInfo.displayName} — ${traitInfo.passiveName}: ${traitInfo.description}` : undefined}
+                          >
+                            {/* Status badges floating above */}
+                            <div className="sim-desk__badges">
+                              {emp.isAsleep && <span className="sim-desk__badge" title="Asleep this turn">💤</span>}
+                              {emp.inspirationTurnsLeft > 0 && (
+                                <span className="sim-desk__badge sim-desk__badge--inspired" title={`Inspired (${emp.inspirationTurnsLeft}t left)`}>✨</span>
+                              )}
+                              {isCriticalLoyalty && (
+                                <span className="sim-desk__badge sim-desk__badge--critical" title={`Critical loyalty (${emp.loyalty}%)`}>!</span>
+                              )}
+                              {emp.pptPoisoningTurns > 0 && (
+                                <span className="sim-desk__badge" title={`PowerPoint fatigue (${emp.pptPoisoningTurns}t)`}>📊</span>
+                              )}
+                              {isAgent && !state.hasDocumentation && (
+                                <span className="sim-desk__badge sim-desk__badge--critical" title="Token hallucination — needs Markdown Wiki">⚠</span>
+                              )}
                             </div>
-                          )}
-                        </div>
 
-                        <div className="mtg-card__textbox">
-                          <div className="mtg-card__badge-row">
-                            <span className="mtg-card__badge mtg-card__badge--pdp">
-                              {emp.hasPDP ? "PDP Locked" : "No PDP"}
-                            </span>
-                            {traitInfo && (
-                              <span className="mtg-card__badge mtg-card__badge--trait" title={traitInfo.description}>
-                                {traitInfo.displayName}
-                              </span>
-                            )}
-                            {emp.inspirationTurnsLeft > 0 && (
-                              <span className="mtg-card__badge mtg-card__badge--inspired">
-                                Inspired ({emp.inspirationTurnsLeft}t)
-                              </span>
-                            )}
-                            {emp.isAsleep && (
-                              <span className="mtg-card__badge mtg-card__badge--asleep">
-                                Zzz... (Asleep)
-                              </span>
-                            )}
-                            {emp.pptPoisoningTurns > 0 && (
-                              <span
-                                className="mtg-card__badge mtg-card__badge--asleep"
-                                style={{ borderColor: "#ffa000", color: "#ffa000" }}
-                              >
-                                PPT fine ({emp.pptPoisoningTurns}t)
-                              </span>
-                            )}
-                          </div>
-
-                          <p className="mtg-card__rules" style={{ fontSize: "10px" }}>
-                            {emp.type === "agent" ? (
-                              state.hasDocumentation ? (
-                                <span style={{ color: "#a3be8c" }}>
-                                  Documented Synergy: Multiplies human teammates productivity by 1.25x (+$50,000 turn revenue).
-                                </span>
+                            {/* Character at desk */}
+                            <svg className="sim-desk__character" viewBox="0 0 60 70" aria-hidden>
+                              {isAgent ? (
+                                <>
+                                  {/* Server rack box for agent */}
+                                  <rect x="14" y="14" width="32" height="40" rx="3" fill="currentColor" />
+                                  <rect x="18" y="20" width="24" height="2" fill="#0B0B0C" />
+                                  <rect x="18" y="26" width="24" height="2" fill="#0B0B0C" />
+                                  <rect x="18" y="32" width="24" height="2" fill="#0B0B0C" />
+                                  <circle cx="20" cy="46" r="1.5" fill="goldenrod" />
+                                  <circle cx="26" cy="46" r="1.5" fill="#a3be8c" />
+                                </>
                               ) : (
-                                <span style={{ color: "var(--color-accent-warm)" }}>
-                                  Token Hallucination: Troublemaker. -$10,000/turn maintenance, -4 loyalty decay to humans.
+                                <>
+                                  {/* Stylised human silhouette */}
+                                  <circle cx="30" cy="18" r="10" fill="currentColor" />
+                                  <path d="M14 50 L14 38 Q14 28 30 28 Q46 28 46 38 L46 50 Z" fill="currentColor" />
+                                </>
+                              )}
+                            </svg>
+
+                            {/* Desk + monitor */}
+                            <svg className="sim-desk__furniture" viewBox="0 0 100 36" aria-hidden>
+                              <rect x="0" y="20" width="100" height="14" rx="2" fill="#3a352e" />
+                              <rect x="0" y="20" width="100" height="2" fill="rgba(255,255,255,0.08)" />
+                              <rect x="32" y="4" width="36" height="18" rx="2" fill="#0a0a0c" stroke="#3a352e" strokeWidth="0.8" />
+                              <rect x="34" y="6" width="32" height="14" fill={emp.isAsleep ? "#0a0a0c" : (isOnboarded ? "#1c2a3a" : "#2a1c14")} />
+                              {!emp.isAsleep && isOnboarded && (
+                                <>
+                                  <rect x="36" y="9" width="14" height="1" fill="rgba(163,190,140,0.55)" />
+                                  <rect x="36" y="12" width="22" height="1" fill="rgba(163,190,140,0.4)" />
+                                  <rect x="36" y="15" width="18" height="1" fill="rgba(163,190,140,0.4)" />
+                                </>
+                              )}
+                            </svg>
+
+                            {/* Info row */}
+                            <div className="sim-desk__info">
+                              <span className="sim-desk__name">{emp.name}</span>
+                              <span className="sim-desk__level">
+                                {isAgent ? "HERMES" : `L${emp.promotionLevel}`}
+                                {emp.hasPDP && <span className="sim-desk__pdp" title="Has Build-Plan PDP">📋</span>}
+                                {!isOnboarded && !isAgent && (
+                                  <span className="sim-desk__onboard" title="Still onboarding">
+                                    {emp.turnsOnboarded}/{employeeOnboardingTarget}
+                                  </span>
+                                )}
+                              </span>
+                              {traitInfo && (
+                                <span className="sim-desk__trait" title={`${traitInfo.passiveName}: ${traitInfo.description}`}>
+                                  {traitInfo.displayName}
                                 </span>
-                              )
-                            ) : !isOnboarded ? (
-                              <span style={{ color: "var(--color-accent-warm)" }}>
-                                Onboarding: {emp.turnsOnboarded}/{employeeOnboardingTarget} turns (10% productivity).
-                              </span>
-                            ) : (
-                              <span>
-                                Fully onboarded. Base Salary: $
-                                {((emp.promotionLevel === 1 ? 8000 : emp.promotionLevel === 2 ? 18000 : 45000) * (emp.traitId === "rump" ? 1.5 : 1)).toLocaleString()}
-                                /turn.
-                              </span>
-                            )}
-                          </p>
-
-                          {traitInfo && (
-                            <div style={{ borderTop: "1px dashed rgba(255,255,255,0.15)", paddingTop: "4px", marginTop: "4px", marginBottom: "4px" }}>
-                              <strong style={{ color: "goldenrod", fontSize: "9px" }}>{traitInfo.passiveName}: </strong>
-                              <span style={{ fontSize: "8.5px", color: "var(--color-fg-2)" }}>{traitInfo.description}</span>
+                              )}
+                              <div className="sim-desk__loyalty" aria-label={`Loyalty ${emp.loyalty}%`}>
+                                <span className="sim-desk__loyalty-fill" style={{ width: `${Math.max(0, Math.min(100, emp.loyalty))}%` }} />
+                                <span className="sim-desk__loyalty-num">{emp.loyalty}%</span>
+                              </div>
                             </div>
-                          )}
 
-                          <p className="mtg-card__flavor" style={{ fontSize: "9px" }}>
-                            {emp.type === "agent"
-                              ? "Een docker container die 'm rauw pakt van de homelab VLAN."
-                              : emp.name === "Edgar"
-                              ? "Edgar houdt van hiërarchie and bullet points."
-                              : emp.name === "Jochem"
-                              ? "Jochem is de spil in het koffie-apparaat netwerk."
-                              : emp.name === "Lous"
-                              ? "Lous documenteert alles in ASCII."
-                              : "Zweet op het voorhoofd en neus naar voren."}
-                          </p>
-                        </div>
-
-                        {/* Promotion Action Button */}
-                        {emp.type !== "agent" && (
-                          <div className="sim-row__promote" onClick={(e) => e.stopPropagation()}>
-                            <button
-                              onClick={() => handlePromoteWorker(emp.id)}
-                              disabled={emp.promotionLevel >= 3 || state.cash < (emp.promotionLevel === 1 ? 15000 : 40000)}
-                              className="sim-btn-fixed"
-                              aria-label={`Promote ${emp.name} to Level ${emp.promotionLevel + 1}`}
-                            >
-                              <span>Promote</span>
-                              <span className="sim-btn-fixed__cost">
-                                ${ (emp.promotionLevel === 1 ? 15000 : 40000).toLocaleString() }
-                              </span>
-                            </button>
+                            {/* Inline promote button — only shown when usable */}
+                            {!isAgent && isOnboarded && emp.promotionLevel < 3 && (
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handlePromoteWorker(emp.id); }}
+                                disabled={state.cash < (emp.promotionLevel === 1 ? 15000 : 40000)}
+                                className="sim-desk__promote"
+                                aria-label={`Promote ${emp.name}`}
+                              >
+                                ▴ Promote
+                                <span className="sim-desk__promote-cost">${emp.promotionLevel === 1 ? "15k" : "40k"}</span>
+                              </button>
+                            )}
                           </div>
-                        )}
-
-                        <div className={`mtg-card__loyalty ${isCriticalLoyalty ? "mtg-card__loyalty--critical" : ""}`}>
-                          {emp.loyalty}
-                        </div>
-                      </div>
-                    );
-                  })
+                        );
+                      })}
+                    </div>
+                  </>
                 )}
               </div>
             </section>
@@ -1751,7 +1751,7 @@ export default function AgentGameClient() {
           <aside className="sim-sidebar">
             {/* Fixed Actions Panel */}
             <section className="sim-panel" aria-labelledby="actions-title">
-              <h2 className="sim-panel__title" id="actions-title">Fixed Sprint Options</h2>
+              <h2 className="sim-panel__title" id="actions-title">⚡ Pick your next move</h2>
 
               {state.freezeHiringNextTurn && (
                 <div style={{ color: "var(--color-accent-warm-strong)", fontSize: "11px", marginBottom: "var(--space-2)", fontFamily: "var(--font-mono)", fontWeight: "bold" }}>
@@ -1791,14 +1791,14 @@ export default function AgentGameClient() {
                 </button>
               </div>
 
-              <div style={{ marginTop: "var(--space-4)" }}>
+              <div className="sim-next-turn-wrap">
                 <button
                   onClick={handleEndTurn}
                   disabled={state.activeEventId !== null || state.draftChoices !== null}
-                  className="sim-btn-primary"
+                  className="sim-btn-primary sim-btn-next-turn"
                   aria-label="End Sprint Turn"
                 >
-                  End Turn
+                  Next Turn <span aria-hidden>→</span>
                 </button>
                 <div
                   style={{

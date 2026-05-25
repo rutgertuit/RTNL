@@ -2413,15 +2413,432 @@ body { padding-top: 0; }
     max-height: 320px;
   }
   .sim-v2 .sim-dashboard { grid-template-columns: repeat(3, 1fr); }
-  .sim-v2 .mtg-card--worker {
-    grid-template-columns: 36px minmax(0, 1fr) 48px;
-    grid-template-rows: auto auto;
+}
+
+/* ============================================================
+   AGENT GAME V3 — Office Floor + Turn-Flow signposting
+   The personnel rows of v2 still read as "action cards." This
+   layer replaces them with an illustrated office floor — each
+   employee is a small figure at a desk, not a card to be played.
+   Plus: a turn-flow strip clarifies the read → pick → next loop.
+   ============================================================ */
+
+/* Turn-flow strip — sits between dashboard and main grid */
+.sim-v2 .sim-flow-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg-sunken);
+  border: var(--border-hairline);
+  border-radius: 4px;
+  flex: 0 0 auto;
+}
+.sim-v2 .sim-flow-step {
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  opacity: 0.5;
+  transition: opacity 200ms ease, background 200ms ease;
+}
+.sim-v2 .sim-flow-step.is-active {
+  opacity: 1;
+  background: rgba(218, 165, 32, 0.08);
+}
+.sim-v2 .sim-flow-step__num {
+  width: 18px; height: 18px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--color-bg-surface);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--color-fg-2);
+}
+.sim-v2 .sim-flow-step.is-active .sim-flow-step__num {
+  background: goldenrod;
+  color: #000;
+  border-color: goldenrod;
+}
+.sim-v2 .sim-flow-step__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-fg-2);
+  white-space: nowrap;
+}
+.sim-v2 .sim-flow-arrow {
+  font-family: var(--font-mono);
+  color: var(--color-fg-3);
+  font-size: 14px;
+}
+
+/* The Office Floor — replaces the v2 personnel rows entirely */
+.sim-v2 .sim-office-floor {
+  display: flex !important;
+  flex-direction: column;
+  gap: var(--space-3);
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-3) !important;
+  background:
+    repeating-linear-gradient(0deg,
+      transparent 0,
+      transparent 38px,
+      rgba(255, 255, 255, 0.025) 38px,
+      rgba(255, 255, 255, 0.025) 40px),
+    linear-gradient(180deg, #1a160f 0%, #100c08 100%);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  position: relative;
+}
+.sim-v2 .sim-office-floor::-webkit-scrollbar { width: 6px; }
+.sim-v2 .sim-office-floor::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+}
+
+/* Window strip across the top of the floor */
+.sim-v2 .sim-office-windows {
+  display: flex;
+  gap: 4px;
+  height: 22px;
+  flex: 0 0 auto;
+}
+.sim-v2 .sim-office-window {
+  flex: 1;
+  background: linear-gradient(180deg, rgba(120, 160, 200, 0.18), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+  position: relative;
+}
+.sim-v2 .sim-office-window::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent);
+  border-radius: 1px;
+}
+
+/* Empty state — when no employees */
+.sim-v2 .sim-office-empty {
+  flex: 1 1 auto;
+  display: flex; flex-direction: column; gap: var(--space-2);
+  align-items: center; justify-content: center;
+  text-align: center;
+  color: var(--color-fg-3);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  padding: var(--space-7);
+}
+
+/* Desk grid — auto-fill columns, characters cluster densely */
+.sim-v2 .sim-office-desks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-5) var(--space-3);
+  align-items: end;
+  padding-top: var(--space-4);
+}
+
+/* A single desk + its character */
+.sim-v2 .sim-desk {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: default;
+  outline: none;
+}
+.sim-v2 .sim-desk:focus-visible {
+  outline: 2px solid goldenrod;
+  outline-offset: 4px;
+}
+
+/* Status badges floating above the character */
+.sim-v2 .sim-desk__badges {
+  position: absolute;
+  top: -18px;
+  right: 0;
+  display: flex; gap: 3px;
+  z-index: 4;
+}
+.sim-v2 .sim-desk__badge {
+  font-size: 11px;
+  width: 20px; height: 20px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--color-bg-surface);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+  line-height: 1;
+}
+.sim-v2 .sim-desk__badge--inspired {
+  background: goldenrod;
+  color: #000;
+  border-color: #b8910f;
+  animation: sim-desk-spark 1.4s ease-in-out infinite;
+}
+.sim-v2 .sim-desk__badge--critical {
+  background: var(--color-accent-warm);
+  color: #fff;
+  font-weight: bold;
+  border-color: var(--color-accent-warm-strong);
+  animation: sim-desk-pulse-warn 0.9s ease-in-out infinite;
+}
+@keyframes sim-desk-spark {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.1); }
+}
+@keyframes sim-desk-pulse-warn {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(200, 85, 61, 0); }
+  50%      { box-shadow: 0 0 0 4px rgba(200, 85, 61, 0.3); }
+}
+
+/* Character figure */
+.sim-v2 .sim-desk__character {
+  width: 54px;
+  height: 64px;
+  color: var(--color-fg-2);
+  z-index: 2;
+  margin-bottom: -10px;
+  transition: color 200ms ease, opacity 200ms ease;
+}
+.sim-v2 .sim-desk.is-asleep .sim-desk__character {
+  opacity: 0.4;
+  filter: blur(0.5px);
+}
+.sim-v2 .sim-desk.is-inspired .sim-desk__character {
+  color: goldenrod;
+  filter: drop-shadow(0 0 8px rgba(218, 165, 32, 0.55));
+}
+.sim-v2 .sim-desk.is-critical .sim-desk__character {
+  color: var(--color-accent-warm);
+}
+.sim-v2 .sim-desk.is-onboarding .sim-desk__character {
+  color: var(--color-fg-3);
+  opacity: 0.6;
+  animation: sim-desk-onboard 2.2s ease-in-out infinite;
+}
+.sim-v2 .sim-desk.is-agent .sim-desk__character {
+  color: #6890bc;
+}
+.sim-v2 .sim-desk.is-malfunctioning .sim-desk__character {
+  color: var(--color-accent-warm);
+  animation: sim-desk-glitch 0.18s steps(2) infinite;
+}
+@keyframes sim-desk-onboard {
+  0%, 100% { opacity: 0.45; }
+  50%      { opacity: 0.85; }
+}
+@keyframes sim-desk-glitch {
+  0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(1px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sim-v2 .sim-desk__character,
+  .sim-v2 .sim-desk__badge--inspired,
+  .sim-v2 .sim-desk__badge--critical { animation: none; }
+}
+
+/* The desk furniture (table + monitor) */
+.sim-v2 .sim-desk__furniture {
+  width: 100%;
+  max-width: 130px;
+  height: auto;
+  z-index: 1;
+}
+
+/* Info block under the desk */
+.sim-v2 .sim-desk__info {
+  display: flex; flex-direction: column; gap: 2px;
+  width: 100%;
+  margin-top: 6px;
+  text-align: center;
+}
+.sim-v2 .sim-desk__name {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: var(--fw-semibold);
+  color: var(--color-fg-1);
+  line-height: 1.1;
+}
+.sim-v2 .sim-desk__level {
+  display: inline-flex; gap: 4px; justify-content: center; align-items: center;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--color-fg-3);
+  text-transform: uppercase;
+}
+.sim-v2 .sim-desk__pdp,
+.sim-v2 .sim-desk__onboard {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--color-fg-2);
+}
+.sim-v2 .sim-desk__pdp { font-size: 11px; }
+.sim-v2 .sim-desk__onboard {
+  background: rgba(218, 165, 32, 0.18);
+  color: goldenrod;
+  padding: 0 4px;
+  border-radius: 2px;
+}
+.sim-v2 .sim-desk__trait {
+  font-family: var(--font-body);
+  font-size: 9px;
+  color: var(--color-fg-3);
+  font-style: italic;
+  line-height: 1.2;
+  display: block;
+  margin-top: 1px;
+}
+.sim-v2 .sim-desk__loyalty {
+  position: relative;
+  height: 4px;
+  margin-top: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+  overflow: visible;
+}
+.sim-v2 .sim-desk__loyalty-fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  background: linear-gradient(90deg, #a3be8c 0%, goldenrod 80%, var(--color-accent-warm) 100%);
+  border-radius: 2px;
+  transition: width 400ms ease;
+}
+.sim-v2 .sim-desk.is-critical .sim-desk__loyalty-fill {
+  background: var(--color-accent-warm);
+}
+.sim-v2 .sim-desk__loyalty-num {
+  position: absolute;
+  right: 0; top: -12px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--color-fg-3);
+  letter-spacing: 0.06em;
+}
+
+/* Inline promote button */
+.sim-v2 .sim-desk__promote {
+  margin-top: 6px;
+  padding: 4px 8px;
+  background: var(--color-bg-sunken);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  color: var(--color-fg-2);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: inline-flex; gap: 4px; align-items: center;
+  transition: all 150ms ease;
+}
+.sim-v2 .sim-desk__promote:hover:not(:disabled) {
+  background: goldenrod;
+  border-color: goldenrod;
+  color: #000;
+}
+.sim-v2 .sim-desk__promote:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+.sim-v2 .sim-desk__promote-cost {
+  opacity: 0.65;
+}
+
+/* Target cue — gold pulse + outline */
+.sim-v2 .sim-desk.is-targetable {
+  cursor: pointer;
+  border-color: goldenrod;
+  background: linear-gradient(180deg, rgba(218, 165, 32, 0.08), transparent);
+  animation: sim-v2-target-pulse 1.4s ease-in-out infinite;
+  padding: 6px;
+}
+.sim-v2 .sim-desk.is-targetable::before,
+.sim-v2 .sim-desk.is-targetable::after {
+  content: "";
+  position: absolute;
+  width: 10px; height: 10px;
+  border: 1.5px solid goldenrod;
+  pointer-events: none;
+  z-index: 3;
+}
+.sim-v2 .sim-desk.is-targetable::before {
+  top: -2px; left: -2px;
+  border-right: 0; border-bottom: 0;
+}
+.sim-v2 .sim-desk.is-targetable::after {
+  bottom: -2px; right: -2px;
+  border-left: 0; border-top: 0;
+}
+.sim-v2 .sim-desk.is-targetable:hover {
+  background: linear-gradient(180deg, rgba(218, 165, 32, 0.2), transparent);
+}
+
+/* Target-hint banner above the office floor */
+.sim-v2 .sim-target-hint {
+  padding: 6px var(--space-3);
+  margin-bottom: var(--space-2);
+  background: rgba(218, 165, 32, 0.12);
+  border: 1px solid goldenrod;
+  border-radius: 3px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--color-fg-1);
+  text-transform: uppercase;
+}
+.sim-v2 .sim-target-hint strong {
+  color: goldenrod;
+}
+
+/* The Next Turn button — primary CTA, big and obvious */
+.sim-v2 .sim-next-turn-wrap {
+  margin-top: var(--space-4);
+}
+.sim-v2 .sim-btn-next-turn {
+  padding: 14px !important;
+  font-size: 14px !important;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, goldenrod 0%, #b8910f 100%);
+  color: #0B0B0C;
+  border: 1px solid #8d6f0b;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 3px 8px rgba(218, 165, 32, 0.18);
+}
+.sim-v2 .sim-btn-next-turn:hover:not(:disabled) {
+  background: linear-gradient(180deg, #e6b528 0%, #c89a1c 100%);
+  transform: translateY(-1px);
+}
+.sim-v2 .sim-btn-next-turn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.sim-v2 .sim-btn-next-turn:disabled {
+  background: var(--color-bg-sunken);
+  color: var(--color-fg-3);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Mobile collapse for office floor */
+@media (max-width: 960px) {
+  .sim-v2 .sim-office-desks {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: var(--space-4) var(--space-2);
   }
-  .sim-v2 .mtg-card--worker .mtg-card__textbox {
-    grid-column: 1 / -1; grid-row: 2;
-  }
-  .sim-v2 .sim-row__promote {
-    grid-column: 1 / -1; grid-row: 3;
-  }
+  .sim-v2 .sim-desk__character { width: 44px; height: 52px; }
+  .sim-v2 .sim-flow-strip { gap: var(--space-2); }
+  .sim-v2 .sim-flow-step__label { display: none; }
 }
 
