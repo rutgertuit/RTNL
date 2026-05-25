@@ -4095,3 +4095,43 @@ body { padding-top: 0; }
   margin: 0;
   font-feature-settings: "tnum";
 }
+
+/* ============================================================
+   VIDEO TRANSCRIPT / CHAPTERS — kitchen article GEO block
+   ============================================================ */
+.rt-video-transcript {
+  margin-top: var(--space-6);
+  padding: var(--space-4);
+  background: var(--color-bg-surface);
+  border: var(--border-hairline);
+}
+.rt-video-transcript summary {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent-warm);
+  cursor: pointer;
+}
+.rt-video-transcript[open] summary {
+  margin-bottom: var(--space-3);
+}
+.rt-video-transcript__chapters {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.rt-video-transcript__chapters li {
+  font-size: var(--fs-100);
+  line-height: 1.55;
+  color: var(--color-fg-2);
+  padding: var(--space-1) 0;
+}
+.rt-video-transcript__chapters strong {
+  display: inline-block;
+  width: 4ch;
+  font-family: var(--font-mono);
+  color: var(--color-fg-3);
+  margin-right: var(--space-2);
+  font-feature-settings: "tnum";
+}
