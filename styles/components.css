@@ -1186,6 +1186,21 @@ body { padding-top: 0; }
   .rt-creative__panel:first-of-type .rt-creative__panel-art img:nth-child(3) { display: none; }
 }
 
+/* Fix L (H-6): Mobile hero scrim — body copy needs contrast against the warehouse
+   portrait at narrow viewports. Slightly-warm-black (bg-sunken #050507) for
+   brand consistency rather than pure black. */
+@media (max-width: 720px) {
+  .rt-hero__content {
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(5, 5, 7, 0.65) 35%,
+      rgba(5, 5, 7, 0.85) 100%
+    );
+    padding: var(--space-10) var(--container-gutter) var(--space-6);
+  }
+}
+
 /* ============================================================
    AGENT INCLUSIVE SIMULATOR
    ============================================================ */
