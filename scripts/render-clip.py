@@ -85,6 +85,10 @@ class Clip:
     prompt: str
     duration_seconds: int = 8
     aspect_ratio: str = "16:9"
+    # personGeneration enum values differ per model. Veo 2 accepts "allow_adult"
+    # and "dont_allow". Veo 3 rejects "allow_adult" — set this to None to omit
+    # the parameter entirely (the SDK then sends the API's default).
+    person_generation: str | None = "allow_adult"
     description: str = ""
 
 
@@ -105,6 +109,9 @@ No music in the generated audio — the synth itself should not be audible, this
         slug="veo3-moog-140w",
         model="veo-3.0-generate-001",
         description="Veo 3 — synced synth audio, 140-word brief, native audio is the architectural delta",
+        # Veo 3 rejects "allow_adult" with 400 INVALID_ARGUMENT — omit the
+        # parameter entirely so the SDK sends the API default.
+        person_generation=None,
         prompt="""Cinematic medium-shot of a bald, bearded man at a vintage Moog synthesizer in a Rotterdam warehouse studio. He's playing a slow, contemplative four-chord progression — left hand sweeping the cutoff knob, right hand on the keys. Warm key light from the left, cooler rim light separating him from the concrete wall behind. Soft dust in the air. 35mm, slow 5% push-in over eight seconds. He is fully absorbed; doesn't look at the camera.
 
 Audio: the actual synth notes the chord progression is producing — analog, mid-warm, slight resonance sweep on the cutoff. Light room tone in the background, no other music or speech.
@@ -160,17 +167,21 @@ def render(clip: Clip, api_key: str) -> int:
 
     client = genai.Client(api_key=api_key)
 
+    # Build the config conditionally — person_generation has different enum
+    # values per model, and Veo 3 rejects Veo 2's "allow_adult". When the
+    # Clip sets person_generation=None we omit the field entirely.
+    config_kwargs: dict[str, object] = {
+        "aspect_ratio": clip.aspect_ratio,
+        "number_of_videos": 1,
+        "duration_seconds": clip.duration_seconds,
+    }
+    if clip.person_generation is not None:
+        config_kwargs["person_generation"] = clip.person_generation
+
     operation = client.models.generate_videos(
         model=clip.model,
         prompt=clip.prompt,
-        config=types.GenerateVideosConfig(
-            aspect_ratio=clip.aspect_ratio,
-            number_of_videos=1,
-            duration_seconds=clip.duration_seconds,
-            # The Section 1 demonstration relies on each model's *period-correct*
-            # behavior. Don't request enhancement.
-            person_generation="allow_adult",
-        ),
+        config=types.GenerateVideosConfig(**config_kwargs),
     )
 
     started = time.time()
