@@ -5,7 +5,7 @@ import { Footer } from "@/components/footer/Footer";
 import { AppChrome } from "@/components/chrome/AppChrome";
 import { ContactForm } from "./ContactForm";
 
-const TITLE = "Contact — Rutger Tuit";
+const TITLE = "Contact";
 const DESCRIPTION =
   "Get in touch with Rutger Tuit. Speaking, press, strategic engagements with Dutch CMOs and agency CEOs, or notes on what you're building.";
 
