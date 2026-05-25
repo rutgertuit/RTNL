@@ -994,7 +994,17 @@ body { padding-top: 0; }
   top: 68px;     /* sit below fixed nav */
   backdrop-filter: none;
   background: var(--color-bg-base);
+  /* Fix M (H-9): snap + hide scrollbar + fade mask for mobile sub-nav.
+     overflow-x: auto is already added at the 920px breakpoint in base.css;
+     these rules apply at all widths (harmless at desktop, active on mobile). */
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  mask-image: linear-gradient(to right, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, black 90%, transparent);
 }
+.rt-mk__nav::-webkit-scrollbar { display: none; }
+.rt-mk__nav > * { scroll-snap-align: start; }
 .rt-mk__photos {
   grid-template-columns: repeat(3, 1fr);
 }
