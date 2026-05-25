@@ -341,7 +341,8 @@ function gameReducer(state: GameState, action: Action): GameState {
       const name = availableNames[0] ?? `Worker ${state.employees.length + 1}`;
 
       const traitKeys = Object.keys(TRAIT_DATABASE);
-      const randomTraitId = traitKeys[Math.floor(Math.random() * traitKeys.length)]!;
+      // Stopgap RNG construction — full state-seeded rng comes in 5a.4.
+      const randomTraitId = createRng(0).pick(traitKeys);
       const traitInfo = TRAIT_DATABASE[randomTraitId]!;
 
       const newEmployee: Employee = {
@@ -1080,7 +1081,8 @@ function gameReducer(state: GameState, action: Action): GameState {
       let nextActiveEventId: string | null = null;
       if (currentTurn % 5 === 0) {
         const eventKeys = Object.keys(EVENT_DATABASE);
-        nextActiveEventId = eventKeys[Math.floor(Math.random() * eventKeys.length)]!;
+        // Stopgap RNG construction — full state-seeded rng comes in 5a.4.
+        nextActiveEventId = createRng(0).pick(eventKeys);
         logs.push(`⚠️ ALERT: Corporate Event Triggered! ${EVENT_DATABASE[nextActiveEventId]?.title}`);
       }
 
