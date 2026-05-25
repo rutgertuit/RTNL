@@ -12,11 +12,16 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_GB",
+    alternateLocale: ["nl_NL"],
     url: "https://rutgertuit.nl",
     siteName: "Rutger Tuit",
     title: "Rutger Tuit — Notes from the seam",
     description:
       "Senior brand and AI leadership at the seam between high-performance corporate tech and human creativity.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    creator: "@rutgertuit",
   },
   robots: { index: true, follow: true },
 };
