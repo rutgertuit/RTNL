@@ -20,12 +20,12 @@ const TOPICS = [
   { name: "Generative SEO & the Future of Discovery", tags: ["Talk", "20m"] },
 ];
 
-const EVENTS = [
-  { id: "01-yt-festival", name: "YouTube Festival", year: "2025" },
-  { id: "02-esns", name: "ESNS Panel", year: "2025" },
-  { id: "03-marketing-live", name: "Google Marketing Live", year: "2024" },
-  { id: "04-think-2025", name: "Think 2025", year: "2025" },
-  { id: "05-dentsu-think", name: "Dentsu Google Think", year: "2024" },
+const EVENTS: Array<{ id: string; name: string; year: string; alt: string }> = [
+  { id: "01-yt-festival", name: "YouTube Festival", year: "2025", alt: "Rutger Tuit speaking at YouTube Festival 2025" },
+  { id: "02-esns", name: "ESNS Panel", year: "2025", alt: "Rutger Tuit on stage at ESNS Panel 2025" },
+  { id: "03-marketing-live", name: "Google Marketing Live", year: "2024", alt: "Rutger Tuit presenting at Google Marketing Live 2024" },
+  { id: "04-think-2025", name: "Think 2025", year: "2025", alt: "Rutger Tuit at Think 2025" },
+  { id: "05-dentsu-think", name: "Dentsu Google Think", year: "2024", alt: "Rutger Tuit at Dentsu Google Think 2024" },
 ];
 
 const NAV_ITEMS: ReadonlyArray<readonly [string, string, string]> = [
@@ -123,16 +123,23 @@ export function MediaKit() {
             </Link>
           </div>
           <div className="rt-mk__photos">
-            {["01-studio", "02-warehouse", "03-cinematic", "04-profile", "05-mid-shot", "06-stage"].map(
-              (id) => (
+            {(
+              [
+                { id: "01-studio", alt: "Rutger Tuit — studio portrait, controlled lighting" },
+                { id: "02-warehouse", alt: "Rutger Tuit — warehouse portrait, dark overshirt, industrial backdrop" },
+                { id: "03-cinematic", alt: "Rutger Tuit — cinematic portrait, dramatic side lighting, profile angle" },
+                { id: "04-profile", alt: "Rutger Tuit — three-quarter profile, neutral backdrop" },
+                { id: "05-mid-shot", alt: "Rutger Tuit — mid-shot, relaxed casual register" },
+                { id: "06-stage", alt: "Rutger Tuit — stage portrait, performance and speaking context" },
+              ] as const
+            ).map(({ id, alt }) => (
                 <figure key={id} className="rt-mk__photo">
-                  <img src={`/assets/portraits/${id}.png`} alt="" />
+                  <img src={`/assets/portraits/${id}.png`} alt={alt} />
                   <figcaption>
                     {id.replace(/^\d+-/, "").toUpperCase().replace("-", " ")}
                   </figcaption>
                 </figure>
-              )
-            )}
+              ))}
           </div>
         </div>
 
@@ -146,15 +153,15 @@ export function MediaKit() {
           </div>
           <div className="rt-mk__logos">
             <div className="rt-mk__logo rt-mk__logo--dark">
-              <img src="/assets/logo-rt.svg" alt="logo dark" />
+              <img src="/assets/logo-rt.svg" alt="Rutger Tuit wordmark — dark variant" />
               <span>DARK</span>
             </div>
             <div className="rt-mk__logo rt-mk__logo--light">
-              <img src="/assets/logo-rt.svg" alt="logo light" />
+              <img src="/assets/logo-rt.svg" alt="Rutger Tuit wordmark — light variant" />
               <span>LIGHT</span>
             </div>
             <div className="rt-mk__logo rt-mk__logo--mono">
-              <img src="/assets/logo-rt.svg" alt="logo mono" />
+              <img src="/assets/logo-rt.svg" alt="Rutger Tuit wordmark — monochrome variant" />
               <span>MONO</span>
             </div>
           </div>
@@ -187,7 +194,7 @@ export function MediaKit() {
           <ul className="rt-mk__events">
             {EVENTS.map((e) => (
               <li key={e.id}>
-                <img src={`/assets/events/${e.id}.png`} alt="" />
+                <img src={`/assets/events/${e.id}.png`} alt={e.alt} />
                 <div>
                   <div className="rt-mk__event-name">{e.name}</div>
                   <div className="rt-mk__event-year">{e.year}</div>
