@@ -271,8 +271,17 @@ body { padding-top: 0; }
 }
 .rt-hero__portrait-card {
   position: absolute;
-  inset: 8vh 0 12vh 0;
+  /* Pin from the top of the portrait-stage; let aspect-ratio determine height
+     so the portrait keeps its 3:4 framing regardless of how tall the hero
+     section is (the new biographical-beats hero copy makes the section much
+     taller than the original single-lead version did, and inset: 8vh 0 12vh 0
+     was stretching the card vertically with it). */
+  top: 8vh;
+  left: 0;
+  right: 0;
   margin: 0;
+  aspect-ratio: 3 / 4;
+  max-height: 80vh;
   opacity: 0;
   transform: scale(1.04);
   transition:
@@ -400,7 +409,10 @@ body { padding-top: 0; }
 
 .rt-hero__headline {
   font-family: var(--font-display);
-  font-size: clamp(44px, 8vw, 128px);
+  /* Capped smaller than before (was 128px) because the new biographical-beats
+     hero copy adds 4 lead paragraphs underneath; a smaller headline keeps the
+     whole hero closer to one viewport instead of pushing 2200px+ tall. */
+  font-size: clamp(40px, 6.5vw, 88px);
   font-weight: var(--fw-bold);
   line-height: 0.96;
   letter-spacing: var(--tracking-billboard);
@@ -483,17 +495,17 @@ body { padding-top: 0; }
 .rt-hero__lead {
   margin: 0;
   font-family: var(--font-body);
-  font-size: var(--fs-300);
-  line-height: var(--lh-lead);
+  font-size: var(--fs-200);
+  line-height: var(--lh-body);
   color: var(--color-fg-1);
 }
 .rt-hero__lead + .rt-hero__lead {
-  margin-top: var(--space-3);
+  margin-top: var(--space-2);
 }
 /* The closing "Nothing on this site was hand-touched..." line gets a small
    warm-accent rule above it so it reads as the page's positioning stamp. */
 .rt-hero__lead--stamp {
-  margin-top: var(--space-5);
+  margin-top: var(--space-4);
   padding-top: var(--space-3);
   border-top: 1px solid var(--color-accent-warm);
   font-size: var(--fs-200);
