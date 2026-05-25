@@ -2981,14 +2981,18 @@ body { padding-top: 0; }
 /* Hide site grain on the game route (AppChrome already isn't rendered,
    but in case any other site-wide overlays bleed in) */
 .sim-fs-root {
-  position: fixed;
-  inset: 0;
+  position: relative;
+  min-height: 100vh;
   background: #0a0907;
   color: var(--color-fg-1);
-  z-index: 100;
-  overflow-y: auto;
 }
 .sim-fs-root .rt-grain { display: none; }
+
+/* Restore the office-floor + hand-card + desk styles under .sim-fs.
+   These were scoped to .sim-v2 in earlier iterations; the .sim-fs
+   container also carries the .sim-v2 class so descendant rules
+   still resolve. This block lists the few rules that needed the
+   class-presence form for clarity. */
 
 .sim-fs {
   display: flex;

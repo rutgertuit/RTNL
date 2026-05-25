@@ -1505,7 +1505,7 @@ export default function AgentGameClient() {
           viewport and competing with the game for attention. This page now
           renders as its own application. */}
 
-      <main className="sim-fs" id="game-content">
+      <main className="sim-fs sim-v2" id="game-content">
         {/* Compact game-canvas header */}
         <header className="sim-fs__head">
           <Link href="/" className="sim-fs__home" aria-label="Back to rutgertuit.nl">
