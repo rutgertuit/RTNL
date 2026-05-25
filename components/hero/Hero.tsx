@@ -180,19 +180,34 @@ export function Hero() {
         </div>
 
         <h1 className="rt-hero__headline">
-          <span className="rt-hero__line rt-hero__line--1">I dig into AI</span>
-          <span className="rt-hero__line rt-hero__line--2">until something</span>
-          <span className="rt-hero__line rt-hero__line--3">business-shaped</span>
+          <span className="rt-hero__line rt-hero__line--1">I am a</span>
+          <span className="rt-hero__line rt-hero__line--2">technical</span>
+          <span className="rt-hero__line rt-hero__line--3">creative</span>
           <span className="rt-hero__line rt-hero__line--4">
-            <em>falls out.</em>
+            <em>—</em>
           </span>
         </h1>
 
         <div className="rt-hero__sub">
           <p className="rt-hero__lead">
-            Or until nothing does. Sales Director at Google Benelux by day, a homelab full of
-            agents at night. Some of what I build at night turns into things real teams use. Some
-            of it is just notes in public. The site is both.
+            From building softsynths to composing in first-gen DAWs. From LAN-party Quake player
+            to global e-sports team leader. From a weekend job selling kitchens to 3D and VR
+            modelling interiors.
+          </p>
+          <p className="rt-hero__lead">
+            Experimentation is how I learn. Going deep is where I find the parts that &mdash; if
+            changed &mdash; move everything.
+          </p>
+          <p className="rt-hero__lead">
+            This site is old hobbies and new hobbies, revisited with AI on the bench. Some of
+            what comes out translates into business. Director at Google by day. Homelab of
+            agents I visit again at night.
+          </p>
+          <p className="rt-hero__lead rt-hero__lead--stamp">
+            <strong>
+              Nothing on this site was hand-touched. Every image, every line, every clip &mdash;
+              prompted, then chosen.
+            </strong>
           </p>
         </div>
 

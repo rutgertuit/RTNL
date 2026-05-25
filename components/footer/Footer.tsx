@@ -1,29 +1,13 @@
-"use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 
 /**
- * Footer — Invitation to Growth (the closing stage of the Tuit Post structure).
- * Client component (needs usePathname to suppress self-loop CTA on /contact).
+ * Footer — site meta only (no invite block, no booking CTA).
+ * Server component since there's no per-route conditional rendering anymore.
  */
 export function Footer() {
-  const path = usePathname();
-  const onContact = path === "/contact";
   return (
     <footer className="rt-footer" id="contact">
       <div className="container">
-        {!onContact && (
-          <div className="rt-footer__invite">
-            <div className="eyebrow eyebrow--warm">END / INVITATION</div>
-            <h2 className="rt-footer__headline">
-              Working on something similar? Tell me.
-            </h2>
-            <Link className="button button--warm rt-footer__cta" href="/contact">
-              Open the contact form <span aria-hidden>→</span>
-            </Link>
-          </div>
-        )}
-
         <div className="rt-footer__meta">
           <div className="rt-footer__meta-col">
             <div className="eyebrow">SECTIONS</div>
@@ -48,7 +32,6 @@ export function Footer() {
           <div className="rt-footer__meta-col">
             <div className="eyebrow">RUTGER TUIT · 2026</div>
             <span>Amsterdam</span>
-            <span>KVK · [redacted]</span>
             <Link href="/contact" className="rt-footer__contact-link">
               Contact →
             </Link>
