@@ -1148,13 +1148,13 @@ interface TutorialStep {
 const TUTORIAL_STEPS: Record<number, TutorialStep> = {
   1: {
     eyebrow: "DAY ONE",
-    title: "Welcome to your new consultancy.",
+    title: "Day One — Welcome to your new consultancy.",
     body: [
-      "You inherited the company yesterday. The goal: keep this thing afloat for 30 turns and hit your difficulty's valuation target.",
-      "Pacing rule (all game): one hire, one OKR redefine, one card, and one promotion per turn — that's it. You play this game like chess, not Monopoly.",
-      "Today: meet your team. Each desk shows 🔨 productivity and ❤ loyalty. Pick ONE move (hire $30k, or redefine OKRs $10k), then NEXT TURN.",
+      "You inherited the company yesterday. The goal: keep this thing afloat for 30 turns and reach the valuation target for your difficulty (Boardroom $1.1B · Reality $25B · ZIRP $140B).",
+      "Each turn you get one of each: one hire, one OKR redefine, one card play, one promotion. You don't have to take all four — pacing matters more than spending.",
+      "Today: meet your team. Each desk shows 🔨 productivity and ❤ loyalty. Pick at most one move (a hire, or an OKR redefine), then NEXT TURN.",
     ],
-    cta: "Got it — show me my desk",
+    cta: "Got it — show me my desk →",
   },
   2: {
     eyebrow: "TURN TWO · ONBOARDING",
