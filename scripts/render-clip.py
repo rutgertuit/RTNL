@@ -118,6 +118,61 @@ Audio: the actual synth notes the chord progression is producing — analog, mid
 
 1080p, 24fps, cinematic film stock feel.""",
     ),
+    # Section 3 — Pipeline Collapse "What it enabled" job blocks.
+    # Originally specced for Omni Flash (multi-turn edit + uploaded-audio flows);
+    # rendered here via Veo 3 single-pass. The visible RESULT lands; the
+    # architectural MECHANISM (multi-turn editing, uploaded-audio-as-timeline)
+    # is described by the article copy beside each clip.
+    "omni-butterfly-to-bee": Clip(
+        slug="omni-butterfly-to-bee",
+        model="veo-3.0-generate-001",
+        person_generation=None,
+        description="Section 3 Block 1 — conversational-edit demo (end state: bee on flower)",
+        prompt="""A close-up of a single yellow honeybee resting on the petals of a wildflower in soft afternoon sunlight. The bee shifts position once during the clip — a small, natural movement of its wings and forelegs. The background is a softly blurred meadow with a few stalks of grass and one or two other distant flowers; the camera stays locked on the flower in the foreground. Warm golden-hour light from camera-right. Shallow depth of field, macro lens feel.
+
+Audio: very soft ambient meadow tone — faint distant insect hum, no music, no speech.
+
+6 seconds. 1080p, 24fps. Cinematic film grain. No text on screen.""",
+    ),
+    "omni-audio-sync-windows": Clip(
+        slug="omni-audio-sync-windows",
+        model="veo-3.0-generate-001",
+        person_generation=None,
+        description="Section 3 Block 2 — audio-driven visual sync (apartment-block lights pulse to beats)",
+        prompt="""A Rotterdam apartment block at night, brick façade, four storeys tall, viewed straight on from across a quiet street. Roughly twenty dark windows visible. Over the eight-second duration, individual windows light up warm yellow in rhythm with the audio track — each beat triggers one or two windows turning on. By the end of the clip about twelve windows are lit, in scattered, musical positions across the façade. Soft blue-grey night sky behind the building. Light wet pavement reflecting the warm glow.
+
+Audio: a slow, deep electronic beat — four-on-the-floor kick at around 90 BPM, with a soft synth pad underneath. Each kick visibly aligns with a window-light moment.
+
+8 seconds. 1080p, 24fps. Cinematic, slight handheld feel, film grain. No text on screen.""",
+    ),
+    "omni-kinetic-typography": Clip(
+        slug="omni-kinetic-typography",
+        model="veo-3.0-generate-001",
+        person_generation=None,
+        description="Section 3 Block 3 — frame-locked kinetic typography demo",
+        prompt="""Word-by-word kinetic typography on a deep matte-black background. One word appears at a time, each with a different animated entry — scale up, slide in from left, fade-up, glitch-in, type-on, hand-write — perfectly paced to a percussive rhythm. The eleven words in order, one beat apart:
+
+did, you, know, that, this, model, can, do, pretty, good, text
+
+Each word is clean, crisp, legible, set in a bold modern sans-serif typeface in warm off-white (#F2EEE5). Words appear centered, large, and disappear with a quick wipe before the next arrives. The last word "text" is held a beat longer with a small underline animation.
+
+Audio: a tight, dry percussive beat — kick + snare + light hi-hat, around 110 BPM. One percussion hit per word arrival.
+
+8 seconds total. 1080p, 24fps. Sizzle-reel finish.""",
+    ),
+    "omni-honest-failure": Clip(
+        slug="omni-honest-failure",
+        model="veo-3.0-generate-001",
+        person_generation=None,
+        description="Section 3 Block 4 — honest failure (rigid-body physics edge case)",
+        prompt="""A four-storey concrete office building collapsing in slow motion, captured in a single locked-off wide shot. The collapse is mid-fall: large concrete slabs separating, rebar visible in fractured edges, debris and dust filling the air. Twenty or more distinct chunks of structure are in motion, colliding with each other and the ground at slightly different speeds. Lighting is cold overcast daylight. Surrounding area is empty — no people, no vehicles.
+
+Visible physics edge-cases are acceptable and expected: occasional geometric clipping where two large pieces intersect mid-fall, a debris piece briefly passing through another, a piece of rebar that stretches unnaturally for one frame. Do not hide these artifacts.
+
+Audio: a low rumble, distant cracking of concrete, dust roar — no music, no human voices.
+
+8 seconds. 1080p, 24fps. Slight handheld camera, documentary feel. No text on screen.""",
+    ),
 }
 
 
