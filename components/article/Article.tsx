@@ -13,6 +13,14 @@ export interface ArticleStage {
   num: string; // "01" | "02" | "03" | "04"
   label: string; // "Anecdotal hook" | "Conceptual swing" | etc.
   children: ReactNode;
+  /**
+   * Optional 9:16 illustration that sits beside the stage body. Renders on
+   * alternating sides per stage (odd nums right, even nums left) so the page
+   * reads with editorial rhythm. The asset is expected to be a dark, edge-
+   * fading 9:16 render — see drop/article-image-prompts.md for the locked
+   * visual vocabulary.
+   */
+  image?: { src: string; alt: string };
 }
 
 export interface ArticleProps {
@@ -90,15 +98,40 @@ export function Article({
 
         {intro && <div className="rt-tuit__intro">{intro}</div>}
 
-        {stages.map((stage) => (
-          <div className="rt-tuit__stage" key={stage.num}>
-            <h2 className="rt-tuit__stage-marker">
-              <span className="rt-tuit__stage-num">{stage.num}</span>
-              <span className="rt-tuit__stage-label">{stage.label}</span>
-            </h2>
-            <div className="rt-tuit__stage-body">{stage.children}</div>
-          </div>
-        ))}
+        {stages.map((stage, i) => {
+          const hasImage = Boolean(stage.image);
+          const imageSide: "left" | "right" = i % 2 === 0 ? "right" : "left";
+          return (
+            <div
+              className={`rt-tuit__stage ${
+                hasImage ? `rt-tuit__stage--with-image rt-tuit__stage--image-${imageSide}` : ""
+              }`}
+              key={stage.num}
+            >
+              <h2 className="rt-tuit__stage-marker">
+                <span className="rt-tuit__stage-num">{stage.num}</span>
+                <span className="rt-tuit__stage-label">{stage.label}</span>
+              </h2>
+              <div className="rt-tuit__stage-body">{stage.children}</div>
+              {stage.image && (
+                <figure className="rt-tuit__stage-image" aria-hidden="false">
+                  {/* Static JPEG — explicit width/height + sizes keep CLS at zero.
+                      Using <img> with eslint disable rather than next/image because
+                      these 9:16 renders are already optimised JPEGs that don't need
+                      AVIF/WebP transcoding (they were generated as a one-time set). */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={stage.image.src}
+                    alt={stage.image.alt}
+                    width={720}
+                    height={1280}
+                    loading="lazy"
+                  />
+                </figure>
+              )}
+            </div>
+          );
+        })}
 
         <nav className="rt-tuit__nav" aria-label="Article navigation">
           <Link className="button" href="/business">

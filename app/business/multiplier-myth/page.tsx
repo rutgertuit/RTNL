@@ -94,6 +94,10 @@ export default function MultiplierMythPage() {
           {
             num: "01",
             label: "Anecdotal hook",
+            image: {
+              src: "/assets/business/multiplier-myth/01.jpeg",
+              alt: "Vintage rotary telephone half-buried in fibre-optic cables, lit by a single warm Rotterdam-brick rust light, fading to absolute black.",
+            },
             children: (
               <>
                 <p className="lead">
@@ -130,6 +134,10 @@ export default function MultiplierMythPage() {
           {
             num: "02",
             label: "Conceptual swing",
+            image: {
+              src: "/assets/business/multiplier-myth/02.jpeg",
+              alt: "An arched doorway cut into a black brick wall, filled with thick brass-coloured smoke, lit by a single warm light.",
+            },
             children: (
               <>
                 <p>
@@ -178,6 +186,10 @@ export default function MultiplierMythPage() {
           {
             num: "03",
             label: "Framework solution",
+            image: {
+              src: "/assets/business/multiplier-myth/03.jpeg",
+              alt: "An industrial guillotine blade hovering over a glowing brass multiplication sign in dark space, foundry aesthetic.",
+            },
             children: (
               <>
                 <p>
@@ -277,6 +289,10 @@ export default function MultiplierMythPage() {
           {
             num: "04",
             label: "Invitation to growth",
+            image: {
+              src: "/assets/business/multiplier-myth/04.jpeg",
+              alt: "An empty antique leather chair at the head of a long dark conference table, single bare bulb above, room fading to black.",
+            },
             children: (
               <>
                 <p>

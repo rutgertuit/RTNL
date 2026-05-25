@@ -559,6 +559,57 @@ html, body { margin: 0; }
 .rt-tuit__stage-body {
   max-width: 640px;
 }
+
+/* ------------------------------------------------------------------
+   Stages with a 9:16 illustration beside the body.
+   Alternates left/right per stage (odd index -> image right,
+   even index -> image left) so the page reads with editorial rhythm.
+   ------------------------------------------------------------------ */
+.rt-tuit__stage--with-image {
+  grid-template-columns: 180px 1fr 320px;
+}
+.rt-tuit__stage--image-left {
+  grid-template-columns: 320px 180px 1fr;
+}
+.rt-tuit__stage--image-left .rt-tuit__stage-image { grid-column: 1; grid-row: 1; }
+.rt-tuit__stage--image-left .rt-tuit__stage-marker { grid-column: 2; grid-row: 1; }
+.rt-tuit__stage--image-left .rt-tuit__stage-body { grid-column: 3; grid-row: 1; }
+
+.rt-tuit__stage-image {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 9 / 16;
+  width: 100%;
+  background: #000;
+  /* Inner shadow that fades the image's outer edge into the article surface,
+     so the asset reads as a window onto a deeper darkness rather than a
+     framed rectangle floating on a card. The image itself already fades
+     to black at its prompt-baked edges; this adds a final soft mask. */
+  box-shadow:
+    inset 0 0 64px 0 var(--color-bg-surface),
+    0 0 0 1px rgba(0, 0, 0, 0.4);
+}
+.rt-tuit__stage-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: contrast(1.04) saturate(0.95);
+}
+/* Faint radial fade overlay reinforces the 'appears from the black' feel
+   on browsers that don't render the inset shadow strongly. */
+.rt-tuit__stage-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 55%,
+    rgba(20, 20, 22, 0.55) 100%
+  );
+  mix-blend-mode: multiply;
+}
 .rt-tuit__stage-body p {
   font-family: var(--font-body);
   font-size: var(--fs-200);
@@ -1650,8 +1701,19 @@ html, body { margin: 0; }
   .rt-nav__hamburger { display: flex; }
   .rt-editorial__head, .rt-editorial__grid { grid-template-columns: 1fr; }
   .rt-editorial__sidebar { position: static; }
-  .rt-tuit__stage { grid-template-columns: 1fr; }
+  .rt-tuit__stage,
+  .rt-tuit__stage--with-image,
+  .rt-tuit__stage--image-left { grid-template-columns: 1fr; }
   .rt-tuit__stage-marker { position: static; flex-direction: row; align-items: baseline; }
+  .rt-tuit__stage--with-image .rt-tuit__stage-image,
+  .rt-tuit__stage--image-left .rt-tuit__stage-image {
+    grid-column: 1;
+    grid-row: auto;
+    max-width: 320px;
+    margin-bottom: var(--space-5);
+  }
+  .rt-tuit__stage--image-left .rt-tuit__stage-marker { grid-column: 1; grid-row: auto; }
+  .rt-tuit__stage--image-left .rt-tuit__stage-body { grid-column: 1; grid-row: auto; }
   .rt-creative__panel { grid-template-columns: 1fr; }
   .rt-footer__meta { grid-template-columns: repeat(2, 1fr); }
   .rt-mk__photos { grid-template-columns: repeat(2, 1fr); }
