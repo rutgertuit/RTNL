@@ -2216,6 +2216,8 @@ export default function AgentGameClient() {
                   <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", textAlign: "left" }}>
                     <span className="sim-stat__value" style={{ color: "#a3be8c" }}>Boardroom</span>
                     <span className="sim-stat__label">Easy Mode</span>
+                    <div className="sim-mode__target">Target <strong>$1.1B</strong></div>
+                    <div className="sim-mode__detail">~10 min · ≈80% win rate</div>
                     <p style={{ fontSize: "11px", color: "var(--color-fg-2)", margin: "0" }}>
                       Start with <strong>$500,000</strong> cash.<br />
                       AI upgrades slowly (every <strong>7 turns</strong>).<br />
@@ -2234,6 +2236,8 @@ export default function AgentGameClient() {
                   <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", textAlign: "left" }}>
                     <span className="sim-stat__value" style={{ color: "goldenrod" }}>Reality</span>
                     <span className="sim-stat__label">Standard Mode</span>
+                    <div className="sim-mode__target">Target <strong>$25B</strong></div>
+                    <div className="sim-mode__detail">~10 min · ≈45% win rate</div>
                     <p style={{ fontSize: "11px", color: "var(--color-fg-2)", margin: "0" }}>
                       Start with <strong>$250,000</strong> cash.<br />
                       AI upgrades every <strong>5 turns</strong>.<br />
@@ -2252,6 +2256,8 @@ export default function AgentGameClient() {
                   <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", textAlign: "left" }}>
                     <span className="sim-stat__value" style={{ color: "var(--color-accent-warm-strong)" }}>ZIRP Nightmare</span>
                     <span className="sim-stat__label">Hard Mode</span>
+                    <div className="sim-mode__target">Target <strong>$140B</strong></div>
+                    <div className="sim-mode__detail">~12 min · ≈10% win rate</div>
                     <p style={{ fontSize: "11px", color: "var(--color-fg-2)", margin: "0" }}>
                       Start with <strong>$30,000</strong> cash (only enough to hire exactly 1 worker).<br />
                       AI upgrades at neck-breaking speeds (every <strong>4 turns</strong>).<br />

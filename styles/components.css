@@ -3714,3 +3714,29 @@ body { padding-top: 0; }
   border-color: var(--color-accent-warm-strong);
 }
 
+/* ============================================================
+   Sim mode-select cards — valuation target + detail line
+   ============================================================ */
+.sim-mode__target {
+  font-family: var(--font-mono);
+  font-size: var(--fs-100);
+  color: var(--color-fg-2);
+  margin: var(--space-2) 0;
+}
+.sim-mode__target strong {
+  font-family: var(--font-display);
+  font-size: var(--fs-500);
+  color: var(--color-accent-warm-strong);
+  font-feature-settings: "tnum";
+  display: block;
+  line-height: 1.1;
+}
+.sim-mode__detail {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: 0.1em;
+  color: var(--color-fg-3);
+  text-transform: uppercase;
+  margin-bottom: var(--space-3);
+}
+
