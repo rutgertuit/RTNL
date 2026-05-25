@@ -85,10 +85,10 @@ export default function CharacterSheetPage() {
 
           {/* Intro */}
           <div className="rt-tuit__stage">
-            <div className="rt-tuit__stage-marker">
+            <h2 className="rt-tuit__stage-marker">
               <span className="rt-tuit__stage-num">·</span>
               <span className="rt-tuit__stage-label">What it is</span>
-            </div>
+            </h2>
             <div className="rt-tuit__stage-body">
               <p className="lead">
                 A character sheet is a small set of reference images of the same person — front,
@@ -119,10 +119,10 @@ export default function CharacterSheetPage() {
 
           {/* Method 01 */}
           <div className="rt-tuit__stage">
-            <div className="rt-tuit__stage-marker">
+            <h2 className="rt-tuit__stage-marker">
               <span className="rt-tuit__stage-num">01</span>
               <span className="rt-tuit__stage-label">Google Flow · Use Character</span>
-            </div>
+            </h2>
             <div className="rt-tuit__stage-body">
               <p>
                 <strong>Fastest path. Lowest control.</strong> When to use it: you&apos;re inside
@@ -163,10 +163,10 @@ export default function CharacterSheetPage() {
 
           {/* Method 02 */}
           <div className="rt-tuit__stage">
-            <div className="rt-tuit__stage-marker">
+            <h2 className="rt-tuit__stage-marker">
               <span className="rt-tuit__stage-num">02</span>
               <span className="rt-tuit__stage-label">Reference-shot pipeline, manually composited</span>
-            </div>
+            </h2>
             <div className="rt-tuit__stage-body">
               <p>
                 <strong>Most control. Moderate effort.</strong> When to use it: you want maximum
@@ -245,10 +245,10 @@ export default function CharacterSheetPage() {
 
           {/* Method 03 */}
           <div className="rt-tuit__stage">
-            <div className="rt-tuit__stage-marker">
+            <h2 className="rt-tuit__stage-marker">
               <span className="rt-tuit__stage-num">03</span>
               <span className="rt-tuit__stage-label">Train a Flux1D LoRA</span>
-            </div>
+            </h2>
             <div className="rt-tuit__stage-body">
               <p>
                 <strong>Highest consistency. Largest upfront cost.</strong> When to use it:
@@ -341,10 +341,10 @@ export default function CharacterSheetPage() {
 
           {/* Closer */}
           <div className="rt-tuit__stage">
-            <div className="rt-tuit__stage-marker">
+            <h2 className="rt-tuit__stage-marker">
               <span className="rt-tuit__stage-num">·</span>
               <span className="rt-tuit__stage-label">What I actually use</span>
-            </div>
+            </h2>
             <div className="rt-tuit__stage-body">
               <p>
                 The portrait series on this site is Method 02. One anchor reference, generated

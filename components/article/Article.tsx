@@ -59,10 +59,10 @@ export function Article({
 
         {stages.map((stage) => (
           <div className="rt-tuit__stage" key={stage.num}>
-            <div className="rt-tuit__stage-marker">
+            <h2 className="rt-tuit__stage-marker">
               <span className="rt-tuit__stage-num">{stage.num}</span>
               <span className="rt-tuit__stage-label">{stage.label}</span>
-            </div>
+            </h2>
             <div className="rt-tuit__stage-body">{stage.children}</div>
           </div>
         ))}
