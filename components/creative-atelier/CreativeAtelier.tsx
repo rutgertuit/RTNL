@@ -152,8 +152,8 @@ export function CreativeAtelier() {
                 The interesting thing isn&apos;t how much better the output looks — it&apos;s how
                 differently I had to write the brief each time.
               </p>
-              <a className="button" href="#">
-                Open the reel <span aria-hidden>→</span>
+              <a className="button" href="/creative/briefing-inversion">
+                Read: The Briefing Inversion <span aria-hidden>→</span>
               </a>
             </div>
           </article>
