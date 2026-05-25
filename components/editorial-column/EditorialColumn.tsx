@@ -80,7 +80,7 @@ export function EditorialColumn() {
         </header>
 
         <div className="rt-editorial__rail">
-          <span>03 ANCHOR PIECES · 24 INTERVIEW INDEX · 2018 → 2026</span>
+          <span>03 ANCHOR PIECES · 24 INTERVIEW INDEX · 2021 → 2025</span>
           <span>FILED UNDER · AI TRANSFORMATION · DATA · GEO</span>
         </div>
 
