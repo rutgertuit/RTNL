@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Nav } from "@/components/nav/Nav";
 import { Footer } from "@/components/footer/Footer";
 import { AppChrome } from "@/components/chrome/AppChrome";
+import { Breadcrumb } from "@/components/breadcrumb/Breadcrumb";
 
 const TITLE = "Press, interviews, and conversations";
 const DESCRIPTION =
@@ -357,6 +358,10 @@ export default function PressPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
       />
       <Nav />
+      <Breadcrumb trail={[
+        { label: "Home", href: "/" },
+        { label: "Press" },
+      ]} />
       <article className="rt-press section section--surface">
         <div className="container">
           <div className="rt-press__head">

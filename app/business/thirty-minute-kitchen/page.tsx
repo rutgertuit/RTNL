@@ -3,6 +3,7 @@ import { Nav } from "@/components/nav/Nav";
 import { Footer } from "@/components/footer/Footer";
 import { AppChrome } from "@/components/chrome/AppChrome";
 import { Article, buildArticleLd } from "@/components/article/Article";
+import { Breadcrumb } from "@/components/breadcrumb/Breadcrumb";
 
 const TITLE = "The 30-Minute Kitchen";
 const DESCRIPTION =
@@ -29,6 +30,11 @@ export default function ThirtyMinuteKitchenPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
       />
       <Nav />
+      <Breadcrumb trail={[
+        { label: "Home", href: "/" },
+        { label: "Business & Leadership", href: "/business" },
+        { label: "The 30-Minute Kitchen" },
+      ]} />
       <Article
         number="02 / 03"
         filedUnder="Marketing · Operations"

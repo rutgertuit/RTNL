@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Nav } from "@/components/nav/Nav";
 import { Footer } from "@/components/footer/Footer";
 import { AppChrome } from "@/components/chrome/AppChrome";
+import { Breadcrumb } from "@/components/breadcrumb/Breadcrumb";
 
 const TITLE = "How to build a character sheet";
 const DESCRIPTION =
@@ -61,6 +62,11 @@ export default function CharacterSheetPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(howToLd) }}
       />
       <Nav />
+      <Breadcrumb trail={[
+        { label: "Home", href: "/" },
+        { label: "Creative", href: "/#creative" },
+        { label: "Character Sheet" },
+      ]} />
       <article className="rt-tuit section section--surface">
         <div className="container">
           <div className="rt-tuit__head">

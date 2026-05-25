@@ -4,6 +4,7 @@ import { Nav } from "@/components/nav/Nav";
 import { Footer } from "@/components/footer/Footer";
 import { AppChrome } from "@/components/chrome/AppChrome";
 import { Article, buildArticleLd } from "@/components/article/Article";
+import { Breadcrumb } from "@/components/breadcrumb/Breadcrumb";
 
 const TITLE = "Agent Inclusive";
 const DESCRIPTION =
@@ -30,6 +31,11 @@ export default function AgentInclusivePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
       />
       <Nav />
+      <Breadcrumb trail={[
+        { label: "Home", href: "/" },
+        { label: "Business & Leadership", href: "/business" },
+        { label: "Agent Inclusive" },
+      ]} />
       <Article
         number="03 / 03"
         filedUnder="Leadership · Org Design"
