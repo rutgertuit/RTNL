@@ -166,14 +166,24 @@ interface CortexProps {
   height?: number;
   interactive?: boolean;
   rotate?: boolean;
+  variant?: "hero" | "tech";
 }
+
+const TECH_STATS = [
+  { value: "14", label: "nodes" },
+  { value: "16", label: "active edges" },
+  { value: "VLAN", label: "isolated" },
+  { value: "24/7", label: "uptime" },
+] as const;
 
 export function Cortex({
   width = 800,
   height = 640,
   interactive = true,
   rotate = true,
+  variant = "hero",
 }: CortexProps) {
+  const idPrefix = `cortex-${variant}`;
   const [hovered, setHovered] = useState<string | null>(null);
   const groupRef = useRef<SVGGElement | null>(null);
   const [t, setT] = useState(0);
@@ -201,22 +211,23 @@ export function Cortex({
     hovered !== null && (hovered === a || hovered === b);
 
   return (
-    <svg
-      className="rt-cortex"
-      width={width}
-      height={height}
-      viewBox="0 0 800 640"
-      preserveAspectRatio="xMidYMid meet"
-      role="img"
-      aria-label="Cortex graph: frontier AI models radiating into visual, sound, coding, and agent branches, with the coding tools looping back to the frontier and the Hermes agent feeding the local homelab"
-    >
+    <div className="rt-cortex">
+      <div className="rt-cortex__svg">
+        <svg
+          width={width}
+          height={height}
+          viewBox="0 0 800 640"
+          preserveAspectRatio="xMidYMid meet"
+          role="img"
+          aria-label="Cortex graph: frontier AI models radiating into visual, sound, coding, and agent branches, with the coding tools looping back to the frontier and the Hermes agent feeding the local homelab"
+        >
       <defs>
-        <radialGradient id="cortex-bg" cx="50%" cy="50%" r="70%">
+        <radialGradient id={`${idPrefix}-bg`} cx="50%" cy="50%" r="70%">
           <stop offset="0%" stopColor="#141416" />
           <stop offset="60%" stopColor="#0B0B0C" />
           <stop offset="100%" stopColor="#050507" />
         </radialGradient>
-        <filter id="cortex-glow" x="-50%" y="-50%" width="200%" height="200%">
+        <filter id={`${idPrefix}-glow`} x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="2.5" result="blur" />
           <feMerge>
             <feMergeNode in="blur" />
@@ -231,7 +242,7 @@ export function Cortex({
         `}</style>
       </defs>
 
-      <rect width="800" height="640" fill="url(#cortex-bg)" />
+      <rect width="800" height="640" fill={`url(#${idPrefix}-bg)`} />
 
       <g
         ref={groupRef}
@@ -289,7 +300,7 @@ export function Cortex({
                   cy={p.y}
                   r={isHover ? r * 1.18 : r}
                   fill={fill}
-                  filter={isTheme ? "url(#cortex-glow)" : undefined}
+                  filter={isTheme ? `url(#${idPrefix}-glow)` : undefined}
                   style={{ transition: "r 200ms cubic-bezier(0.34, 0.05, 0.18, 1)" }}
                 />
                 <circle cx={p.x} cy={p.y} r={20} fill="transparent" />
@@ -314,6 +325,18 @@ export function Cortex({
           })}
         </g>
       </g>
-    </svg>
+        </svg>
+      </div>
+      {variant === "tech" && (
+        <div className="rt-cortex__strip" aria-label="Homelab topology summary">
+          {TECH_STATS.map((s) => (
+            <div key={s.label}>
+              <strong>{s.value}</strong>
+              <span>{s.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

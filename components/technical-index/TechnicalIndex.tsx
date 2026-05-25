@@ -101,7 +101,7 @@ export function TechnicalIndex() {
             </div>
             <div>VLAN · isolated</div>
           </div>
-          <Cortex width={900} height={600} rotate={false} />
+          <Cortex variant="tech" width={900} height={600} rotate={false} />
           <div className="rt-tech__topology-legend">
             <div>
               <span className="dot dot--warm" /> Theme node

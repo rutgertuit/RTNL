@@ -4,6 +4,7 @@ import { Footer } from "@/components/footer/Footer";
 import { AppChrome } from "@/components/chrome/AppChrome";
 import { Article, buildArticleLd } from "@/components/article/Article";
 import { PodcastTab } from "@/components/podcast-player/PodcastTab";
+import { Breadcrumb } from "@/components/breadcrumb/Breadcrumb";
 
 const TITLE = "The Multiplier Myth";
 const DESCRIPTION =
@@ -30,6 +31,11 @@ export default function MultiplierMythPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
       />
       <Nav />
+      <Breadcrumb trail={[
+        { label: "Home", href: "/" },
+        { label: "Business & Leadership", href: "/business" },
+        { label: "The Multiplier Myth" },
+      ]} />
       <PodcastTab
         src="/audio/multiplier-myth-ep02.mp3"
         title="The Multiplier Myth — a conversation."

@@ -195,6 +195,12 @@
   --z-nav:      500;
   --z-overlay:  900;
   --z-modal:    1000;
+
+  /* ========================================================
+     NAV HEIGHT — used for scroll-margin-top offsets
+     Matches the sticky nav bar height (rt-nav__panel: top 64px).
+     ======================================================== */
+  --nav-height: 64px;
 }
 
 /* ============================================================

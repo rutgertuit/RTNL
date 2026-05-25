@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 const ARTICLES = [
   {
@@ -80,7 +81,7 @@ export function EditorialColumn() {
         </header>
 
         <div className="rt-editorial__rail">
-          <span>03 ANCHOR PIECES · 24 INTERVIEW INDEX · 2018 → 2026</span>
+          <span>03 ANCHOR PIECES · 24 INTERVIEW INDEX · 2021 → 2025</span>
           <span>FILED UNDER · AI TRANSFORMATION · DATA · GEO</span>
         </div>
 
@@ -104,16 +105,22 @@ export function EditorialColumn() {
             </a>
             <hr />
             <div className="rt-editorial__sidebar-label">READING TIME</div>
-            <a href="#" className="rt-editorial__sidebar-link">
+            <span className="rt-editorial__sidebar-link">
               ~42 min total · espresso to lunch break
-            </a>
+            </span>
           </aside>
 
           <div className="rt-editorial__list">
             {ARTICLES.map((a) => (
               <article id={`article-${a.n}`} key={a.n} className="rt-editorial__article">
                 <figure className="rt-editorial__article-photo">
-                  <img src={`/assets/events/${a.photo}.png`} alt="" />
+                  <Image
+                    src={`/assets/events/${a.photo}.png`}
+                    alt=""
+                    width={800}
+                    height={800}
+                    sizes="(max-width: 720px) 50vw, 33vw"
+                  />
                   <figcaption className="rt-editorial__article-photo-cap">
                     {a.photoCap}
                   </figcaption>

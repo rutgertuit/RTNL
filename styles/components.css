@@ -120,6 +120,27 @@ body { overflow-x: hidden; }
 /* Push everything below the fixed nav */
 body { padding-top: 0; }
 
+/* Fix K (H-4, M-2, X-2): Sticky-nav-aware section anchors.
+   scroll-margin-top prevents the fixed nav from covering section headings
+   when the user clicks an anchor link. --nav-height = 64px + breathing room. */
+[id="hook"],
+[id="business"],
+[id="creative"],
+[id="technical"],
+[id="media-kit"],
+[id="contact"],
+[id^="mk-"] {
+  scroll-margin-top: calc(var(--nav-height, 64px) + var(--space-3));
+}
+
+.rt-footer__headline {
+  scroll-margin-top: calc(var(--nav-height, 64px) + var(--space-3));
+}
+
+.rt-footer__invite {
+  padding-top: calc(var(--nav-height, 64px) + var(--space-3));
+}
+
 /* ============================================================
    HERO v2 — orbiting cortex + cycling portrait + billboard type
    With slow 3D rotation: the hero becomes a 3D stage; the cortex
@@ -845,7 +866,9 @@ body { padding-top: 0; }
    ============================================================ */
 .rt-tech {
   background: var(--color-bg-sunken);
-  padding: var(--space-11) 0;
+  /* Fix N (H-12): reduce bottom padding to close dead-air gap before Media Kit.
+     --space-11 (192px) → --space-9 (96px) at bottom; full 192px retained at top. */
+  padding: var(--space-11) 0 var(--space-9);
 }
 .rt-tech__topology {
   position: relative;
@@ -905,6 +928,45 @@ body { padding-top: 0; }
   font-weight: var(--fw-medium);
 }
 
+/* ============================================================
+   CORTEX wrapper — svg + mobile stat-strip
+   ============================================================ */
+.rt-cortex {
+  display: contents; /* transparent wrapper — preserves existing layout */
+}
+.rt-cortex__strip {
+  display: none; /* hidden above mobile breakpoint */
+}
+
+@media (max-width: 720px) {
+  .rt-cortex__svg { display: none; }
+  .rt-cortex__strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+    padding: var(--space-4);
+  }
+  .rt-cortex__strip > div {
+    background: var(--color-bg-surface);
+    border: var(--border-hairline);
+    padding: var(--space-3);
+    text-align: center;
+  }
+  .rt-cortex__strip strong {
+    display: block;
+    font-family: var(--font-display);
+    font-size: var(--fs-500);
+    color: var(--color-accent-warm-strong);
+  }
+  .rt-cortex__strip span {
+    font-family: var(--font-mono);
+    font-size: var(--fs-50);
+    color: var(--color-fg-3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+}
+
 .rt-tile {
   background: var(--color-bg-sunken);
   position: relative;
@@ -928,18 +990,44 @@ body { padding-top: 0; }
    ============================================================ */
 .rt-mk {
   background: var(--color-bg-base);
-  padding: var(--space-11) 0;
+  /* Fix N (H-12): reduce top padding to close dead-air gap after Technical section.
+     --space-11 (192px) → --space-10 (128px) at top; full 192px retained at bottom. */
+  padding: var(--space-10) 0 var(--space-11);
 }
 .rt-mk__nav {
   top: 68px;     /* sit below fixed nav */
   backdrop-filter: none;
   background: var(--color-bg-base);
+  /* Fix M (H-9): snap + hide scrollbar + fade mask for mobile sub-nav.
+     overflow-x: auto is already added at the 920px breakpoint in base.css;
+     these rules apply at all widths (harmless at desktop, active on mobile). */
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  mask-image: linear-gradient(to right, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, black 90%, transparent);
 }
+.rt-mk__nav::-webkit-scrollbar { display: none; }
+.rt-mk__nav > * { scroll-snap-align: start; }
 .rt-mk__photos {
   grid-template-columns: repeat(3, 1fr);
 }
 .rt-mk__photo img {
   aspect-ratio: 4 / 5;
+}
+
+/* Fix J (H-3): Logo preview contrast — each variant gets a surface that
+   contrasts with the mark colour so the logo is always visible.
+   DARK mark  → light (sunken) surface; LIGHT mark → warm off-white;
+   MONO mark  → mid-grey checkerboard (works for both black and white). */
+.rt-mk__logo--dark  { background: var(--color-bg-sunken); }
+.rt-mk__logo--light { background: #F2EEE5; }
+.rt-mk__logo--mono {
+  background-image:
+    linear-gradient(45deg, var(--color-bg-raised) 25%, transparent 25%, transparent 75%, var(--color-bg-raised) 75%),
+    linear-gradient(45deg, var(--color-bg-raised) 25%, var(--color-bg-surface) 25%, var(--color-bg-surface) 75%, var(--color-bg-raised) 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 8px 8px;
 }
 
 /* ============================================================
@@ -1110,6 +1198,21 @@ body { padding-top: 0; }
   .rt-creative__panel:last-of-type { grid-template-columns: 1fr; }
   .rt-creative__panel:first-of-type .rt-creative__panel-art { grid-template-columns: 1fr 1fr; }
   .rt-creative__panel:first-of-type .rt-creative__panel-art img:nth-child(3) { display: none; }
+}
+
+/* Fix L (H-6): Mobile hero scrim — body copy needs contrast against the warehouse
+   portrait at narrow viewports. Slightly-warm-black (bg-sunken #050507) for
+   brand consistency rather than pure black. */
+@media (max-width: 720px) {
+  .rt-hero__content {
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(5, 5, 7, 0.65) 35%,
+      rgba(5, 5, 7, 0.85) 100%
+    );
+    padding: var(--space-10) var(--container-gutter) var(--space-6);
+  }
 }
 
 /* ============================================================
@@ -1792,6 +1895,34 @@ body { padding-top: 0; }
 .mtg-card.mtg-card--selected {
   transform: translateY(-14px) scale(1.03) !important;
   z-index: 10;
+  border-color: var(--color-accent-warm-strong);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* Inline play-confirm button rendered inside the selected card */
+.mtg-card__play {
+  display: inline-flex;
+  margin-top: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-accent-warm-strong);
+  color: var(--color-fg-1);
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 0;
+  align-self: stretch;
+  justify-content: center;
+  text-decoration: none;
+  border-radius: 2px;
+  position: relative;
+  z-index: 6; /* above the card sheen ::before layer */
+}
+.mtg-card__play:hover { filter: brightness(1.1); }
+.mtg-card__play:focus-visible { outline: 2px solid var(--color-fg-1); outline-offset: 2px; }
+.mtg-card__play--target {
+  background: var(--color-accent-cool-strong, #5b85c4);
 }
 
 /* MTG Category-specific border and art accents */
@@ -2792,6 +2923,122 @@ body { padding-top: 0; }
   opacity: 0.65;
 }
 
+/* Fix FF: name row holds name + trait info button inline */
+.sim-v2 .sim-desk__name-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+}
+
+/* Fix FF: trait info button (i-circle) */
+.sim-v2 .sim-desk__trait-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-bg-raised, #1a1a1a);
+  color: var(--color-fg-2, #aaa);
+  border: 1px solid var(--color-fg-4, #555);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 120ms, border-color 120ms;
+}
+.sim-v2 .sim-desk__trait-btn:hover {
+  color: var(--color-fg-1, #eee);
+  border-color: var(--color-fg-3, #888);
+}
+.sim-v2 .sim-desk__trait-btn[aria-expanded="true"] {
+  color: var(--color-accent-warm-strong, #e8623e);
+  border-color: var(--color-accent-warm-strong, #e8623e);
+}
+
+/* Fix FF: trait popover */
+.sim-v2 .sim-desk__popover {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: var(--space-2, 6px);
+  background: var(--color-bg-surface, #111);
+  border: 1px solid var(--color-accent-warm-strong, #e8623e);
+  padding: var(--space-3, 10px);
+  z-index: 10;
+  font-family: var(--font-body);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  text-align: left;
+}
+.sim-v2 .sim-desk__popover strong {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--fs-50, 10px);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent-warm-strong, #e8623e);
+  margin-bottom: var(--space-2, 6px);
+}
+.sim-v2 .sim-desk__popover p {
+  font-size: var(--fs-100, 12px);
+  line-height: 1.5;
+  color: var(--color-fg-2, #aaa);
+  margin: 0 0 var(--space-3, 10px);
+}
+.sim-v2 .sim-desk__popover-close {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50, 10px);
+  letter-spacing: 0.1em;
+  background: transparent;
+  border: 1px solid var(--color-fg-4, #555);
+  color: var(--color-fg-2, #aaa);
+  padding: var(--space-1, 3px) var(--space-3, 10px);
+  cursor: pointer;
+  text-transform: uppercase;
+}
+.sim-v2 .sim-desk__popover-close:hover {
+  color: var(--color-fg-1, #eee);
+  border-color: var(--color-fg-3, #888);
+}
+
+/* Fix GG.2: Undo button */
+.sim-undo {
+  background: transparent;
+  border: var(--border-hairline, 1px solid #555);
+  color: var(--color-fg-2, #aaa);
+  font-family: var(--font-mono);
+  font-size: var(--fs-50, 10px);
+  letter-spacing: 0.1em;
+  padding: var(--space-2, 6px) var(--space-3, 10px);
+  cursor: pointer;
+  text-transform: uppercase;
+}
+.sim-undo:hover {
+  color: var(--color-fg-1, #eee);
+  border-color: var(--color-fg-3, #888);
+}
+
+/* Fix GG.3: FEBO skip-draft button */
+.sim-febo__skip {
+  background: transparent;
+  border: var(--border-hairline, 1px solid #555);
+  color: var(--color-fg-3, #888);
+  font-family: var(--font-mono);
+  font-size: var(--fs-50, 10px);
+  letter-spacing: 0.1em;
+  padding: var(--space-2, 6px) var(--space-3, 10px);
+  cursor: pointer;
+  text-transform: uppercase;
+}
+.sim-febo__skip:hover {
+  color: var(--color-fg-1, #eee);
+  border-color: var(--color-fg-3, #888);
+}
+
 /* Target cue — gold pulse + outline */
 .sim-v2 .sim-desk.is-targetable {
   cursor: pointer;
@@ -2972,6 +3219,15 @@ body { padding-top: 0; }
   padding: 0 6px;
 }
 .sim-v2 .sim-tut__close:hover { color: var(--color-fg-1); }
+
+/* Banner modifier — demotes the tutorial from a dialog overlay to an
+   inline informational banner. Overrides any potential overlay positioning
+   from the base rule and ensures it stays in document flow. */
+.sim-v2 .sim-tut.sim-tut--banner {
+  position: relative;
+  border-color: var(--color-accent-warm);
+  margin-bottom: 1rem;
+}
 
 /* Locked panel state — used for the hand panel before turn 5 */
 .sim-v2 .sim-panel--locked {
@@ -3465,3 +3721,417 @@ body { padding-top: 0; }
   .sim-fs__details-grid { grid-template-columns: 1fr 1fr; }
 }
 
+/* ============================================================
+   BREADCRUMB — inner-page wayfinding (Fix S)
+   ============================================================ */
+.rt-breadcrumb {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: 0.08em;
+  color: var(--color-fg-3);
+  text-transform: uppercase;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: var(--space-4) var(--container-gutter) 0;
+}
+.rt-breadcrumb ol {
+  display: flex;
+  gap: var(--space-2);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-wrap: wrap;
+}
+.rt-breadcrumb a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 200ms, border-color 200ms;
+}
+.rt-breadcrumb a:hover {
+  color: var(--color-fg-1);
+  border-bottom-color: var(--color-fg-3);
+}
+.rt-breadcrumb li:last-child span {
+  color: var(--color-fg-2);
+}
+
+/* ============================================================
+   BUSINESS INDEX — /business listing page (Fix T)
+   ============================================================ */
+.rt-business-index {
+  background: var(--color-bg-base);
+  color: var(--color-fg-1);
+  font-family: var(--font-body);
+  padding: var(--space-10) 0 var(--space-12);
+}
+.rt-business-index .container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--container-gutter);
+}
+.rt-business-index__head { margin-bottom: var(--space-10); max-width: 720px; }
+.rt-business-index__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-700);
+  line-height: 1.05;
+  margin: var(--space-4) 0 var(--space-4);
+  letter-spacing: -0.01em;
+}
+.rt-business-index__lead {
+  font-size: var(--fs-300);
+  line-height: 1.5;
+  color: var(--color-fg-2);
+  margin: 0;
+}
+.rt-business-index__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: var(--space-5);
+}
+.rt-business-index__item a {
+  display: block;
+  padding: var(--space-5);
+  background: var(--color-bg-surface);
+  border: var(--border-hairline);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 200ms;
+}
+.rt-business-index__item a:hover {
+  border-color: var(--color-accent-warm);
+}
+.rt-business-index__item h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-500);
+  margin: 0 0 var(--space-2);
+  color: var(--color-fg-1);
+}
+.rt-business-index__blurb {
+  font-size: var(--fs-200);
+  line-height: 1.55;
+  color: var(--color-fg-2);
+  margin: 0 0 var(--space-2);
+}
+.rt-business-index__meta {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: 0.12em;
+  color: var(--color-fg-3);
+  margin: 0;
+}
+
+/* ============================================================
+   PRESS FILTER CHIPS — format filter strip (Fix U)
+   ============================================================ */
+.rt-press__filter {
+  display: flex;
+  gap: var(--space-2);
+  margin: var(--space-6) 0;
+  flex-wrap: wrap;
+  position: sticky;
+  top: var(--nav-height, 64px);
+  background: var(--color-bg-base);
+  padding: var(--space-3) 0;
+  z-index: 10;
+}
+.rt-press__filter button {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg-surface);
+  border: var(--border-hairline);
+  color: var(--color-fg-2);
+  cursor: pointer;
+  transition: color 200ms, border-color 200ms;
+}
+.rt-press__filter button:hover {
+  color: var(--color-fg-1);
+  border-color: var(--color-fg-3);
+}
+.rt-press__filter button.is-active {
+  color: var(--color-accent-warm-strong);
+  border-color: var(--color-accent-warm-strong);
+}
+
+/* ============================================================
+   Sim mode-select cards — valuation target + detail line
+   ============================================================ */
+.sim-mode__target {
+  font-family: var(--font-mono);
+  font-size: var(--fs-100);
+  color: var(--color-fg-2);
+  margin: var(--space-2) 0;
+}
+.sim-mode__target strong {
+  font-family: var(--font-display);
+  font-size: var(--fs-500);
+  color: var(--color-accent-warm-strong);
+  font-feature-settings: "tnum";
+  display: block;
+  line-height: 1.1;
+}
+.sim-mode__detail {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: 0.1em;
+  color: var(--color-fg-3);
+  text-transform: uppercase;
+  margin-bottom: var(--space-3);
+}
+
+
+/* ============================================================ */
+/* Fix EE — cash delta chip and P/E multiplier breakdown        */
+/* ============================================================ */
+.sim-hud__delta {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: 0.1em;
+  margin-top: var(--space-1);
+}
+.sim-hud__delta.is-positive { color: var(--color-accent-warm-strong); }
+.sim-hud__delta.is-negative { color: var(--color-fg-3); }
+
+.sim-details__pe-breakdown {
+  margin-top: var(--space-4);
+  padding: var(--space-3);
+  background: var(--color-bg-sunken);
+  border: var(--border-hairline);
+}
+.sim-details__pe-breakdown ul {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-2) 0 0;
+}
+.sim-details__pe-breakdown li {
+  font-family: var(--font-mono);
+  font-size: var(--fs-100);
+  color: var(--color-fg-2);
+  padding: var(--space-1) 0;
+}
+.sim-details__pe-breakdown li strong { color: var(--color-fg-1); }
+
+/* ============================================================
+   Phase 5 Task 5.11 — Polish bundle (sub-steps 1..13)
+   ============================================================ */
+
+/* Sub-step 1: 3-column mode-select grid + dimmed backdrop */
+.sim-mode__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+}
+@media (max-width: 720px) {
+  .sim-mode__grid { grid-template-columns: 1fr; }
+}
+/* Bump overlay backdrop opacity */
+.sim-overlay {
+  background: rgba(5, 5, 7, 0.92);
+}
+
+/* Sub-step 2: Log grouped by turn — details/summary tree */
+.sim-log details {
+  border-bottom: var(--border-hairline);
+  padding: var(--space-2) 0;
+}
+.sim-log summary {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: 0.12em;
+  color: var(--color-fg-3);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.sim-log details[open] summary {
+  color: var(--color-fg-2);
+}
+.sim-log ul {
+  list-style: none;
+  padding: var(--space-2) 0 0;
+  margin: 0;
+}
+.sim-log li {
+  font-size: var(--fs-100);
+  line-height: 1.4;
+  color: var(--color-fg-2);
+  padding: var(--space-1) 0;
+}
+
+/* Sub-step 3: Help modal replay submenu */
+.sim-help__replay summary {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: var(--color-fg-2);
+  padding: var(--space-2) 0;
+}
+.sim-help__replay ul {
+  list-style: none;
+  padding: var(--space-2) 0 0 var(--space-3);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.sim-help__replay button {
+  background: transparent;
+  border: 0;
+  color: var(--color-accent-warm);
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  text-align: left;
+  padding: var(--space-1) 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.sim-help__replay button:hover { color: var(--color-fg-1); }
+
+/* Sub-step 4: Help modal close × button */
+.dialog-close {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  background: transparent;
+  border: 0;
+  color: var(--color-fg-2);
+  font-size: var(--fs-500);
+  line-height: 1;
+  cursor: pointer;
+  padding: var(--space-1) var(--space-2);
+}
+.dialog-close:hover { color: var(--color-fg-1); }
+
+/* Sub-step 5: Hide Ctrl+Enter hint on touch/no-hover devices */
+.sim-next-shortcut {
+  display: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .sim-next-shortcut { display: inline-flex; }
+}
+
+/* Sub-step 6: Hide difficulty label on narrow viewports */
+@media (max-width: 480px) {
+  .sim-header__difficulty { display: none; }
+  .sim-fs__head-meta { display: none; }
+}
+
+/* Sub-step 7: FEBO horizontal carousel on mobile */
+@media (max-width: 720px) {
+  .febo-cards {
+    display: flex;
+    gap: var(--space-3);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  .febo-cards > * {
+    flex: 0 0 80vw;
+    scroll-snap-align: center;
+  }
+}
+
+/* Sub-step 9: Onboarding badge legend */
+.sim-details__legend {
+  font-size: var(--fs-50);
+  color: var(--color-fg-3);
+  font-family: var(--font-mono);
+  letter-spacing: 0.08em;
+  margin-top: var(--space-3);
+}
+.sim-details__legend code {
+  background: var(--color-bg-raised);
+  padding: 0 var(--space-1);
+  color: var(--color-fg-2);
+}
+
+/* Sub-step 10: Bump flavor text size */
+.mtg-card__flavor {
+  font-size: var(--fs-100);
+  font-style: italic;
+  opacity: 0.8;
+}
+
+/* Sub-step 11: Win/Loss post-mortem run summary */
+.sim-postmortem {
+  margin-top: var(--space-5);
+  padding: var(--space-4);
+  background: var(--color-bg-sunken);
+  border: var(--border-hairline);
+}
+.sim-postmortem h4 {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-accent-warm-strong);
+  margin: 0 0 var(--space-3);
+}
+.sim-postmortem dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  margin: 0;
+}
+.sim-postmortem dt {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  color: var(--color-fg-3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.sim-postmortem dd {
+  font-family: var(--font-display);
+  font-size: var(--fs-300);
+  color: var(--color-fg-1);
+  margin: 0;
+  font-feature-settings: "tnum";
+}
+
+/* ============================================================
+   VIDEO TRANSCRIPT / CHAPTERS — kitchen article GEO block
+   ============================================================ */
+.rt-video-transcript {
+  margin-top: var(--space-6);
+  padding: var(--space-4);
+  background: var(--color-bg-surface);
+  border: var(--border-hairline);
+}
+.rt-video-transcript summary {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent-warm);
+  cursor: pointer;
+}
+.rt-video-transcript[open] summary {
+  margin-bottom: var(--space-3);
+}
+.rt-video-transcript__chapters {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.rt-video-transcript__chapters li {
+  font-size: var(--fs-100);
+  line-height: 1.55;
+  color: var(--color-fg-2);
+  padding: var(--space-1) 0;
+}
+.rt-video-transcript__chapters strong {
+  display: inline-block;
+  width: 4ch;
+  font-family: var(--font-mono);
+  color: var(--color-fg-3);
+  margin-right: var(--space-2);
+  font-feature-settings: "tnum";
+}
