@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 type BioKey = "short" | "medium" | "long";
@@ -117,9 +118,9 @@ export function MediaKit() {
         <div className="rt-mk__section" id="mk-photos">
           <div className="rt-mk__row-head">
             <div className="rt-mk__row-label">02 · PHOTOS</div>
-            <a className="button" href="#">
-              Download all hi-res <span aria-hidden>↓</span>
-            </a>
+            <Link className="button" href="/contact?topic=photos">
+              Hi-res set · on request <span aria-hidden>→</span>
+            </Link>
           </div>
           <div className="rt-mk__photos">
             {["01-studio", "02-warehouse", "03-cinematic", "04-profile", "05-mid-shot", "06-stage"].map(
@@ -139,9 +140,9 @@ export function MediaKit() {
         <div className="rt-mk__section" id="mk-logos">
           <div className="rt-mk__row-head">
             <div className="rt-mk__row-label">03 · LOGOS</div>
-            <a className="button" href="#">
-              Download SVG + PNG <span aria-hidden>↓</span>
-            </a>
+            <Link className="button" href="/contact?topic=logos">
+              Logo pack · on request <span aria-hidden>→</span>
+            </Link>
           </div>
           <div className="rt-mk__logos">
             <div className="rt-mk__logo rt-mk__logo--dark">

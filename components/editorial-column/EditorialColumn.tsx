@@ -104,9 +104,9 @@ export function EditorialColumn() {
             </a>
             <hr />
             <div className="rt-editorial__sidebar-label">READING TIME</div>
-            <a href="#" className="rt-editorial__sidebar-link">
+            <span className="rt-editorial__sidebar-link">
               ~42 min total · espresso to lunch break
-            </a>
+            </span>
           </aside>
 
           <div className="rt-editorial__list">

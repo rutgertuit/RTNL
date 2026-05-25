@@ -152,9 +152,7 @@ export function CreativeAtelier() {
                 The interesting thing isn&apos;t how much better the output looks — it&apos;s how
                 differently I had to write the brief each time.
               </p>
-              <a className="button" href="#">
-                Open the reel <span aria-hidden>→</span>
-              </a>
+              <span className="button" aria-disabled="true">Reel · coming soon</span>
             </div>
           </article>
 
