@@ -555,7 +555,7 @@ body { padding-top: 0; }
 
 .rt-hero__index-num {
   font-family: var(--font-display);
-  font-size: clamp(40px, 4.5vw, 72px);
+  font-size: clamp(24px, 2.4vw, 38px);
   font-weight: var(--fw-bold);
   line-height: 0.95;
   letter-spacing: var(--tracking-display);
@@ -1177,8 +1177,8 @@ body { padding-top: 0; }
   .rt-hero__content { padding-top: 16vh; }
   .rt-hero__headline { font-size: clamp(40px, 7vw, 84px); }
   .rt-hero__sub { max-width: clamp(320px, 36vw, 420px); }
-  .rt-hero__index { max-width: clamp(440px, 55vw, 640px); gap: clamp(20px, 4vw, 48px) clamp(28px, 5vw, 64px); }
-  .rt-hero__index-num { font-size: clamp(32px, 4vw, 52px); }
+  .rt-hero__index { max-width: clamp(440px, 55vw, 640px); gap: clamp(16px, 2.5vw, 32px) clamp(20px, 3.5vw, 48px); }
+  .rt-hero__index-num { font-size: clamp(20px, 2.6vw, 32px); }
   /* Deepen the portrait protection to absorb anything underneath */
   .rt-hero__portrait-protection {
     background:
@@ -1194,7 +1194,7 @@ body { padding-top: 0; }
   .rt-hero__portrait-stage { width: 55vw; opacity: 0.6; }
   .rt-hero__headline { font-size: clamp(36px, 10vw, 72px); }
   .rt-hero__index { grid-template-columns: 1fr 1fr; max-width: 100%; }
-  .rt-hero__index-num { font-size: clamp(28px, 8vw, 44px); }
+  .rt-hero__index-num { font-size: clamp(20px, 5vw, 28px); }
   .rt-creative__panel:last-of-type { grid-template-columns: 1fr; }
   .rt-creative__panel:first-of-type .rt-creative__panel-art { grid-template-columns: 1fr 1fr; }
   .rt-creative__panel:first-of-type .rt-creative__panel-art img:nth-child(3) { display: none; }
