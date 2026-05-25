@@ -1,8 +1,279 @@
+"use client";
+
+import { useMemo, useState } from "react";
+
+type Modality = "video" | "audio" | "image" | "text";
+
+const MODALITY_META: Record<
+  Modality,
+  {
+    label: string;
+    /** Watt-hours per unit (per second for video/audio; per item for image/text). */
+    whPerUnit: number;
+    unitLabel: string;
+    sliderMax: number;
+    sliderStep: number;
+    caption: string;
+  }
+> = {
+  video: {
+    label: "AI Video",
+    whPerUnit: 200,
+    unitLabel: "seconds",
+    sliderMax: 120,
+    sliderStep: 1,
+    caption: "~200 Wh per second generated",
+  },
+  audio: {
+    label: "AI Audio / Music",
+    whPerUnit: 10,
+    unitLabel: "seconds",
+    sliderMax: 120,
+    sliderStep: 1,
+    caption: "~10 Wh per second generated",
+  },
+  image: {
+    label: "AI Image edit",
+    whPerUnit: 6,
+    unitLabel: "images",
+    sliderMax: 120,
+    sliderStep: 1,
+    caption: "~6 Wh per image",
+  },
+  text: {
+    label: "Simple text generation",
+    whPerUnit: 0.1,
+    unitLabel: "prompts",
+    sliderMax: 100,
+    sliderStep: 1,
+    caption: "~0.1 Wh per complex prompt",
+  },
+};
+
+const TABLE_ROWS: {
+  model: string;
+  training: string;
+  latency: string;
+  optimizedFor: string;
+}[] = [
+  {
+    model: "Veo 3.1 (Premium)",
+    training: "~1.5 × 10²⁵ FLOPs",
+    latency: "60–90 s for 8-second clip",
+    optimizedFor: "Cinematic 4K, high-physics fidelity",
+  },
+  {
+    model: "Veo 3.1 Fast",
+    training: "Compressed variant",
+    latency: "12–20 s for 8-second clip",
+    optimizedFor: "Cost containment, iteration speed",
+  },
+  {
+    model: "Veo 3.1 Lite",
+    training: "Further compressed",
+    latency: "Sub-15s for 1080p",
+    optimizedFor: "Lowest-cost batch rendering",
+  },
+  {
+    model: "Lyria 3 Pro",
+    training: "Medium training scale",
+    latency: "15–30 s for 3-min track",
+    optimizedFor: "Structured composition with intro/verses/chorus",
+  },
+  {
+    model: "Lyria RealTime",
+    training: "Streaming architecture",
+    latency: "~2 s per 2-second chunk",
+    optimizedFor: "Continuous interactive scoring",
+  },
+  {
+    model: "Gemini Omni Flash",
+    training: "Unified core (~10²⁶ FLOPs estimated)",
+    latency: "10–15 s for 10-second clip",
+    optimizedFor: "Multi-turn conversational editing",
+  },
+];
+
 export function CostOfFrame() {
+  const [modality, setModality] = useState<Modality>("video");
+  const [count, setCount] = useState<number>(10);
+
+  const meta = MODALITY_META[modality];
+  const totalsWh = meta.whPerUnit * count;
+
+  const computed = useMemo(() => {
+    const totalKwh = totalsWh / 1000;
+    const microwaveMin = totalsWh * 0.06;
+    const phoneCharges = totalsWh / 12;
+    const ledHours = totalsWh / 9;
+    return {
+      totalKwh,
+      microwaveMin,
+      phoneCharges,
+      ledHours,
+    };
+  }, [totalsWh]);
+
   return (
-    <section className="rt-bi__section" data-bi-section="cost" id="cost">
-      <h2 className="rt-bi__heading">Section 5 — placeholder</h2>
-      <p className="rt-bi__body">Built in Task 9.</p>
+    <section className="rt-bi__section rt-bi-cost" data-bi-section="cost" id="cost">
+      <div className="rt-bi__eyebrow">
+        COMPUTE · WHY FAST, LITE, AND REALTIME EXIST
+      </div>
+      <h2 className="rt-bi__heading">The cost of a frame.</h2>
+      <p className="rt-bi__body">
+        Generative video looks like it has no marginal cost. It doesn&apos;t.
+        Pull the slider below to see what a clip actually costs in
+        electricity. The number is the reason Google&apos;s product line
+        looks the way it does — and it&apos;s the unspoken constraint behind
+        every roadmap conversation a CMO is about to have with a vendor.
+      </p>
+
+      <div className="rt-bi-cost__calc">
+        <div className="rt-bi-cost__controls">
+          <div className="rt-bi-cost__modalities" role="tablist" aria-label="Modality">
+            {(Object.keys(MODALITY_META) as Modality[]).map((m) => (
+              <button
+                key={m}
+                role="tab"
+                aria-selected={m === modality}
+                className={`rt-bi-cost__modality ${
+                  m === modality ? "is-active" : ""
+                }`}
+                onClick={() => setModality(m)}
+              >
+                {MODALITY_META[m].label}
+              </button>
+            ))}
+          </div>
+
+          <label className="rt-bi-cost__slider">
+            <span>
+              <strong>{count}</strong> {meta.unitLabel}
+            </span>
+            <input
+              type="range"
+              min={1}
+              max={meta.sliderMax}
+              step={meta.sliderStep}
+              value={count}
+              onChange={(e) => setCount(Number(e.target.value))}
+              aria-label={`${meta.label} ${meta.unitLabel}`}
+            />
+          </label>
+          <p className="rt-bi-cost__caption">{meta.caption}</p>
+        </div>
+
+        <div className="rt-bi-cost__outputs">
+          <div className="rt-bi-cost__total">
+            <span className="rt-bi-cost__total-label">TOTAL ENERGY</span>
+            <span className="rt-bi-cost__total-value">
+              {computed.totalKwh.toFixed(2)} <span>kWh</span>
+            </span>
+          </div>
+
+          <div className="rt-bi-cost__equiv">
+            <div className="rt-bi-cost__equiv-card">
+              <span className="rt-bi-cost__equiv-num">
+                {Math.round(computed.microwaveMin)}
+              </span>
+              <span className="rt-bi-cost__equiv-label">
+                MICROWAVE MINUTES
+              </span>
+            </div>
+            <div className="rt-bi-cost__equiv-card">
+              <span className="rt-bi-cost__equiv-num">
+                {Math.round(computed.phoneCharges)}
+              </span>
+              <span className="rt-bi-cost__equiv-label">
+                SMARTPHONE CHARGES
+              </span>
+            </div>
+            <div className="rt-bi-cost__equiv-card">
+              <span className="rt-bi-cost__equiv-num">
+                {Math.round(computed.ledHours)}
+              </span>
+              <span className="rt-bi-cost__equiv-label">
+                9W LED HOURS
+              </span>
+            </div>
+          </div>
+
+          <p className="rt-bi-cost__source">
+            Source: extrapolated from public AI compute studies. Specific
+            per-model disclosures from Google are not available.
+          </p>
+        </div>
+      </div>
+
+      <div className="rt-bi-cost__framing">
+        <p>
+          The video number is the one that matters.{" "}
+          <strong>
+            Generating one minute of AI video burns roughly 200 watt-hours per
+            second
+          </strong>{" "}
+          — that&apos;s two minutes of running a microwave for every second of
+          footage. A four-minute social-cut is twelve dishwasher loads&apos;
+          worth of electricity.
+        </p>
+        <p>
+          That&apos;s why Veo 3.1 Fast costs 90% less than standard Veo 3.1.
+          That&apos;s why Veo 3.1 Lite exists. That&apos;s why Lyria RealTime
+          ships in 2-second chunks instead of full songs. That&apos;s why
+          Gemini Omni Flash caps at 10 seconds.
+        </p>
+        <p>
+          The tiering isn&apos;t product-line confusion. It&apos;s the visible
+          surface of a thermodynamic constraint.
+        </p>
+      </div>
+
+      <h3 className="rt-bi-cost__table-head">Cost-and-latency table</h3>
+      <table className="rt-bi-cost__table">
+        <thead>
+          <tr>
+            <th>Model · tier</th>
+            <th>Estimated training compute</th>
+            <th>Typical inference latency</th>
+            <th>What it&apos;s optimized for</th>
+          </tr>
+        </thead>
+        <tbody>
+          {TABLE_ROWS.map((r) => (
+            <tr key={r.model}>
+              <td><strong>{r.model}</strong></td>
+              <td>{r.training}</td>
+              <td>{r.latency}</td>
+              <td>{r.optimizedFor}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="rt-bi-cost__table-cap">
+        Latency is what the API tells you. Cost is what the procurement team
+        asks about. They&apos;re the same conversation in different
+        vocabularies.
+      </p>
+
+      <p className="rt-bi__closer">
+        So when a vendor&apos;s deck shows you a <em>Premium</em> tier and a{" "}
+        <em>Fast</em> tier and a <em>Lite</em> tier for what looks like the
+        same model, the choice isn&apos;t really between quality and speed.
+        It&apos;s between quality and{" "}
+        <strong>how many of these you can afford to render this quarter.</strong>{" "}
+        That&apos;s the procurement question. The resolution number isn&apos;t.
+      </p>
+      <p className="rt-bi__body">
+        And it&apos;s why Omni Flash caps at 10 seconds. Not because the model
+        can&apos;t go longer. Because at the unit cost of a single second of
+        unified-multimodal inference, longer is a business decision someone
+        hasn&apos;t authorized yet.
+      </p>
+
+      <p className="rt-bi__bridge">
+        Which brings us to the only paragraph on this page that&apos;s
+        actually about your meeting on Thursday.
+      </p>
     </section>
   );
 }
