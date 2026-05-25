@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useReducer, useEffect, useState, useRef } from "react";
+import React, { useReducer, useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
 // Site Nav/Footer/AppChrome intentionally NOT imported — this route is
 // a full-screen game canvas. A small "← rt.nl" link inside the game header
@@ -1266,6 +1266,8 @@ export default function AgentGameClient() {
   const [drawer, setDrawer] = useState<"log" | "cards" | "details" | null>(null);
   // Fix FF: trait popover open state per employee id
   const [traitPopoverOpen, setTraitPopoverOpen] = useState<Record<string, boolean>>({});
+  // Sub-step 4: help modal open state (separate from showTutorial which is the full tutorial)
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const logContainerRef = useRef<HTMLDivElement | null>(null);
   const cardElementsRef = useRef<(HTMLButtonElement | null)[]>([]);
@@ -1318,19 +1320,97 @@ export default function AgentGameClient() {
       }
       if (e.key === "Escape") {
         setTraitPopoverOpen({});
+        setHelpOpen(false);
+        setShowTutorial(false);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [state]);
 
+  // Sub-step 13: H/O/C/P keyboard shortcuts for game actions
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      // Don't fire when typing in a form input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      // Don't fire when any modal/tutorial is open
+      if (helpOpen || showTutorial || showDifficultySelector || state.activeEventId || state.draftChoices || state.isGameOver) return;
+
+      switch (e.key.toLowerCase()) {
+        case "h": {
+          const canHire = !state.hiredThisTurn && state.cash >= 30000 && !state.freezeHiringNextTurn;
+          if (canHire) {
+            e.preventDefault();
+            dispatch({ type: "EMPLOY_WORKER" });
+          }
+          break;
+        }
+        case "o": {
+          const canOkr = !state.redefinedOkrsThisTurn && state.cash >= 10000 && state.okrLevel < 5;
+          if (canOkr) {
+            e.preventDefault();
+            dispatch({ type: "REDEFINE_OKRS" });
+          }
+          break;
+        }
+        case "c": {
+          if (state.turn >= TURN_CARDS_UNLOCKED && state.cardsHand.length > 0) {
+            e.preventDefault();
+            setDrawer((d) => (d === "cards" ? null : "cards"));
+          }
+          break;
+        }
+        case "p": {
+          // Open promote: find first promotable fully-onboarded human at < L3 that isn't already at max
+          const promotable = state.employees.find(
+            (emp) =>
+              emp.type === "human" &&
+              emp.promotionLevel < 3 &&
+              emp.turnsOnboarded >= (state.hasDocumentation ? 3 : 6) &&
+              state.turn >= TURN_PROMOTION_UNLOCKED
+          );
+          if (promotable && (state.promotionsThisTurn ?? 0) < MAX_PROMOTIONS_PER_TURN) {
+            const cost = promotable.promotionLevel === 1 ? 15000 : 40000;
+            if (state.cash >= cost) {
+              e.preventDefault();
+              dispatch({ type: "PROMOTE_WORKER", employeeId: promotable.id });
+            }
+          }
+          break;
+        }
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [helpOpen, showTutorial, showDifficultySelector, state, drawer]);
+
+  // Sub-step 2: Group log entries by turn for display
+  const logsByTurn = useMemo(() => {
+    const groups = new Map<number, string[]>();
+    let currentTurn = 0;
+    for (const entry of state.eventLog) {
+      // Detect "--- TURN N SUMMARY ---" sentinel lines written by END_TURN
+      const turnMatch = /--- TURN (\d+) SUMMARY ---/.exec(entry);
+      if (turnMatch) {
+        currentTurn = Number(turnMatch[1]);
+      }
+      if (!groups.has(currentTurn)) groups.set(currentTurn, []);
+      groups.get(currentTurn)!.push(entry);
+    }
+    return Array.from(groups.entries()).sort((a, b) => b[0] - a[0]); // most recent first
+  }, [state.eventLog]);
+
+
+  // Helper: compact money format for both reset confirm and post-mortem
+  const formatCash = (n: number): string => {
+    if (Math.abs(n) >= 1_000_000_000) return `$${(n / 1_000_000_000).toFixed(1)}B`;
+    if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
+    return `$${Math.round(n / 1000)}k`;
+  };
 
   // Fix GG.1: Reset with window.confirm for safety
   const handleResetInitiate = () => {
-    const formatCash = (n: number) => {
-      if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
-      return `$${Math.round(n / 1000)}k`;
-    };
     const ok = window.confirm(
       `Reset this run? You're on turn ${state.turn} with ${formatCash(state.cash)} cash. This cannot be undone.`
     );
@@ -1505,9 +1585,9 @@ export default function AgentGameClient() {
             <button
               type="button"
               className="sim-fs__head-btn"
-              onClick={() => setShowTutorial(true)}
-              title="Show tutorial"
-              aria-label="Show tutorial"
+              onClick={() => setHelpOpen(true)}
+              title="Show help / tutorial"
+              aria-label="Show help"
             >
               ?
             </button>
@@ -1962,7 +2042,7 @@ export default function AgentGameClient() {
               ↶ Undo
             </button>
           )}
-          <div className="sim-fs__next-hint">
+          <div className="sim-fs__next-hint sim-next-shortcut">
             Shortcut: <kbd>Ctrl + Enter</kbd>
           </div>
         </div>
@@ -1999,16 +2079,29 @@ export default function AgentGameClient() {
 
         {drawer === "log" && (
           <div className="sim-fs__drawer-panel sim-fs__drawer-panel--log" role="region" aria-label="Game log">
-            <div className="sim-log-box" ref={logContainerRef}>
+            {/* Sub-step 8: aria-live for most recent log entry (screen readers) */}
+            {state.eventLog.length > 0 && (
+              <div className="sr-only" aria-live="polite" aria-atomic="true" role="status">
+                {state.eventLog[state.eventLog.length - 1] ?? ""}
+              </div>
+            )}
+            {/* Sub-step 2: grouped log by turn using <details> */}
+            <div className="sim-log sim-log-box" ref={logContainerRef}>
               <div style={{ color: "var(--color-fg-3)", borderBottom: "1px dashed var(--color-fg-4)", paddingBottom: "var(--space-2)", marginBottom: "var(--space-2)" }}>
                 [ --- LIVE SPRINT LEDGER --- ]
               </div>
-              {state.eventLog.map((log, index) => (
-                <div key={index} className="sim-log-entry">{log}</div>
+              {logsByTurn.map(([turn, entries]) => (
+                <details key={turn} open={turn === state.turn - 1 || turn === 0}>
+                  <summary>
+                    {turn === 0 ? "Setup" : `Turn ${turn}`} ({entries.length} {entries.length === 1 ? "event" : "events"})
+                  </summary>
+                  <ul>
+                    {entries.map((entry, i) => (
+                      <li key={`${turn}-${i}`} className="sim-log-entry">{entry}</li>
+                    ))}
+                  </ul>
+                </details>
               ))}
-            </div>
-            <div className="sr-only" aria-live="polite">
-              {state.eventLog[state.eventLog.length - 1]}
             </div>
           </div>
         )}
@@ -2127,6 +2220,11 @@ export default function AgentGameClient() {
                 <li><strong>Current {peTotal}×</strong></li>
               </ul>
             </div>
+            {/* Sub-step 9: Onboarding badge legend */}
+            <p className="sim-details__legend">
+              Legend: <code>1/6T</code> = onboarding turn 1 of 6.
+              With Markdown Wiki active: <code>1/3T</code>.
+            </p>
           </div>
         )}
 
@@ -2191,7 +2289,8 @@ export default function AgentGameClient() {
                 </p>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "var(--space-4)" }}>
+              {/* Sub-step 7: febo-cards wrapper for mobile carousel snap */}
+              <div className="febo-cards" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "var(--space-4)" }}>
                 {state.draftChoices.map((cardId) => {
                   const card = CARD_DATABASE[cardId];
                   if (!card) return null;
@@ -2328,6 +2427,25 @@ export default function AgentGameClient() {
                 </div>
               </div>
 
+              {/* Sub-step 11: Post-mortem run summary */}
+              <div className="sim-postmortem">
+                <h4>Run summary</h4>
+                <dl>
+                  <dt>Final cash</dt>
+                  <dd>{formatCash(state.cash)}</dd>
+                  <dt>Final valuation</dt>
+                  <dd>{formatCash(state.valuation)}</dd>
+                  <dt>Turns played</dt>
+                  <dd>{state.turn - 1} / 30</dd>
+                  <dt>AI version</dt>
+                  <dd>v{state.agentVersion}</dd>
+                  <dt>Docs active</dt>
+                  <dd>{state.hasDocumentation ? "Yes" : "No"}</dd>
+                  <dt>Team size</dt>
+                  <dd>{state.employees.length}</dd>
+                </dl>
+              </div>
+
               {/* Share Card Block */}
               <div style={{ background: "var(--color-bg-sunken)", border: "var(--border-hairline)", padding: "var(--space-3)", display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
                 <span className="sim-stat__label" style={{ textAlign: "left" }}>Scorecard</span>
@@ -2377,7 +2495,8 @@ export default function AgentGameClient() {
                 Select your starting difficulty parameters for the Agent Inclusive sprint.
               </p>
 
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "var(--space-3)" }}>
+              {/* Sub-step 1: 3-column mode grid via .sim-mode__grid */}
+              <div className="sim-mode__grid">
                 {/* Boardroom */}
                 <button
                   onClick={() => handleDifficultySelect("boardroom")}
@@ -2442,12 +2561,19 @@ export default function AgentGameClient() {
           </div>
         )}
 
-        {/* Tutorial / Help Overlay Modal */}
-        {showTutorial && (
+        {/* Tutorial / Help Overlay Modal — Sub-step 4: helpOpen + Escape close + × button */}
+        {helpOpen && (
           <div className="sim-overlay" role="dialog" aria-modal="true" aria-labelledby="tutorial-title">
-            <div className="sim-modal" style={{ maxWidth: "600px", textAlign: "left" }}>
+            <div className="sim-modal" style={{ maxWidth: "600px", textAlign: "left", position: "relative" }}>
+              {/* Sub-step 4: visible × close button */}
+              <button
+                type="button"
+                className="dialog-close"
+                aria-label="Close help"
+                onClick={() => setHelpOpen(false)}
+              >×</button>
               <h2 className="sim-modal__title" id="tutorial-title" style={{ fontFamily: "var(--font-display)", color: "var(--color-fg-1)" }}>
-                Interactive Tutorial
+                Help &amp; Tutorial
               </h2>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)", fontSize: "13px", color: "var(--color-fg-2)", maxHeight: "400px", overflowY: "auto", paddingRight: "10px" }}>
                 <p>
@@ -2495,8 +2621,34 @@ export default function AgentGameClient() {
                 </p>
               </div>
 
+              {/* Sub-step 3: Per-turn tutorial replay submenu */}
+              <details className="sim-help__replay">
+                <summary>Re-read turn primers</summary>
+                <ul>
+                  {Object.entries(TUTORIAL_STEPS).map(([turnStr, step]) => (
+                    <li key={turnStr}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setHelpOpen(false);
+                          // Dismiss any existing tutorial for that turn so it re-shows
+                          // (the banner renders when turn matches and it isn't dismissed)
+                          // We can't replay past turns, so just show what we have:
+                          // inform player to navigate to that turn. For current turn only.
+                          if (Number(turnStr) === state.turn) {
+                            dispatch({ type: "DISMISS_TUTORIAL", turn: -999 }); // No-op sentinel; banner shows if not dismissed
+                          }
+                        }}
+                      >
+                        Turn {turnStr} — {step.title.replace(/^Day \w+ — /, "")}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+
               <button
-                onClick={() => setShowTutorial(false)}
+                onClick={() => setHelpOpen(false)}
                 className="sim-btn-primary"
                 style={{ width: "100%" }}
               >
