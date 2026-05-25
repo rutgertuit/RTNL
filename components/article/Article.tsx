@@ -68,7 +68,7 @@ export function Article({
         ))}
 
         <nav className="rt-tuit__nav" aria-label="Article navigation">
-          <Link className="button" href="/#business">
+          <Link className="button" href="/business">
             <span aria-hidden>←</span> Back to all articles
           </Link>
           <Link className="button button--warm" href="/contact">
