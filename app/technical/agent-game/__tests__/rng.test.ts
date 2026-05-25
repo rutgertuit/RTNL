@@ -39,12 +39,16 @@ describe("createRng", () => {
     expect(fresh.pick(arr)).toBe(createRng(99).pick(arr));
   });
 
+  it("pick throws on empty array", () => {
+    expect(() => createRng(0).pick([])).toThrow("Rng.pick: empty array");
+  });
+
   it("shuffle is in-place and deterministic", () => {
     const a = [1, 2, 3, 4, 5];
     const b = [1, 2, 3, 4, 5];
     createRng(13).shuffle(a);
     createRng(13).shuffle(b);
     expect(a).toEqual(b);
-    expect(a).not.toEqual([1, 2, 3, 4, 5]); // changed
+    expect(a).toEqual([4, 5, 1, 2, 3]);
   });
 });

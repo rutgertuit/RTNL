@@ -19,6 +19,7 @@ export interface Rng {
 
 export function createRng(seed: number): Rng {
   // mulberry32 — 32-bit state, multiplicative-add hash mix
+  // Ref: https://gist.github.com/tommyettinger/46a874533244883189143505d203312c
   let s = seed >>> 0;
   const next = (): number => {
     s = (s + 0x6d2b79f5) >>> 0;
