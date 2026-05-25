@@ -1116,6 +1116,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         ...state,
         turn: currentTurn + 1,
         cash: nextCash,
+        prevCash: state.cash, // capture pre-turn cash for delta display
         valuation: nextValuation,
         agentVersion: nextAgentVersion,
         employees: activeEmployeesAfterTurn,
@@ -1438,6 +1439,24 @@ export default function AgentGameClient() {
   // Win-threshold label for the stats strip
   const winThresholdLabel = state.difficulty === "boardroom" ? "$1.1B" : state.difficulty === "reality" ? "$25B" : "$140B";
 
+  // Cash delta — difference between current cash and the cash at start of last turn.
+  // Only meaningful after the first END_TURN (prevCash is undefined on turn 1).
+  const cashDelta = state.prevCash !== undefined ? state.cash - state.prevCash : null;
+
+  // Helper: compact money format matching the HUD tiles.
+  const formatDelta = (n: number): string => {
+    const abs = Math.abs(n);
+    if (abs >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
+    return `$${Math.round(n / 1000)}k`;
+  };
+
+  // P/E multiplier breakdown (mirrors the END_TURN computation in the reducer).
+  const peBase = 7;
+  const peDocBonus = state.hasDocumentation ? 3 + state.agentVersion * 4 : 0;
+  const peHypeBonus = state.hypeTurnsLeft > 0 ? 8 : 0;
+  const peBoardPenalty = (state.boardAngerTurns ?? 0) > 0 ? -10 : 0;
+  const peTotal = Math.max(1, peBase + peDocBonus + peHypeBonus + peBoardPenalty);
+
   return (
     <div className="sim-fs-root">
       {/* Full-screen game canvas — no site Nav/Footer/AppChrome on this route.
@@ -1530,6 +1549,14 @@ export default function AgentGameClient() {
                   : `${Math.round(state.cash / 1000)}k`
               }
             </span>
+            {cashDelta !== null && (
+              <div
+                className={`sim-hud__delta ${cashDelta >= 0 ? "is-positive" : "is-negative"}`}
+                aria-label={`Cash change this turn: ${cashDelta >= 0 ? "+" : ""}${formatDelta(cashDelta)}`}
+              >
+                {cashDelta >= 0 ? "▲" : "▼"} {formatDelta(Math.abs(cashDelta))}
+              </div>
+            )}
           </div>
           <div className="sim-fs__stat sim-fs__stat--primary" title={`Win at ${winThresholdLabel}`}>
             <span className="sim-fs__stat-label">Valuation</span>
@@ -2004,6 +2031,22 @@ export default function AgentGameClient() {
                 <span className="sim-fs__detail-value">{state.hypeTurnsLeft > 0 ? `${state.hypeTurnsLeft}t left` : "—"}</span>
                 <span className="sim-fs__detail-hint">+8× P/E during hype</span>
               </div>
+            </div>
+            <div className="sim-details__pe-breakdown">
+              <strong>P/E breakdown</strong>
+              <ul>
+                <li>Base {peBase}×</li>
+                {state.hasDocumentation && (
+                  <li>Docs + AI v{state.agentVersion} → +{peDocBonus}×</li>
+                )}
+                {state.hypeTurnsLeft > 0 && (
+                  <li>Hype window → +{peHypeBonus}× ({state.hypeTurnsLeft}t left)</li>
+                )}
+                {(state.boardAngerTurns ?? 0) > 0 && (
+                  <li>Board anger → {peBoardPenalty}× ({state.boardAngerTurns}t left)</li>
+                )}
+                <li><strong>Current {peTotal}×</strong></li>
+              </ul>
             </div>
           </div>
         )}

@@ -180,6 +180,9 @@ export interface GameState {
   // Reset in END_TURN. (redefinedOkrsThisTurn already does double duty.)
   hiredThisTurn?: boolean;
   playedCardThisTurn?: boolean;
+  // Cash delta tracking: prevCash is captured at the START of END_TURN so the
+  // HUD can show "▲ / ▼ $Xk" under the cash tile after each turn resolves.
+  prevCash?: number;
 }
 
 // ============================================================

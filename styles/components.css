@@ -3768,3 +3768,34 @@ body { padding-top: 0; }
   margin-bottom: var(--space-3);
 }
 
+
+/* ============================================================ */
+/* Fix EE — cash delta chip and P/E multiplier breakdown        */
+/* ============================================================ */
+.sim-hud__delta {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: 0.1em;
+  margin-top: var(--space-1);
+}
+.sim-hud__delta.is-positive { color: var(--color-accent-warm-strong); }
+.sim-hud__delta.is-negative { color: var(--color-fg-3); }
+
+.sim-details__pe-breakdown {
+  margin-top: var(--space-4);
+  padding: var(--space-3);
+  background: var(--color-bg-sunken);
+  border: var(--border-hairline);
+}
+.sim-details__pe-breakdown ul {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-2) 0 0;
+}
+.sim-details__pe-breakdown li {
+  font-family: var(--font-mono);
+  font-size: var(--fs-100);
+  color: var(--color-fg-2);
+  padding: var(--space-1) 0;
+}
+.sim-details__pe-breakdown li strong { color: var(--color-fg-1); }
