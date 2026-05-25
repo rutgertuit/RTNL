@@ -100,14 +100,16 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <a href="#hook-title" className="rt-skip-link">
+        <a href="#main" className="rt-skip-link">
           Skip to content
         </a>
         <div className="rt-grain" aria-hidden="true">
           <div className="rt-grain__layer"></div>
           <div className="rt-grain__layer rt-grain__layer--drift"></div>
         </div>
-        {children}
+        <main id="main" tabIndex={-1}>
+          {children}
+        </main>
       </body>
     </html>
   );
