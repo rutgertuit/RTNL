@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { Cortex } from "@/components/cortex/Cortex";
 
 const PORTRAITS = [
@@ -125,9 +126,13 @@ export function Hero() {
             key={p.id}
             className={`rt-hero__portrait-card ${i === idx ? "is-active" : ""}`}
           >
-            <img
+            <Image
               src={`/assets/portraits/${p.id}.png`}
               alt={`Rutger Tuit — ${p.label.toLowerCase()}`}
+              width={1440}
+              height={1920}
+              sizes="(max-width: 720px) 100vw, 50vw"
+              priority={i === 0}
             />
             <div className="rt-hero__portrait-protection" aria-hidden />
           </figure>

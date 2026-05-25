@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 
 /**
  * CreativeAtelier — C1 Long-Scroll showcase: Image / Motion / Music.
@@ -103,9 +104,27 @@ export function CreativeAtelier() {
           {/* Image */}
           <article className="rt-creative__panel">
             <div className="rt-creative__panel-art">
-              <img src="/assets/portraits/02-warehouse.png" alt="" />
-              <img src="/assets/portraits/03-cinematic.png" alt="" />
-              <img src="/assets/portraits/04-profile.png" alt="" />
+              <Image
+                src="/assets/portraits/02-warehouse.png"
+                alt=""
+                width={1440}
+                height={1920}
+                sizes="(max-width: 720px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+              <Image
+                src="/assets/portraits/03-cinematic.png"
+                alt=""
+                width={1440}
+                height={1920}
+                sizes="(max-width: 720px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+              <Image
+                src="/assets/portraits/04-profile.png"
+                alt=""
+                width={1440}
+                height={1920}
+                sizes="(max-width: 720px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
             </div>
             <div className="rt-creative__panel-meta">
               <div className="eyebrow">IMAGE · NANO BANANA</div>
@@ -125,7 +144,13 @@ export function CreativeAtelier() {
           <article className="rt-creative__panel rt-creative__panel--motion">
             <div className="rt-creative__panel-art">
               <div className="rt-creative__video">
-                <img src="/assets/portraits/05-mid-shot.png" alt="" />
+                <Image
+                  src="/assets/portraits/05-mid-shot.png"
+                  alt=""
+                  width={1440}
+                  height={1920}
+                  sizes="(max-width: 720px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
                 <button
                   className={`rt-creative__play ${videoPlaying ? "is-playing" : ""}`}
                   aria-label={videoPlaying ? "pause Veo evolution reel" : "play Veo evolution reel"}

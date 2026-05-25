@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 type BioKey = "short" | "medium" | "long";
 
@@ -137,7 +138,13 @@ export function MediaKit() {
               ] as const
             ).map(({ id, alt }) => (
                 <figure key={id} className="rt-mk__photo">
-                  <img src={`/assets/portraits/${id}.png`} alt={alt} />
+                  <Image
+                    src={`/assets/portraits/${id}.png`}
+                    alt={alt}
+                    width={1440}
+                    height={1920}
+                    sizes="(max-width: 720px) 50vw, 25vw"
+                  />
                   <figcaption>
                     {id.replace(/^\d+-/, "").toUpperCase().replace("-", " ")}
                   </figcaption>
@@ -156,15 +163,18 @@ export function MediaKit() {
           </div>
           <div className="rt-mk__logos">
             <div className="rt-mk__logo rt-mk__logo--dark">
-              <img src="/assets/logo-rt.svg" alt="Rutger Tuit wordmark — dark variant" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/assets/logo-rt.svg" alt="Rutger Tuit wordmark — dark variant" width={160} height={80} />
               <span>DARK</span>
             </div>
             <div className="rt-mk__logo rt-mk__logo--light">
-              <img src="/assets/logo-rt.svg" alt="Rutger Tuit wordmark — light variant" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/assets/logo-rt.svg" alt="Rutger Tuit wordmark — light variant" width={160} height={80} />
               <span>LIGHT</span>
             </div>
             <div className="rt-mk__logo rt-mk__logo--mono">
-              <img src="/assets/logo-rt.svg" alt="Rutger Tuit wordmark — monochrome variant" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/assets/logo-rt.svg" alt="Rutger Tuit wordmark — monochrome variant" width={160} height={80} />
               <span>MONO</span>
             </div>
           </div>
@@ -197,7 +207,13 @@ export function MediaKit() {
           <ul className="rt-mk__events">
             {EVENTS.map((e) => (
               <li key={e.id}>
-                <img src={`/assets/events/${e.id}.png`} alt={e.alt} />
+                <Image
+                  src={`/assets/events/${e.id}.png`}
+                  alt={e.alt}
+                  width={800}
+                  height={800}
+                  sizes="(max-width: 720px) 50vw, 33vw"
+                />
                 <div>
                   <div className="rt-mk__event-name">{e.name}</div>
                   <div className="rt-mk__event-year">{e.year}</div>
