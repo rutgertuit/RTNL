@@ -1,0 +1,84 @@
+/* ============================================================
+   Briefing Inversion — page-scoped styles
+   Tokens-only. No Tailwind, no CSS-in-JS. Mirror the rt-* class
+   prefixing used elsewhere in the site (rt-tuit, rt-creative, etc.).
+   ============================================================ */
+
+.rt-bi {
+  background: var(--color-bg-base);
+  color: var(--color-fg-1);
+  font-family: var(--font-body);
+  padding: 0;
+}
+
+.rt-bi__section {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: var(--space-10) var(--container-gutter);
+}
+
+.rt-bi__eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-accent-warm);
+  margin-bottom: var(--space-4);
+}
+
+.rt-bi__heading {
+  font-family: var(--font-display);
+  font-size: var(--fs-700);
+  line-height: 1.05;
+  color: var(--color-fg-1);
+  margin: 0 0 var(--space-6) 0;
+  letter-spacing: -0.01em;
+}
+
+.rt-bi__lead {
+  font-size: var(--fs-300);
+  line-height: 1.5;
+  color: var(--color-fg-1);
+  max-width: 720px;
+  margin: 0 0 var(--space-6) 0;
+}
+
+.rt-bi__body {
+  font-size: var(--fs-200);
+  line-height: 1.65;
+  color: var(--color-fg-2);
+  max-width: 720px;
+}
+
+.rt-bi__body + .rt-bi__body {
+  margin-top: var(--space-4);
+}
+
+.rt-bi__closer {
+  font-size: var(--fs-200);
+  line-height: 1.65;
+  color: var(--color-fg-2);
+  max-width: 720px;
+  margin-top: var(--space-6);
+}
+
+.rt-bi__bridge {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--fs-300);
+  line-height: 1.4;
+  color: var(--color-fg-2);
+  max-width: 720px;
+  margin-top: var(--space-8);
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--color-fg-4);
+}
+
+@media (max-width: 768px) {
+  .rt-bi__section {
+    padding: var(--space-8) var(--container-gutter);
+  }
+  .rt-bi__heading {
+    font-size: var(--fs-600);
+  }
+}
