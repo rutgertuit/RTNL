@@ -12,6 +12,19 @@ function splitLabel(text: string): { label: string; rest: string } {
   };
 }
 
+interface OutputClip {
+  slug: string;
+  label: string;
+  hasAudio: boolean;
+}
+
+interface FollowupTurn {
+  /** Single-line follow-up brief, e.g. "Make the player groove." */
+  brief: string;
+  /** The clip rendered from that follow-up. */
+  clip: OutputClip;
+}
+
 interface Stop {
   index: number;
   label: string;
@@ -21,14 +34,11 @@ interface Stop {
   referenceImage?: string;
   /** Initial brief text — paragraphs separated by blank lines. */
   brief: string;
-  /** Optional Turn 2 follow-up brief (Stop 4 only). */
-  turn2Brief?: string;
-  /** Slug of the ClipPanel for Turn 1 output. */
-  clipSlugTurn1: string;
-  /** Whether the clip carries native audio (false for Veo 2 silent). */
-  hasAudioTurn1: boolean;
-  /** Optional separate clip for the Turn-2 output (Stop 4 only). */
-  clipSlugTurn2?: string;
+  /** One or more output clips for this stop. Stop 3 has two tiers (Fast + Lite);
+   *  Stop 4 has one initial render + optional follow-ups below. */
+  clips: OutputClip[];
+  /** Stop 4 only: each follow-up has its own short brief and rendered clip. */
+  followups?: FollowupTurn[];
   /** Architectural-state annotation. */
   annotationState: string;
   /** What the brief has to carry / what changed annotation. */
@@ -43,8 +53,9 @@ const STOPS: Stop[] = [
     label: "Veo 2 · Dec 2024 · 260 words",
     modelLine: "VEO 2",
     wordCount: 260,
-    clipSlugTurn1: "veo2-moog-260w",
-    hasAudioTurn1: false,
+    clips: [
+      { slug: "veo2-moog-260w", label: "VEO 2 · DEC 2024 · 260 WORDS", hasAudio: false },
+    ],
     brief: `A medium-shot, eye-level cinematic video. A bald man in his early forties — full beard, light stubble at the jawline, dark slate-grey hoodie under a heavier black overshirt — is seated at a vintage analog synthesizer in a converted Rotterdam warehouse studio. The synth is a Moog Voyager, brass keys, two-handed posture, his right hand on the keys at mid-keyboard, his left hand adjusting the cutoff knob in the upper-left corner of the panel.
 
 Soft, even key light from camera-left at roughly 3200K. A cooler 4500K rim light from camera-right, separating him from the dark concrete wall behind. Visible dust particles in the shafts of light. Camera: 35mm lens, slight push-in at 5% over the eight-second duration. The subject is fully concentrated; he does not look at the camera. He plays three or four chords across the eight seconds. His hand on the cutoff knob moves once, slowly, mid-clip.
@@ -62,8 +73,9 @@ Frame the shot tight enough to read his face but wide enough to include the synt
     label: "Veo 3 · May 2025 · 140 words",
     modelLine: "VEO 3",
     wordCount: 140,
-    clipSlugTurn1: "veo3-moog-140w",
-    hasAudioTurn1: true,
+    clips: [
+      { slug: "veo3-moog-140w", label: "VEO 3 · MAY 2025 · 140 WORDS", hasAudio: true },
+    ],
     brief: `Cinematic medium-shot of a bald, bearded man at a vintage Moog synthesizer in a Rotterdam warehouse studio. He's playing a slow, contemplative four-chord progression — left hand sweeping the cutoff knob, right hand on the keys. Warm key light from the left, cooler rim light separating him from the concrete wall behind. Soft dust in the air. 35mm, slow 5% push-in over eight seconds. He is fully absorbed; doesn't look at the camera.
 
 *Audio: the actual synth notes the chord progression is producing — analog, mid-warm, slight resonance sweep on the cutoff. Light room tone in the background, no other music or speech.*
@@ -80,33 +92,48 @@ Frame the shot tight enough to read his face but wide enough to include the synt
     modelLine: "VEO 3.1",
     wordCount: 45,
     referenceImage: "08-desk.png",
-    clipSlugTurn1: "veo31-moog-45w-ref",
-    hasAudioTurn1: true,
+    clips: [
+      { slug: "veo31-fast", label: "VEO 3.1 FAST", hasAudio: true },
+      { slug: "veo31-lite", label: "VEO 3.1 LITE", hasAudio: true },
+    ],
     brief: `A slow, contemplative eight seconds of this character playing the Moog. Warm key light from camera-left, cooler rim light from the right. The cutoff knob sweep is audible. Slight push-in. Cinematic, film-grain finish.`,
     annotationState:
       "What changed: Reference-image conditioning. The character no longer has to be described — they're attached.",
     annotationDelta:
       "What the brief lost: The entire wardrobe paragraph. The full description of the man. The model gets him from the image; the words don't have to carry him anymore.",
     annotationHonest:
-      "Honest note: The reference image is a back-view portrait. Reference conditioning carries body, wardrobe, and presence reliably; face precision drifts. The result is recognizably 'the same guy' — but a viewer who knows him will see it.",
+      "Honest note: Two tiers shown side-by-side — Fast and Lite render the same brief at different compute budgets. The cost story of Section 5 starts here. Reference conditioning carries body, wardrobe, and presence reliably; face precision drifts because the reference is a back-view portrait.",
   },
   {
     index: 4,
-    label: "Omni · May 2026 · 14 words + 1 follow-up",
+    label: "Omni · May 2026 · 14 words + 3 follow-ups",
     modelLine: "GEMINI OMNI FLASH",
     wordCount: 14,
     referenceImage: "08-desk.png",
-    clipSlugTurn1: "omni-moog-14w-initial",
-    hasAudioTurn1: true,
-    clipSlugTurn2: "omni-moog-after-turn2",
+    clips: [
+      { slug: "omni-moog-turn1", label: "OMNI · TURN 1 · INITIAL", hasAudio: true },
+    ],
     brief: `Me at the Moog. Eight seconds. Cinematic, slow chord progression. Warm + cool light mix.`,
-    turn2Brief: `Push the camera in a little slower. And open the room out on the right — I want to see the brick of the side wall.`,
+    followups: [
+      {
+        brief: "Make the player groove.",
+        clip: { slug: "omni-moog-turn2-groove", label: "OMNI · TURN 2 · GROOVE", hasAudio: true },
+      },
+      {
+        brief: "Change this into a Moog matriarch — using a pic.",
+        clip: { slug: "omni-moog-turn3-matriarch", label: "OMNI · TURN 3 · MATRIARCH", hasAudio: true },
+      },
+      {
+        brief: "Change the environment into a Roman sauna.",
+        clip: { slug: "omni-moog-turn4-sauna", label: "OMNI · TURN 4 · ROMAN SAUNA", hasAudio: true },
+      },
+    ],
     annotationState:
-      "What changed: Native multi-turn context, single-pass attention across modalities. The brief no longer has to be complete — it can be a sentence followed by a note.",
+      "What changed: Native multi-turn context, single-pass attention across modalities. The brief no longer has to be complete — it can be a sentence followed by a series of notes.",
     annotationDelta:
-      "What the brief lost: Itself, almost. The director's job has shifted from specifying the world to nudging it.",
+      "What the brief lost: Itself, almost. Each follow-up costs nothing — the model still has the scene in working memory and edits inside it instead of regenerating.",
     annotationHonest:
-      "Honest note: Same imperfect reference as Stop 3, much better face recovery. The world model fills in identity from the partial signal plus context cues from the scene. The architectural delta is visible without being labeled.",
+      "Honest note: Same imperfect reference as Stop 3, much better face recovery. Each Turn 2/3/4 edit preserves what wasn't asked to change — the Moog, the lighting, the camera angle, the room — and only re-renders what the new line names. That conservation across turns is the architectural delta.",
   },
 ];
 
@@ -214,14 +241,16 @@ export function BriefingInversion() {
 
           <pre className="rt-bi-brief__prose">{activeStop.brief}</pre>
 
-          {activeStop.turn2Brief && (
-            <div className="rt-bi-brief__turn2">
-              <span className="rt-bi-brief__turn2-label">TURN 2 · FOLLOW-UP</span>
+          {activeStop.followups?.map((f, i) => (
+            <div className="rt-bi-brief__turn2" key={`${activeStop.index}-fup-${i}`}>
+              <span className="rt-bi-brief__turn2-label">
+                TURN {i + 2} · FOLLOW-UP
+              </span>
               <pre className="rt-bi-brief__prose rt-bi-brief__prose--turn2">
-                {activeStop.turn2Brief}
+                {f.brief}
               </pre>
             </div>
-          )}
+          ))}
         </div>
 
         <div className="rt-bi-brief__column rt-bi-brief__column--output">
@@ -231,18 +260,22 @@ export function BriefingInversion() {
               {activeStop.modelLine}
             </span>
           </div>
-          <ClipPanel
-            slug={activeStop.clipSlugTurn1}
-            label={activeStop.label.toUpperCase()}
-            hasAudio={activeStop.hasAudioTurn1}
-          />
-          {activeStop.clipSlugTurn2 && (
+          {activeStop.clips.map((c) => (
             <ClipPanel
-              slug={activeStop.clipSlugTurn2}
-              label="OMNI · AFTER TURN 2"
-              hasAudio={true}
+              key={c.slug}
+              slug={c.slug}
+              label={c.label}
+              hasAudio={c.hasAudio}
             />
-          )}
+          ))}
+          {activeStop.followups?.map((f) => (
+            <ClipPanel
+              key={f.clip.slug}
+              slug={f.clip.slug}
+              label={f.clip.label}
+              hasAudio={f.clip.hasAudio}
+            />
+          ))}
         </div>
       </div>
 
@@ -300,12 +333,12 @@ export function BriefingInversion() {
           </tr>
           <tr>
             <td><strong>Veo 3.1</strong></td>
-            <td>A paragraph of intent. A reference image.</td>
+            <td>A paragraph of intent. A reference image. Two compute tiers.</td>
             <td>Character identity. Wardrobe. Camera path from an adjective.</td>
           </tr>
           <tr>
             <td><strong>Omni</strong></td>
-            <td>A sentence. A follow-up note.</td>
+            <td>A sentence. A series of follow-up notes that each cost nothing.</td>
             <td>Physical continuity across edits. The architecture of the scene.</td>
           </tr>
         </tbody>
