@@ -4660,8 +4660,105 @@ body { padding-top: 0; }
   letter-spacing: var(--tracking-eyebrow);
 }
 .sim-endcard__again { min-width: 220px; justify-self: center; }
+
+.sim-endcard__scorecard-toggle {
+  background: transparent;
+  border: var(--border-hairline);
+  color: var(--color-fg-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--sim-radius-tile);
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.sim-endcard__scorecard-toggle:hover { color: var(--color-fg-1); border-color: var(--color-fg-3); }
+.sim-endcard__chevron { font-size: 10px; }
+.sim-endcard__scorecard {
+  text-align: left;
+  width: 100%;
+  max-width: 520px;
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--color-bg-surface);
+  border: var(--border-hairline);
+  border-radius: var(--sim-radius-card);
+}
+.sim-endcard__scorecard-heading {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  color: var(--color-accent-warm);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-eyebrow);
+  margin: 0;
+}
+.sim-endcard__dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+}
+.sim-endcard__dl dt {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  color: var(--color-fg-3);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-eyebrow);
+}
+.sim-endcard__dl dd {
+  margin: 0;
+  font-family: var(--font-body, var(--font-sans));
+  color: var(--color-fg-1);
+}
+.sim-endcard__share {
+  display: grid;
+  gap: var(--space-2);
+  background: var(--color-bg-sunken);
+  border: var(--border-hairline);
+  padding: var(--space-3);
+  border-radius: var(--sim-radius-tile);
+}
+.sim-endcard__share-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  color: var(--color-fg-3);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-eyebrow);
+}
+.sim-endcard__share-text {
+  width: 100%;
+  min-height: 84px;
+  background: transparent;
+  border: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-fg-2);
+  resize: none;
+  outline: none;
+  line-height: 1.5;
+}
+.sim-endcard__share-copy {
+  background: var(--color-accent-warm);
+  color: var(--color-bg-base);
+  border: 0;
+  border-radius: var(--sim-radius-tile);
+  padding: var(--space-2);
+  font-family: var(--font-body, var(--font-sans));
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-100);
+  cursor: pointer;
+}
+.sim-endcard__share-copy:hover { background: var(--color-accent-warm-strong); }
+
 @media (max-width: 720px) {
   .sim-endcard__stats { grid-template-columns: repeat(2, 1fr); }
+  .sim-endcard__dl { grid-template-columns: 1fr; }
+  .sim-endcard__dl dd { margin-bottom: var(--space-2); }
 }
 
 /* Phase 5d.12 — motion polish */
