@@ -9,8 +9,6 @@ import {
   Employee,
   GameState,
   CARD_DATABASE,
-  renderCardArt,
-  renderEmployeeArt,
   TRAIT_DATABASE,
   EVENT_DATABASE,
 } from "./cards";
@@ -31,6 +29,8 @@ import { HudTile } from "@/components/agent-game/HudTile";
 import { SimButton } from "@/components/agent-game/SimButton";
 import { EmployeeAvatar } from "@/components/agent-game/EmployeeAvatar";
 import { CardTile } from "@/components/agent-game/CardTile";
+import { OfficePlate } from "@/components/agent-game/OfficePlate";
+import { FeboVendingMachine } from "@/components/agent-game/FeboVendingMachine";
 import {
   Cash,
   Building,
@@ -709,6 +709,7 @@ export default function AgentGameClient() {
               🎯 Click a desk to target <strong>{selectedCard.name}</strong>
             </div>
           )}
+          <OfficePlate tier={state.officeTier} />
           <div className="sim-employees-grid sim-office-floor">
             {state.employees.length === 0 ? (
               <div className="sim-office-empty">
@@ -1371,112 +1372,16 @@ export default function AgentGameClient() {
           </div>
         )}
 
-        {/* FEBO Card Automat Modal */}
+        {/* FEBO Card Automat Modal (5d.8 — FeboVendingMachine component) */}
         {state.draftChoices && (
-          <div className="sim-overlay" role="dialog" aria-modal="true" aria-labelledby="draft-title">
-            <div className="sim-modal" style={{ maxWidth: "800px", border: "2px solid #e8623e" }}>
-              <div style={{ textAlign: "center", marginBottom: "var(--space-4)" }}>
-                <span style={{ fontSize: "28px" }}>🍔</span>
-                <h2 className="sim-modal__title" id="draft-title" style={{ margin: "5px 0 0 0", color: "#e8623e", fontFamily: "var(--font-display)" }}>
-                  FEBO Card Automat
-                </h2>
-                <p className="sim-modal__text" style={{ fontSize: "12px", color: "var(--color-fg-3)" }}>
-                  Pull a window to add one card to your hand. Free to draft — pay the play cost later.
-                </p>
-              </div>
-
-              {/* Sub-step 7: febo-cards wrapper for mobile carousel snap */}
-              <div className="febo-cards" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "var(--space-4)" }}>
-                {state.draftChoices.map((cardId) => {
-                  const card = CARD_DATABASE[cardId];
-                  if (!card) return null;
-                  return (
-                    <div
-                      key={cardId}
-                      className="febo-slot"
-                      style={{
-                        background: "var(--color-bg-sunken)",
-                        borderRadius: "6px",
-                        padding: "var(--space-3)",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        position: "relative",
-                        overflow: "hidden",
-                        boxShadow: "inset 0 0 10px rgba(0,0,0,0.5)"
-                      }}
-                    >
-                      {/* Compartment frame header */}
-                      <div
-                        style={{
-                          background: "#e8623e",
-                          color: "white",
-                          width: "100%",
-                          textAlign: "center",
-                          fontSize: "9px",
-                          fontWeight: "bold",
-                          fontFamily: "var(--font-mono)",
-                          padding: "2px 0",
-                          borderRadius: "4px 4px 0 0",
-                          marginBottom: "var(--space-3)",
-                          letterSpacing: "1px"
-                        }}
-                      >
-                        COMPARTMENT ACTIVE
-                      </div>
-
-                      {/* Card rendering inside slot */}
-                      <div className={`mtg-card mtg-card--${card.class}`} style={{ transform: "scale(0.85)", transformOrigin: "top center", marginBottom: "-20px" }}>
-                        <div className="mtg-card__header">
-                          <h3 className="mtg-card__name" style={{ fontSize: "13px" }}>{card.name}</h3>
-                          <span className="mtg-card__cost">play ${(card.cost / 1000)}k</span>
-                        </div>
-                        <div className="mtg-card__type">Sorcery — {card.class}</div>
-                        <div className="mtg-card__art-window">
-                          {renderCardArt(card.id)}
-                        </div>
-                        <div className="mtg-card__textbox">
-                          <p className="mtg-card__rules" style={{ fontSize: "9px" }}>{card.rulesText}</p>
-                        </div>
-                      </div>
-
-                      {/* Slot Pull Button */}
-                      <button
-                        onClick={() => {
-                          dispatch({ type: "DRAFT_CARD", cardId });
-                        }}
-                        {...withHover(hover, { type: "DRAFT_CARD", cardId })}
-                        className="button button--warm"
-                        style={{
-                          width: "90%",
-                          padding: "8px 0",
-                          fontSize: "11px",
-                          fontWeight: "bold",
-                          justifyContent: "center",
-                          borderRadius: "4px",
-                          border: "1px solid #ff7e5a",
-                          boxShadow: "0 4px 6px rgba(0,0,0,0.2)",
-                          marginTop: "var(--space-4)"
-                        }}
-                      >
-                        🚪 Pull Window (Draft)
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-              {/* GG.3: Skip draft — dismiss FEBO without taking a card */}
-              <div style={{ textAlign: "center", marginTop: "var(--space-4)" }}>
-                <button
-                  type="button"
-                  className="sim-febo__skip"
-                  onClick={() => dispatch({ type: "SKIP_DRAFT" })}
-                >
-                  Skip draft
-                </button>
-              </div>
-            </div>
-          </div>
+          <FeboVendingMachine
+            cards={state.draftChoices
+              .map((id) => CARD_DATABASE[id])
+              .filter((c): c is NonNullable<typeof c> => Boolean(c))}
+            onPull={(cardId) => dispatch({ type: "DRAFT_CARD", cardId })}
+            onSkip={() => dispatch({ type: "SKIP_DRAFT" })}
+            pullHoverProps={(cardId) => withHover(hover, { type: "DRAFT_CARD", cardId })}
+          />
         )}
 
         {/* Win/Loss Modal */}
