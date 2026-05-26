@@ -217,6 +217,9 @@ export interface GameState {
   saunaActiveTurnsLeft: number;
   /** ISO 9001: raises OKR cap from 5 to 6. */
   hasIso9001: boolean;
+  /** Phase 5b.7: era-handoff bonus on turn 5→6 boundary. */
+  seedFunded?: boolean;
+  seedDeclined?: boolean;
 }
 
 // ============================================================

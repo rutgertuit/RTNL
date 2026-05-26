@@ -26,6 +26,7 @@ import {
   type OfficeTier,
 } from "./office";
 import { createRng, type Rng } from "./rng";
+import { cardsForEra, eraOfTurn } from "./eras";
 
 // ============================================================
 // Types & Actions
@@ -125,16 +126,21 @@ export const createInitialState = (
   if (difficulty === "zirp") startingCash = 30000; // ZIRP Nightmare edge starts
 
   // Phase 5b.2: every run starts with a 'home' office. Deduct the setup cost
-  // up front so the starting balance reflects the office tier. ZIRP at 30k
-  // setup goes to exactly $0 — survives bankruptcy check (-1M floor) but
-  // leaves zero room for any first-turn spend. Re-baseline will quantify;
-  // ZIRP free-rent in Phase 5b.8 will help.
-  startingCash -= setupCostOf("home");
+  // up front so the starting balance reflects the office tier.
+  // Phase 5b.8: ZIRP skips the home-setup deduction — treat the home office
+  // as part of the ZIRP free-trial perk (free rent for turns 1-2 lives in
+  // END_TURN). Net effect: ZIRP keeps its full $30k starting cash for first-
+  // turn moves instead of being immediately at $0.
+  if (difficulty !== "zirp") {
+    startingCash -= setupCostOf("home");
+  }
 
   const traitKeys = Object.keys(TRAIT_DATABASE);
   const shuffledTraits = shuffleArray(traitKeys, startRng);
 
-  const initialEmployees: Employee[] = [
+  // Phase 5b.8: ZIRP free-trial starts with just 1 worker (Edgar). Other
+  // difficulties keep the original 3-starter trio.
+  const STARTER_TEMPLATES: Array<Omit<Employee, "traitId">> = [
     {
       id: "emp_1",
       name: "Edgar",
@@ -147,7 +153,6 @@ export const createInitialState = (
       isAsleep: false,
       turnsOnboarded: 6,
       pptPoisoningTurns: 0,
-      traitId: shuffledTraits[0],
     },
     {
       id: "emp_2",
@@ -161,7 +166,6 @@ export const createInitialState = (
       isAsleep: false,
       turnsOnboarded: 6,
       pptPoisoningTurns: 0,
-      traitId: shuffledTraits[1],
     },
     {
       id: "emp_3",
@@ -175,9 +179,12 @@ export const createInitialState = (
       isAsleep: false,
       turnsOnboarded: 0,
       pptPoisoningTurns: 0,
-      traitId: shuffledTraits[2],
     },
   ];
+  const startingEmployeeCount = difficulty === "zirp" ? 1 : 3;
+  const initialEmployees: Employee[] = STARTER_TEMPLATES
+    .slice(0, startingEmployeeCount)
+    .map((tpl, idx) => ({ ...tpl, traitId: shuffledTraits[idx] }));
 
   // Initial Valuation calculations
   const baseRevenue = 20000;
@@ -1226,11 +1233,17 @@ export function gameReducer(state: GameState, action: Action): GameState {
         );
       }
 
-      // Phase 5b.2: office rent. No ZIRP free-rent yet (that's 5b.8).
-      const rent = rentOf(state.officeTier);
-      logs.push(
-        `🏢 Rent: -$${rent.toLocaleString()} (${state.officeTier}, cap ${capacityOf(state.officeTier)}).`
-      );
+      // Phase 5b.2: office rent. Phase 5b.8: ZIRP free-trial waives rent for
+      // the first two turns (matches the free home-setup perk).
+      const isZirpFreeRent = state.difficulty === "zirp" && currentTurn <= 2;
+      const rent = isZirpFreeRent ? 0 : rentOf(state.officeTier);
+      if (isZirpFreeRent) {
+        logs.push(`🏢 Rent: $0 (ZIRP starter perk, ${state.officeTier}, cap ${capacityOf(state.officeTier)}).`);
+      } else {
+        logs.push(
+          `🏢 Rent: -$${rent.toLocaleString()} (${state.officeTier}, cap ${capacityOf(state.officeTier)}).`
+        );
+      }
       if (isOver) {
         logs.push(
           `⚠️ Office over capacity: ${humanHeadcountPreTurn} humans vs ${capacityOf(state.officeTier)} desks (${nextOvercapacityCollapseTurns}/6 turns until collapse). Productivity ×${overcapMultClamped.toFixed(2)}, loyalty ${overcapLoyaltyHit}.`
@@ -1262,7 +1275,29 @@ export function gameReducer(state: GameState, action: Action): GameState {
       }
 
       const annualizedRevenue = totalTurnRevenue * 12;
-      const nextValuation = annualizedRevenue * peMultiplier + nextCash;
+      let nextValuation = annualizedRevenue * peMultiplier + nextCash;
+
+      // Phase 5b.7: era-handoff bonus on the turn 5 → 6 boundary. Fires
+      // exactly once per run when END_TURN advances into turn 6 and the
+      // handoff state is unresolved.
+      const nextTurn = currentTurn + 1;
+      let seedFundedNow = state.seedFunded;
+      let seedDeclinedNow = state.seedDeclined;
+      let seedCashBonus = 0;
+      let seedValuationBonus = 0;
+      if (nextTurn === 6 && !state.seedFunded && !state.seedDeclined) {
+        if (state.hasDocumentation) {
+          seedFundedNow = true;
+          seedCashBonus = 75_000;
+          seedValuationBonus = 500_000;
+          logs.push("🤝 Edgar's neef bij Endeit kwam langs. Hij vond je documentatie 'best wel netjes' en zet je op de seed-lijst. (+$75,000)");
+        } else {
+          seedDeclinedNow = true;
+          logs.push("🤝 Edgar's neef is langs geweest. Hij wou graag eerst de documentatie zien. 'Misschien volgende keer, jongen.'");
+        }
+      }
+      nextCash += seedCashBonus;
+      nextValuation += seedValuationBonus;
 
       let hypeText = "";
       if (state.hypeTurnsLeft > 0) {
@@ -1353,11 +1388,13 @@ export function gameReducer(state: GameState, action: Action): GameState {
         }
       }
 
-      // Card drafting trigger: If game is not won or lost, select 3 random card keys and set draftChoices
+      // Card drafting trigger: If game is not won or lost, select 3 random card keys and set draftChoices.
+      // Phase 5b.6: filter the pool by era. Draft fires at END_TURN to prepare
+      // the NEXT turn's choices, so use currentTurn + 1.
       let nextDraftChoices: string[] | null = null;
       if (!isGameOver) {
-        const cardKeys = Object.keys(CARD_DATABASE);
-        nextDraftChoices = shuffleArray(cardKeys, rng).slice(0, 3);
+        const pool = cardsForEra(eraOfTurn(currentTurn + 1));
+        nextDraftChoices = shuffleArray(pool, rng).slice(0, 3);
       }
 
       return {
@@ -1395,6 +1432,8 @@ export function gameReducer(state: GameState, action: Action): GameState {
         // counter forward (zeroed earlier if this turn was at-cap).
         overcapacityCollapseTurns: nextOvercapacityCollapseTurns,
         upgradedOfficeThisTurn: false,
+        seedFunded: seedFundedNow,
+        seedDeclined: seedDeclinedNow,
         eventLog: [...state.eventLog, ...logs],
       };
     }
