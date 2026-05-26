@@ -139,8 +139,13 @@ export interface Card {
   flavor: string;
   cost: number;
   requiresTarget: boolean;
-  class: "documentation" | "pdp" | "perk" | "synergy";
+  class: "documentation" | "pdp" | "perk" | "synergy" | "compliance";
   rulesText: string;
+  /** Phase 5b.4: gates which era's draft pool includes the card.
+   *  - "pre-ai" — only available turns 1-5
+   *  - "ai"     — only available turns 6+
+   *  - "shared" — always available */
+  era: "pre-ai" | "ai" | "shared";
 }
 
 export interface GameState {
@@ -219,6 +224,7 @@ export const CARD_DATABASE: Record<string, Card> = {
     requiresTarget: false,
     class: "documentation",
     rulesText: "Enables Documentation. Halves employee onboarding time (from 6 turns to 3). Mitigates future AI compliance audits.",
+    era: "ai",
   },
   pdp: {
     id: "pdp",
@@ -228,6 +234,7 @@ export const CARD_DATABASE: Record<string, Card> = {
     requiresTarget: true,
     class: "pdp",
     rulesText: "Grants Build-Plan PDP to a worker, allowing them to be promoted safely without productivity and loyalty penalties.",
+    era: "shared",
   },
   kroket_lunch: {
     id: "kroket_lunch",
@@ -237,6 +244,7 @@ export const CARD_DATABASE: Record<string, Card> = {
     requiresTarget: true,
     class: "perk",
     rulesText: "Restores +35 Loyalty to a worker, but they fall asleep ('tapped') for 1 turn (0% productivity).",
+    era: "shared",
   },
   hei_sessie: {
     id: "hei_sessie",
@@ -246,6 +254,7 @@ export const CARD_DATABASE: Record<string, Card> = {
     requiresTarget: true,
     class: "synergy",
     rulesText: "Inspires a worker for 5 turns (+50% productivity), who then inspires everyone at a lower promotion level. Grants them +20 Loyalty.",
+    era: "shared",
   },
   kantoortuin: {
     id: "kantoortuin",
@@ -255,6 +264,7 @@ export const CARD_DATABASE: Record<string, Card> = {
     requiresTarget: false,
     class: "perk",
     rulesText: "Restores +15 Loyalty to all active workers, but causes distraction: -10% global productivity for 2 turns.",
+    era: "shared",
   },
   gpt5_wrapper: {
     id: "gpt5_wrapper",
@@ -264,6 +274,7 @@ export const CARD_DATABASE: Record<string, Card> = {
     requiresTarget: false,
     class: "synergy",
     rulesText: "Instantly upgrades AI Agent version by 1. If Documentation is active, increases P/E multiplier by +5x. If not, triggers immediate Token Leakage.",
+    era: "ai",
   },
   kroket_lobby: {
     id: "kroket_lobby",
@@ -273,6 +284,7 @@ export const CARD_DATABASE: Record<string, Card> = {
     requiresTarget: false,
     class: "perk",
     rulesText: "Permanent asset. Automatically restores +2 Loyalty to all workers at the end of each turn.",
+    era: "shared",
   },
   vage_okr: {
     id: "vage_okr",
@@ -282,6 +294,7 @@ export const CARD_DATABASE: Record<string, Card> = {
     requiresTarget: false,
     class: "synergy",
     rulesText: "Increases OKR Level by 1 (max 5). Triggers immediate alignment meeting: -40% productivity this turn.",
+    era: "shared",
   },
   auditor: {
     id: "auditor",
@@ -291,6 +304,7 @@ export const CARD_DATABASE: Record<string, Card> = {
     requiresTarget: false,
     class: "documentation",
     rulesText: "Clears any active Token Leakage cash penalties. Requires Documentation to play.",
+    era: "ai",
   },
   powerpoint_clinic: {
     id: "powerpoint_clinic",
@@ -300,6 +314,7 @@ export const CARD_DATABASE: Record<string, Card> = {
     requiresTarget: true,
     class: "perk",
     rulesText: "Grants +40 Loyalty to target, but inflicts PowerPoint poisoning: -20% productivity for 3 turns.",
+    era: "shared",
   },
   koffie_apparaat: {
     id: "koffie_apparaat",
@@ -309,6 +324,7 @@ export const CARD_DATABASE: Record<string, Card> = {
     requiresTarget: false,
     class: "perk",
     rulesText: "Permanent asset. Increases employee base productivity by +10% permanently. Maintenance costs $1,000/turn.",
+    era: "shared",
   },
 };
 
