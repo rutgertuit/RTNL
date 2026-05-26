@@ -25,6 +25,43 @@ import {
   MAX_PROMOTIONS_PER_TURN,
 } from "./reducer";
 import { nextTier, setupCostOf, rentOf, capacityOf, type OfficeTier } from "./office";
+import { ProjectionProvider, ProjectionConsumer } from "./ProjectionContext";
+import type { Action } from "./reducer";
+
+// Phase 5c.2/5c.3 — Hover-projection presentation helpers.
+//
+// `withHover` returns the 4 handlers that wire an action surface to the
+// projection context. Spread it onto a <button> or interactive element:
+//   <button {...withHover(hover, { type: "EMPLOY_WORKER" })} onClick={...}>
+// Pass `null` (or skip the call) when an action shouldn't preview (e.g. a
+// card needing a target with no good default).
+function withHover(
+  hover: (a: Action | null) => void,
+  action: Action | null,
+): {
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
+  onFocus: () => void;
+  onBlur: () => void;
+} {
+  return {
+    onMouseEnter: () => hover(action),
+    onMouseLeave: () => hover(null),
+    onFocus: () => hover(action),
+    onBlur: () => hover(null),
+  };
+}
+
+// Compact money formatter for HUD ghost overlays. Matches the live HUD
+// rounding (k / M / B) so the projected "→ $X" doesn't visually disagree
+// with the current value formatting.
+function formatCashCompact(n: number): string {
+  const abs = Math.abs(n);
+  const sign = n < 0 ? "-" : "";
+  if (abs >= 1_000_000_000) return `${sign}$${(abs / 1_000_000_000).toFixed(1)}B`;
+  if (abs >= 1_000_000) return `${sign}$${(abs / 1_000_000).toFixed(1)}M`;
+  return `${sign}$${Math.round(abs / 1000)}k`;
+}
 
 
 // --- Tutorial copy for turns 1..5 ---
@@ -468,7 +505,21 @@ export default function AgentGameClient() {
           viewport and competing with the game for attention. This page now
           renders as its own application. */}
 
+      {/* Phase 5c.2: ProjectionProvider wraps every projection-consuming
+          surface (HUD tiles, action buttons, desks, card hand, modal options).
+          Top-level useReducer + useEffect machinery stays outside so hover
+          changes don't trigger reducer re-execution. */}
+      <ProjectionProvider state={state}>
+      <ProjectionConsumer>{({ hover, projected }) => (
       <section className="sim-fs sim-v2" id="game-content">
+        {/* Phase 5c.3: projection watermark — anchors top-right while any
+            action surface is hovered/focused. Pointer-events:none so it
+            doesn't block clicks. */}
+        {projected && (
+          <div className="sim-projection__watermark" aria-hidden>
+            Projected · NEXT TURN
+          </div>
+        )}
         {/* Compact game-canvas header */}
         <header className="sim-fs__head">
           <Link href="/" className="sim-fs__home" aria-label="Back to rutgertuit.nl">
@@ -542,7 +593,10 @@ export default function AgentGameClient() {
           );
         })()}
 
-        {/* Primary stats — large and legible at a glance */}
+        {/* Primary stats — large and legible at a glance.
+            Phase 5c.3: each tile renders a ghost projection (→ projected value,
+            ▲/▼ delta) when a hovered action would change it. Ghosts are inline
+            additions so the live tile layout stays unchanged when no hover. */}
         <section className="sim-fs__stats" aria-label="Game stats">
           <div className={`sim-fs__stat ${state.cash < 0 ? "is-warn" : ""}`} title="Available cash. Bankruptcy below -$1M.">
             <span className="sim-fs__stat-label">Cash</span>
@@ -553,6 +607,14 @@ export default function AgentGameClient() {
                   : `${Math.round(state.cash / 1000)}k`
               }
             </span>
+            {projected && projected.cash !== state.cash && (
+              <span className="sim-hud__projected" aria-hidden>
+                → {formatCashCompact(projected.cash)}
+                <span className="sim-hud__delta-mono">
+                  {projected.cash > state.cash ? "▲" : "▼"} {formatCashCompact(Math.abs(projected.cash - state.cash))}
+                </span>
+              </span>
+            )}
             {cashDelta !== null && (
               <div
                 className={`sim-hud__delta ${cashDelta >= 0 ? "is-positive" : "is-negative"}`}
@@ -568,6 +630,14 @@ export default function AgentGameClient() {
               ${state.valuation >= 1e9 ? `${(state.valuation / 1e9).toFixed(1)}B` : `${(state.valuation / 1e6).toFixed(0)}M`}
             </span>
             <span className="sim-fs__stat-target">goal {winThresholdLabel}</span>
+            {projected && projected.valuation !== state.valuation && (
+              <span className="sim-hud__projected" aria-hidden>
+                → {projected.valuation >= 1e9 ? `$${(projected.valuation / 1e9).toFixed(1)}B` : `$${(projected.valuation / 1e6).toFixed(0)}M`}
+                <span className="sim-hud__delta-mono">
+                  {projected.valuation > state.valuation ? "▲" : "▼"}
+                </span>
+              </span>
+            )}
           </div>
           <div className="sim-fs__stat" title="Current frontier AI version.">
             <span className="sim-fs__stat-label">AI</span>
@@ -578,11 +648,22 @@ export default function AgentGameClient() {
             {state.agentVersion > 2 && !state.hasDocumentation && (
               <span className="sim-fs__stat-target sim-fs__stat-target--warn">⚠ token leakage</span>
             )}
+            {projected && projected.agentVersion !== state.agentVersion && (
+              <span className="sim-hud__projected" aria-hidden>
+                → v{projected.agentVersion}
+                <span className="sim-hud__delta-mono">▲</span>
+              </span>
+            )}
           </div>
           <div className={`sim-fs__stat ${state.hasDocumentation ? "is-good" : "is-warn"}`} title="Markdown documentation status.">
             <span className="sim-fs__stat-label">Docs</span>
             <span className="sim-fs__stat-value">{state.hasDocumentation ? "✓" : "✗"}</span>
             <span className="sim-fs__stat-target">{state.hasDocumentation ? "Wiki active" : "missing"}</span>
+            {projected && projected.hasDocumentation !== state.hasDocumentation && (
+              <span className="sim-hud__projected" aria-hidden>
+                → {projected.hasDocumentation ? "✓ active" : "✗ off"}
+              </span>
+            )}
           </div>
         </section>
 
@@ -756,6 +837,16 @@ export default function AgentGameClient() {
                               <span className="sim-desk__metric-icon" aria-hidden>❤</span>
                               <span className="sim-desk__metric-num">{emp.loyalty}%</span>
                             </span>
+                            {(() => {
+                              if (!projected) return null;
+                              const pEmp = projected.employees.find((p) => p.id === emp.id);
+                              if (!pEmp || pEmp.loyalty === emp.loyalty) return null;
+                              return (
+                                <span className="sim-desk__projected" aria-hidden>
+                                  ~{pEmp.loyalty}❤
+                                </span>
+                              );
+                            })()}
                           </div>
                         </div>
                         {traitPopoverOpen[emp.id] && traitInfo && (
@@ -780,6 +871,7 @@ export default function AgentGameClient() {
                         {!isAgent && isOnboarded && emp.promotionLevel < 3 && state.turn >= TURN_PROMOTION_UNLOCKED && (
                           <button
                             onClick={(e) => { e.stopPropagation(); handlePromoteWorker(emp.id); }}
+                            {...withHover(hover, { type: "PROMOTE_WORKER", employeeId: emp.id })}
                             disabled={
                               state.cash < (emp.promotionLevel === 1 ? 15000 : 40000) ||
                               (state.promotionsThisTurn ?? 0) >= MAX_PROMOTIONS_PER_TURN
@@ -829,6 +921,7 @@ export default function AgentGameClient() {
                       key={tier}
                       type="button"
                       onClick={() => dispatch({ type: "CHOOSE_OFFICE", tier })}
+                      {...withHover(hover, { type: "CHOOSE_OFFICE", tier })}
                       disabled={disabled}
                       className="mtg-card"
                       style={{
@@ -879,6 +972,7 @@ export default function AgentGameClient() {
             <button
               type="button"
               onClick={handleHireWorker}
+              {...withHover(hover, { type: "EMPLOY_WORKER" })}
               disabled={
                 state.cash < 30000 ||
                 state.activeEventId !== null ||
@@ -903,6 +997,7 @@ export default function AgentGameClient() {
               <button
                 type="button"
                 onClick={handleHireAgent}
+                {...withHover(hover, { type: "EMPLOY_AGENT" })}
                 disabled={
                   state.cash < 15000 ||
                   state.activeEventId !== null ||
@@ -950,6 +1045,7 @@ export default function AgentGameClient() {
                   className={`sim-fs__move-btn ${state.upgradedOfficeThisTurn ? "is-used" : ""}`}
                   disabled={disabled}
                   onClick={() => dispatch({ type: "UPGRADE_OFFICE", tier: target })}
+                  {...withHover(hover, { type: "UPGRADE_OFFICE", tier: target })}
                   title={
                     state.upgradedOfficeThisTurn
                       ? "Already upgraded the office this turn."
@@ -966,6 +1062,7 @@ export default function AgentGameClient() {
             <button
               type="button"
               onClick={handleRedefineOkrs}
+              {...withHover(hover, { type: "REDEFINE_OKRS" })}
               disabled={
                 state.cash < 10000 ||
                 state.okrLevel >= 5 ||
@@ -1130,6 +1227,14 @@ export default function AgentGameClient() {
                     onKeyDown={(e) => handleCardKeyDown(e, cardId)}
                     ref={(el) => { cardElementsRef.current[index] = el as HTMLButtonElement | null; }}
                     tabIndex={0}
+                    {...withHover(
+                      hover,
+                      card.requiresTarget
+                        ? state.employees[0]
+                          ? { type: "PLAY_CARD", cardId, targetEmployeeId: state.employees[0].id }
+                          : null
+                        : { type: "PLAY_CARD", cardId },
+                    )}
                     className={`mtg-card mtg-card--${card.class} ${isSelected ? "mtg-card--selected" : ""}`}
                     aria-label={`${card.name}, Cost: ${card.cost}. ${card.rulesText}${isSelected && !card.requiresTarget ? ". Press Enter to play." : ""}`}
                     aria-pressed={isSelected}
@@ -1244,6 +1349,7 @@ export default function AgentGameClient() {
                     onClick={() => {
                       dispatch({ type: "CHOOSE_EVENT_OPTION", option: "A" });
                     }}
+                    {...withHover(hover, { type: "CHOOSE_EVENT_OPTION", option: "A" })}
                     className="button button--warm"
                     style={{ padding: "12px", fontSize: "12px", justifyContent: "center", fontWeight: "bold" }}
                   >
@@ -1258,6 +1364,7 @@ export default function AgentGameClient() {
                     onClick={() => {
                       dispatch({ type: "CHOOSE_EVENT_OPTION", option: "B" });
                     }}
+                    {...withHover(hover, { type: "CHOOSE_EVENT_OPTION", option: "B" })}
                     className="button"
                     style={{ padding: "12px", fontSize: "12px", justifyContent: "center", fontWeight: "bold", background: "var(--color-bg-sunken)", border: "1px solid var(--color-fg-3)" }}
                   >
@@ -1346,6 +1453,7 @@ export default function AgentGameClient() {
                         onClick={() => {
                           dispatch({ type: "DRAFT_CARD", cardId });
                         }}
+                        {...withHover(hover, { type: "DRAFT_CARD", cardId })}
                         className="button button--warm"
                         style={{
                           width: "90%",
@@ -1655,6 +1763,8 @@ export default function AgentGameClient() {
           </div>
         )}
       </section>
+      )}</ProjectionConsumer>
+      </ProjectionProvider>
     </div>
   );
 }

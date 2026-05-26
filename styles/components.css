@@ -4150,3 +4150,56 @@ body { padding-top: 0; }
   margin-right: var(--space-2);
   font-feature-settings: "tnum";
 }
+
+/* ============================================================ */
+/* Phase 5c.3 — Projection ghost overlays                       */
+/* ============================================================ */
+/* Inline ghosts that appear next to HUD tiles, desks, and at the
+   top-right of the game canvas while an action surface is hovered or
+   focused. Rendered only when projected state differs from current —
+   the live UI is untouched at rest. */
+.sim-hud__projected {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--color-accent-warm);
+  opacity: 0.85;
+  font-size: var(--fs-50);
+  margin-left: 0.5rem;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+}
+.sim-hud__delta-mono {
+  font-family: var(--font-mono);
+  margin-left: 0.25rem;
+  font-size: var(--fs-50);
+}
+.sim-desk__projected {
+  color: var(--color-accent-warm);
+  opacity: 0.85;
+  font-size: var(--fs-50);
+  margin-left: 0.25rem;
+  font-family: var(--font-mono);
+}
+.sim-projection__watermark {
+  position: fixed;
+  top: 90px;
+  right: 16px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  color: var(--color-accent-warm);
+  opacity: 0.6;
+  letter-spacing: var(--tracking-eyebrow);
+  pointer-events: none;
+  z-index: 10;
+  transition: opacity 0.15s ease-out;
+  text-transform: uppercase;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sim-projection__watermark,
+  .sim-hud__projected,
+  .sim-desk__projected {
+    transition: none;
+    animation: none;
+  }
+}
