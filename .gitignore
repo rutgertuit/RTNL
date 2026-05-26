@@ -27,3 +27,6 @@ phase0-*.png
 *-current-state.png
 *-cortex-*.png
 *-index-*.png
+/screenshots/
+/test-results/
+/playwright-report/

@@ -19,7 +19,15 @@ export function Hero() {
   const [idx, setIdx] = useState(0);
   const [paused, setPaused] = useState(false);
   const [userStopped, setUserStopped] = useState(false);
+  // Mounted gate: the counter + mood label show index 0 ("01 / 06" — The executive)
+  // on first paint even if the cycle effect has already queued a tick. Prevents
+  // a flash of stale state when hydration is slow.
+  const [mounted, setMounted] = useState(false);
   const wrapRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (paused || userStopped) return;
@@ -98,7 +106,8 @@ export function Hero() {
     };
   }, []);
 
-  const cur = PORTRAITS[idx]!;
+  const displayIdx = mounted ? idx : 0;
+  const cur = PORTRAITS[displayIdx]!;
 
   return (
     <section
@@ -139,7 +148,7 @@ export function Hero() {
         ))}
         <div className="rt-hero__portrait-cap">
           <div className="rt-hero__portrait-cap-num">
-            PORTRAIT · {String(idx + 1).padStart(2, "0")} / 06
+            PORTRAIT · {String(displayIdx + 1).padStart(2, "0")} / 06
           </div>
           <div className="rt-hero__portrait-cap-mood">{cur.mood}</div>
           <div className="rt-hero__portrait-cap-meta">
@@ -189,26 +198,28 @@ export function Hero() {
         </h1>
 
         <div className="rt-hero__sub">
-          <p className="rt-hero__lead">
-            From building softsynths to composing in first-gen DAWs. From LAN-party Quake player
-            to global e-sports team leader. From a weekend job selling kitchens to 3D and VR
-            modelling interiors.
-          </p>
-          <p className="rt-hero__lead">
-            Experimentation is how I learn. Going deep is where I find the parts that &mdash; if
-            changed &mdash; move everything.
-          </p>
-          <p className="rt-hero__lead">
-            This site is old hobbies and new hobbies, revisited with AI on the bench. Some of
-            what comes out translates into business. Director at Google by day. Homelab of
-            agents I visit again at night.
-          </p>
-          <p className="rt-hero__lead rt-hero__lead--stamp">
-            <strong>
-              Nothing on this site was hand-touched. Every image, every line, every clip &mdash;
-              prompted, then chosen.
-            </strong>
-          </p>
+          <div className="rt-hero__leads">
+            <p className="rt-hero__lead">
+              From building softsynths to composing in first-gen DAWs. From LAN-party Quake player
+              to global e-sports team leader. From a weekend job selling kitchens to 3D and VR
+              modelling interiors.
+            </p>
+            <p className="rt-hero__lead">
+              Experimentation is how I learn. Going deep is where I find the parts that &mdash; if
+              changed &mdash; move everything.
+            </p>
+            <p className="rt-hero__lead">
+              This site is old hobbies and new hobbies, revisited with AI on the bench. Some of
+              what comes out translates into business. Director at Google by day. Homelab of
+              agents I visit again at night.
+            </p>
+            <p className="rt-hero__lead rt-hero__lead--stamp">
+              <strong>
+                Nothing on this site was hand-touched. Every image, every line, every clip &mdash;
+                prompted, then chosen.
+              </strong>
+            </p>
+          </div>
         </div>
 
         <nav className="rt-hero__index" aria-label="Section index">
