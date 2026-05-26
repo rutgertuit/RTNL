@@ -87,15 +87,24 @@ function shuffleArray<T>(array: readonly T[], rng: Rng): T[] {
   return rng.shuffle([...array]);
 }
 
-// Initial state builder based on difficulty
-export const createInitialState = (difficulty: "boardroom" | "reality" | "zirp"): GameState => {
+// Initial state builder based on difficulty.
+// Optional `seed` lets the headless sim harness (Phase 5a.6+) pass a
+// reproducible seed. Live runs use Math.random for the run-start seed —
+// this is the single sanctioned Math.random call in the game module, and
+// it runs at most once per fresh run.
+export const createInitialState = (
+  difficulty: "boardroom" | "reality" | "zirp",
+  seed: number = Math.floor(Math.random() * 2 ** 31),
+): GameState => {
+  // The starting-state RNG draws from seed alone (tick = 0 by definition).
+  const startRng = createRng(seed);
   // Guarantee at least 1 Markdown Wiki card in the starting hand to avoid bad RNG draw curves
   const deckWithoutWiki = [...INITIAL_DECK];
   const wikiIdx = deckWithoutWiki.indexOf("markdown_wiki");
   if (wikiIdx > -1) {
     deckWithoutWiki.splice(wikiIdx, 1);
   }
-  const shuffledRest = shuffleArray(deckWithoutWiki, createRng(0));
+  const shuffledRest = shuffleArray(deckWithoutWiki, startRng);
   const cardsHand = ["markdown_wiki", ...shuffledRest.slice(0, 4)];
   const cardsDeck = shuffledRest.slice(4);
 
@@ -104,7 +113,7 @@ export const createInitialState = (difficulty: "boardroom" | "reality" | "zirp")
   if (difficulty === "zirp") startingCash = 30000; // ZIRP Nightmare edge starts
 
   const traitKeys = Object.keys(TRAIT_DATABASE);
-  const shuffledTraits = shuffleArray(traitKeys, createRng(0));
+  const shuffledTraits = shuffleArray(traitKeys, startRng);
 
   const initialEmployees: Employee[] = [
     {
@@ -161,6 +170,9 @@ export const createInitialState = (difficulty: "boardroom" | "reality" | "zirp")
 
   return {
     version: 1,
+    seed,
+    rngTick: 0,
+    nextEntityId: 1,
     difficulty,
     turn: 1,
     cash: startingCash,
@@ -341,12 +353,12 @@ function gameReducer(state: GameState, action: Action): GameState {
       const name = availableNames[0] ?? `Worker ${state.employees.length + 1}`;
 
       const traitKeys = Object.keys(TRAIT_DATABASE);
-      // Stopgap RNG construction — full state-seeded rng comes in 5a.4.
-      const randomTraitId = createRng(0).pick(traitKeys);
+      const rng = createRng(state.seed + state.rngTick * 31);
+      const randomTraitId = rng.pick(traitKeys);
       const traitInfo = TRAIT_DATABASE[randomTraitId]!;
 
       const newEmployee: Employee = {
-        id: `emp_${Date.now()}`,
+        id: `emp_${state.nextEntityId}`,
         name,
         type: "human",
         promotionLevel: 1,
@@ -365,6 +377,8 @@ function gameReducer(state: GameState, action: Action): GameState {
         cash: state.cash - cost,
         employees: [...state.employees, newEmployee],
         hiredThisTurn: true,
+        rngTick: state.rngTick + 1,
+        nextEntityId: state.nextEntityId + 1,
         lastSnapshot: { ...state, lastSnapshot: null },
         eventLog: [
           ...state.eventLog,
@@ -405,7 +419,7 @@ function gameReducer(state: GameState, action: Action): GameState {
       const name = `Hermes-Node_${agentCount}`;
 
       const newAgent: Employee = {
-        id: `agent_${Date.now()}`,
+        id: `agent_${state.nextEntityId}`,
         name,
         type: "agent",
         promotionLevel: 1,
@@ -423,6 +437,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         cash: state.cash - cost,
         employees: [...state.employees, newAgent],
         hiredThisTurn: true,
+        nextEntityId: state.nextEntityId + 1,
         lastSnapshot: { ...state, lastSnapshot: null },
         eventLog: [
           ...state.eventLog,
@@ -755,6 +770,11 @@ function gameReducer(state: GameState, action: Action): GameState {
     case "END_TURN": {
       if (state.isGameOver) return state;
 
+      // Per-turn RNG derived from the run seed + monotonic tick. Lets a
+      // headless sim replay the same turn deterministically with the same
+      // seed (Phase 5a.6+).
+      const rng = createRng(state.seed + state.rngTick * 31);
+
       const currentTurn = state.turn;
       const logs = [`--- TURN ${currentTurn} SUMMARY ---`];
 
@@ -1059,7 +1079,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         for (let i = 0; i < cardsNeeded; i++) {
           if (currentDeck.length === 0) {
             if (currentDiscard.length === 0) break;
-            currentDeck = shuffleArray(currentDiscard, createRng(0));
+            currentDeck = shuffleArray(currentDiscard, rng);
             currentDiscard = [];
             logs.push(`🎴 Deck shuffled from discard pile.`);
           }
@@ -1081,8 +1101,7 @@ function gameReducer(state: GameState, action: Action): GameState {
       let nextActiveEventId: string | null = null;
       if (currentTurn % 5 === 0) {
         const eventKeys = Object.keys(EVENT_DATABASE);
-        // Stopgap RNG construction — full state-seeded rng comes in 5a.4.
-        nextActiveEventId = createRng(0).pick(eventKeys);
+        nextActiveEventId = rng.pick(eventKeys);
         logs.push(`⚠️ ALERT: Corporate Event Triggered! ${EVENT_DATABASE[nextActiveEventId]?.title}`);
       }
 
@@ -1123,12 +1142,13 @@ function gameReducer(state: GameState, action: Action): GameState {
       let nextDraftChoices: string[] | null = null;
       if (!isGameOver) {
         const cardKeys = Object.keys(CARD_DATABASE);
-        nextDraftChoices = shuffleArray(cardKeys, createRng(0)).slice(0, 3);
+        nextDraftChoices = shuffleArray(cardKeys, rng).slice(0, 3);
       }
 
       return {
         ...state,
         turn: currentTurn + 1,
+        rngTick: state.rngTick + 1,
         cash: nextCash,
         prevCash: state.cash, // capture pre-turn cash for delta display
         valuation: nextValuation,
@@ -1230,6 +1250,9 @@ export default function AgentGameClient() {
   const [state, dispatch] = useReducer(gameReducer, null, () => {
     return {
       version: 1 as const,
+      seed: 0,
+      rngTick: 0,
+      nextEntityId: 1,
       difficulty: "reality" as const,
       turn: 1,
       cash: 250000,
@@ -1276,7 +1299,19 @@ export default function AgentGameClient() {
         const parsed = JSON.parse(savedState);
         // Schema v1 guard
         if (parsed && parsed.version === 1 && parsed.difficulty) {
-          dispatch({ type: "LOAD_STATE", state: parsed });
+          // Backfill 5a.4 fields for saves predating state-seeded RNG.
+          // Existing employees may have Date.now()-based IDs — pick a
+          // nextEntityId comfortably past anything they could collide with.
+          const hydrated: GameState = {
+            ...parsed,
+            seed: typeof parsed.seed === "number" ? parsed.seed : Math.floor(Math.random() * 2 ** 31),
+            rngTick: typeof parsed.rngTick === "number" ? parsed.rngTick : 0,
+            nextEntityId:
+              typeof parsed.nextEntityId === "number"
+                ? parsed.nextEntityId
+                : (parsed.employees?.length ?? 0) + 1000,
+          };
+          dispatch({ type: "LOAD_STATE", state: hydrated });
         } else {
           // Clear legacy schema
           localStorage.removeItem("agent_inclusive_game_state");

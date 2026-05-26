@@ -143,6 +143,17 @@ export interface Card {
 
 export interface GameState {
   version: 1; // schema version guard
+  /** Stable seed for this run. Used to deterministically reconstruct the RNG
+   *  on every reducer call. Picked once via Math.random in createInitialState
+   *  (or passed in from a headless sim runner). */
+  seed: number;
+  /** Monotonic tick number — increments on every reducer call. Mixed with
+   *  `seed` to derive the per-action RNG seed: createRng(seed + rngTick * 31). */
+  rngTick: number;
+  /** Monotonic ID counter for newly-created entities (employees, agents).
+   *  Replaces Date.now()-based IDs which depended on wall-clock and broke
+   *  cross-sim log comparisons. Initialised to 1 in createInitialState. */
+  nextEntityId: number;
   difficulty: "boardroom" | "reality" | "zirp";
   turn: number;
   cash: number;
