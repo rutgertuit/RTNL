@@ -206,6 +206,10 @@ export interface GameState {
   lastSnapshot?: GameState | null;
   // Phase 5b.2 / 5b.3: office tier model.
   officeTier: OfficeTier;
+  /** Phase 5b.9: true once the player has confirmed their starting office.
+   *  Defaults to false on a fresh run. Headless sim runner auto-flips to true
+   *  via CHOOSE_OFFICE on first reducer call. */
+  officeChosen: boolean;
   /** Tracks consecutive turns the office has been over capacity. >5 = overcapacity_collapse loss. */
   overcapacityCollapseTurns: number;
   /** True after UPGRADE_OFFICE this turn; reset in END_TURN. Prevents double-upgrades. */

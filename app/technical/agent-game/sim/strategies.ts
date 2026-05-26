@@ -35,6 +35,7 @@ import type { Action } from "../reducer";
  * `null` if nothing is blocking. Every strategy below calls this first.
  */
 export function firstModalAction(state: GameState): Action | null {
+  if (!state.officeChosen) return { type: "CHOOSE_OFFICE", tier: "home" };
   if (state.activeEventId) return { type: "CHOOSE_EVENT_OPTION", option: "A" };
   if (state.draftChoices) return { type: "SKIP_DRAFT" };
   return null;

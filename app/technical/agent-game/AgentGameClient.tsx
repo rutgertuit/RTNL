@@ -24,7 +24,7 @@ import {
   TURN_PROMOTION_UNLOCKED,
   MAX_PROMOTIONS_PER_TURN,
 } from "./reducer";
-import { nextTier, setupCostOf, rentOf, type OfficeTier } from "./office";
+import { nextTier, setupCostOf, rentOf, capacityOf, type OfficeTier } from "./office";
 
 
 // --- Tutorial copy for turns 1..5 ---
@@ -123,6 +123,7 @@ export default function AgentGameClient() {
       activeEventId: null,
       draftChoices: null,
       officeTier: "home" as OfficeTier,
+      officeChosen: false,
       overcapacityCollapseTurns: 0,
       upgradedOfficeThisTurn: false,
       hangoverTurnsLeft: 0,
@@ -169,6 +170,8 @@ export default function AgentGameClient() {
               parsed.officeTier === "home" || parsed.officeTier === "coworking" || parsed.officeTier === "kantoorpand"
                 ? parsed.officeTier
                 : "home",
+            officeChosen: typeof parsed.officeChosen === "boolean" ? parsed.officeChosen : true,
+            // True for legacy saves — they were already past this gate.
             overcapacityCollapseTurns:
               typeof parsed.overcapacityCollapseTurns === "number" ? parsed.overcapacityCollapseTurns : 0,
             upgradedOfficeThisTurn:
@@ -801,6 +804,70 @@ export default function AgentGameClient() {
             )}
           </div>
         </section>
+
+        {/* Phase 5b.9: Starter-office selection modal. Renders on turn 1 before
+            the action row until the player confirms a starting office. Costs are
+            the delta above the home setup already taken in createInitialState —
+            picking home is free (the $30k home setup is already deducted). */}
+        {state.turn === 1 && !state.officeChosen && !state.isGameOver && !showDifficultySelector && (
+          <div className="sim-overlay" role="dialog" aria-modal="true" aria-labelledby="office-title">
+            <div className="sim-modal" style={{ maxWidth: "640px" }}>
+              <h2 className="sim-modal__title" id="office-title" style={{ fontFamily: "var(--font-display)", color: "var(--color-fg-1)" }}>
+                Choose Your Starting Office
+              </h2>
+              <p className="sim-modal__text">
+                Where does the company set up? Home setup ($30k) is already taken — coworking and kantoorpand cost the delta. Bigger offices fit more headcount but charge rent every turn.
+              </p>
+              <div className="sim-mode__grid">
+                {(["home", "coworking", "kantoorpand"] as const).map((tier) => {
+                  const delta = setupCostOf(tier) - setupCostOf("home");
+                  const disabled = state.cash < delta;
+                  const label =
+                    tier === "home" ? "🏠 Home" : tier === "coworking" ? "☕ Coworking" : "🏢 Kantoorpand";
+                  return (
+                    <button
+                      key={tier}
+                      type="button"
+                      onClick={() => dispatch({ type: "CHOOSE_OFFICE", tier })}
+                      disabled={disabled}
+                      className="mtg-card"
+                      style={{
+                        width: "100%",
+                        height: "auto",
+                        padding: "var(--space-4)",
+                        aspectRatio: "auto",
+                        opacity: disabled ? 0.45 : 1,
+                        cursor: disabled ? "not-allowed" : "pointer",
+                      }}
+                      aria-label={`Choose ${tier}: extra setup $${delta.toLocaleString()}, rent $${rentOf(tier).toLocaleString()}/turn, capacity ${capacityOf(tier)}`}
+                    >
+                      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", textAlign: "left" }}>
+                        <span className="sim-stat__value" style={{ color: "var(--color-fg-1)" }}>{label}</span>
+                        <span className="sim-stat__label">
+                          {tier === "home" ? "Default" : tier === "coworking" ? "Mid-tier" : "Top-tier"}
+                        </span>
+                        <div className="sim-mode__detail">
+                          Extra setup: <strong>{delta === 0 ? "$0 (already paid)" : `$${delta.toLocaleString()}`}</strong>
+                        </div>
+                        <div className="sim-mode__detail">
+                          Rent: <strong>${rentOf(tier).toLocaleString()}/turn</strong>
+                        </div>
+                        <div className="sim-mode__detail">
+                          Capacity: <strong>{capacityOf(tier)} seats</strong>
+                        </div>
+                        {disabled && (
+                          <p style={{ fontSize: "11px", color: "var(--color-accent-warm-strong)", margin: 0 }}>
+                            Insufficient cash for setup delta.
+                          </p>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Your move — action chips */}
         <section className="sim-fs__move" aria-label="Your Move">

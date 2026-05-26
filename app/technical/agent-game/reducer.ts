@@ -38,6 +38,7 @@ export type Action =
   | { type: "PROMOTE_WORKER"; employeeId: string }
   | { type: "REDEFINE_OKRS" }
   | { type: "UPGRADE_OFFICE"; tier: OfficeTier }
+  | { type: "CHOOSE_OFFICE"; tier: OfficeTier }
   | { type: "END_TURN" }
   | { type: "RESET_GAME"; difficulty: "boardroom" | "reality" | "zirp" }
   | { type: "LOAD_STATE"; state: GameState }
@@ -226,6 +227,7 @@ export const createInitialState = (
     activeEventId: null,
     draftChoices: null,
     officeTier: "home" as OfficeTier,
+    officeChosen: false,
     overcapacityCollapseTurns: 0,
     upgradedOfficeThisTurn: false,
     hangoverTurnsLeft: 0,
@@ -474,6 +476,24 @@ export function gameReducer(state: GameState, action: Action): GameState {
         eventLog: [
           ...state.eventLog,
           `🤖 Hired AI Cognitive Agent ${name} for $15,000. Required: Markdown Wiki documentation active for proper synergy.`,
+        ],
+      };
+    }
+
+    case "CHOOSE_OFFICE": {
+      if (state.officeChosen) return state;
+      const costDelta = setupCostOf(action.tier) - setupCostOf("home");
+      if (state.cash < costDelta) return state;
+      return {
+        ...state,
+        officeTier: action.tier,
+        officeChosen: true,
+        cash: state.cash - costDelta,
+        eventLog: [
+          ...state.eventLog,
+          action.tier === "home"
+            ? `🏠 Starting from home. -$30k setup already taken.`
+            : `🏢 Starter office: ${action.tier} (-$${costDelta.toLocaleString()} extra setup). Rent ${action.tier === "coworking" ? "$14k" : "$32k"}/turn.`,
         ],
       };
     }
