@@ -4203,3 +4203,108 @@ body { padding-top: 0; }
     animation: none;
   }
 }
+
+/* ============================================================
+   Phase 5d — HudTile + SimButton
+   ============================================================ */
+.sim-hud-tile {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  gap: 0 var(--space-3);
+  align-items: center;
+  background: var(--color-bg-raised);
+  border: var(--border-hairline);
+  border-radius: var(--sim-radius-tile);
+  padding: var(--space-4) var(--space-5);
+  min-height: var(--sim-tile-min-h);
+}
+.sim-hud-tile__icon {
+  grid-row: span 2;
+  color: var(--color-accent-warm);
+  display: flex;
+  align-items: center;
+}
+.sim-hud-tile__value {
+  font-family: var(--font-display);
+  font-size: var(--fs-600);
+  font-weight: var(--fw-semibold);
+  line-height: 1;
+  color: var(--color-fg-1);
+}
+.sim-hud-tile__subtitle {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  color: var(--color-fg-3);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+}
+.sim-hud-tile__projected {
+  grid-column: 1 / -1;
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  color: var(--color-accent-warm);
+  opacity: 0.85;
+  margin-top: var(--space-2);
+}
+
+.sim-btn {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--sim-btn-min-h);
+  padding: 0 var(--space-5);
+  background: var(--color-bg-raised);
+  border: var(--border-hairline);
+  border-radius: var(--sim-radius-tile);
+  color: var(--color-fg-1);
+  font-family: var(--font-body, var(--font-sans));
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-200);
+  cursor: pointer;
+  transition:
+    transform var(--duration-ui, 150ms) var(--ease-swing, ease-out),
+    background var(--duration-ui, 150ms) var(--ease-swing, ease-out),
+    box-shadow var(--duration-ui, 150ms) var(--ease-swing, ease-out);
+}
+.sim-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: color-mix(in srgb, var(--color-bg-raised) 85%, var(--color-fg-1) 15%);
+  box-shadow: var(--sim-shadow-lift);
+}
+.sim-btn:active:not(:disabled) { transform: scale(0.97); }
+.sim-btn:disabled,
+.sim-btn.is-locked {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.sim-btn__icon {
+  color: var(--color-accent-warm);
+  display: flex;
+  align-items: center;
+}
+.sim-btn__cost {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  color: var(--color-fg-3);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+}
+.sim-btn--office { background: var(--color-bg-surface); }
+.sim-btn--next {
+  min-height: 72px;
+  font-size: var(--fs-400);
+  background: var(--color-accent-warm);
+  color: var(--color-bg-base);
+  border-color: var(--color-accent-warm);
+}
+.sim-btn--next:hover:not(:disabled) {
+  background: var(--color-accent-warm-strong);
+  box-shadow: 0 6px 24px rgba(232, 98, 62, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sim-btn { transition: none; }
+  .sim-btn:hover:not(:disabled) { transform: none; }
+}

@@ -27,6 +27,20 @@ import {
 import { nextTier, setupCostOf, rentOf, capacityOf, type OfficeTier } from "./office";
 import { ProjectionProvider, ProjectionConsumer } from "./ProjectionContext";
 import type { Action } from "./reducer";
+import { HudTile } from "@/components/agent-game/HudTile";
+import { SimButton } from "@/components/agent-game/SimButton";
+import {
+  Cash,
+  Building,
+  Chip,
+  Scroll,
+  UserPlus,
+  BotPlus,
+  Target,
+  Layers,
+  Sparkles,
+  ArrowRight,
+} from "@/components/agent-game/icons";
 
 // Phase 5c.2/5c.3 — Hover-projection presentation helpers.
 //
@@ -598,73 +612,92 @@ export default function AgentGameClient() {
             ▲/▼ delta) when a hovered action would change it. Ghosts are inline
             additions so the live tile layout stays unchanged when no hover. */}
         <section className="sim-fs__stats" aria-label="Game stats">
-          <div className={`sim-fs__stat ${state.cash < 0 ? "is-warn" : ""}`} title="Available cash. Bankruptcy below -$1M.">
-            <span className="sim-fs__stat-label">Cash</span>
-            <span className="sim-fs__stat-value">
-              {state.cash < 0 ? "-" : ""}${
-                Math.abs(state.cash) >= 1_000_000
-                  ? `${(state.cash / 1_000_000).toFixed(1)}M`
-                  : `${Math.round(state.cash / 1000)}k`
-              }
-            </span>
-            {projected && projected.cash !== state.cash && (
-              <span className="sim-hud__projected" aria-hidden>
-                → {formatCashCompact(projected.cash)}
-                <span className="sim-hud__delta-mono">
-                  {projected.cash > state.cash ? "▲" : "▼"} {formatCashCompact(Math.abs(projected.cash - state.cash))}
-                </span>
-              </span>
-            )}
-            {cashDelta !== null && (
-              <div
-                className={`sim-hud__delta ${cashDelta >= 0 ? "is-positive" : "is-negative"}`}
-                aria-label={`Cash change this turn: ${cashDelta >= 0 ? "+" : ""}${formatDelta(cashDelta)}`}
-              >
-                {cashDelta >= 0 ? "▲" : "▼"} {formatDelta(Math.abs(cashDelta))}
-              </div>
-            )}
-          </div>
-          <div className="sim-fs__stat sim-fs__stat--primary" title={`Win at ${winThresholdLabel}`}>
-            <span className="sim-fs__stat-label">Valuation</span>
-            <span className="sim-fs__stat-value">
-              ${state.valuation >= 1e9 ? `${(state.valuation / 1e9).toFixed(1)}B` : `${(state.valuation / 1e6).toFixed(0)}M`}
-            </span>
-            <span className="sim-fs__stat-target">goal {winThresholdLabel}</span>
-            {projected && projected.valuation !== state.valuation && (
-              <span className="sim-hud__projected" aria-hidden>
-                → {projected.valuation >= 1e9 ? `$${(projected.valuation / 1e9).toFixed(1)}B` : `$${(projected.valuation / 1e6).toFixed(0)}M`}
-                <span className="sim-hud__delta-mono">
-                  {projected.valuation > state.valuation ? "▲" : "▼"}
-                </span>
-              </span>
-            )}
-          </div>
-          <div className="sim-fs__stat" title="Current frontier AI version.">
-            <span className="sim-fs__stat-label">AI</span>
-            <span className="sim-fs__stat-value">v{state.agentVersion}</span>
-            {state.agentVersion < 6 && (
-              <span className="sim-fs__stat-target">{turnsToUpgrade}t to v{state.agentVersion + 1}</span>
-            )}
-            {state.agentVersion > 2 && !state.hasDocumentation && (
-              <span className="sim-fs__stat-target sim-fs__stat-target--warn">⚠ token leakage</span>
-            )}
-            {projected && projected.agentVersion !== state.agentVersion && (
-              <span className="sim-hud__projected" aria-hidden>
-                → v{projected.agentVersion}
-                <span className="sim-hud__delta-mono">▲</span>
-              </span>
-            )}
-          </div>
-          <div className={`sim-fs__stat ${state.hasDocumentation ? "is-good" : "is-warn"}`} title="Markdown documentation status.">
-            <span className="sim-fs__stat-label">Docs</span>
-            <span className="sim-fs__stat-value">{state.hasDocumentation ? "✓" : "✗"}</span>
-            <span className="sim-fs__stat-target">{state.hasDocumentation ? "Wiki active" : "missing"}</span>
-            {projected && projected.hasDocumentation !== state.hasDocumentation && (
-              <span className="sim-hud__projected" aria-hidden>
-                → {projected.hasDocumentation ? "✓ active" : "✗ off"}
-              </span>
-            )}
-          </div>
+          <HudTile
+            icon={<Cash size={28} />}
+            value={
+              <>
+                {state.cash < 0 ? "-" : ""}${
+                  Math.abs(state.cash) >= 1_000_000
+                    ? `${(state.cash / 1_000_000).toFixed(1)}M`
+                    : `${Math.round(state.cash / 1000)}k`
+                }
+                {cashDelta !== null && (
+                  <span
+                    className={`sim-hud__delta ${cashDelta >= 0 ? "is-positive" : "is-negative"}`}
+                    aria-label={`Cash change this turn: ${cashDelta >= 0 ? "+" : ""}${formatDelta(cashDelta)}`}
+                    style={{ marginLeft: "var(--space-2)" }}
+                  >
+                    {cashDelta >= 0 ? "▲" : "▼"} {formatDelta(Math.abs(cashDelta))}
+                  </span>
+                )}
+              </>
+            }
+            subtitle="Cash"
+            projected={
+              projected && projected.cash !== state.cash ? (
+                <>
+                  → {formatCashCompact(projected.cash)}{" "}
+                  <span className="sim-hud__delta-mono">
+                    {projected.cash > state.cash ? "▲" : "▼"} {formatCashCompact(Math.abs(projected.cash - state.cash))}
+                  </span>
+                </>
+              ) : null
+            }
+            ariaLabel={`Available cash: $${state.cash.toLocaleString()}`}
+          />
+          <HudTile
+            icon={<Building size={28} />}
+            value={
+              <>
+                ${state.valuation >= 1e9 ? `${(state.valuation / 1e9).toFixed(1)}B` : `${(state.valuation / 1e6).toFixed(0)}M`}
+              </>
+            }
+            subtitle={<>Valuation · goal {winThresholdLabel}</>}
+            projected={
+              projected && projected.valuation !== state.valuation ? (
+                <>
+                  → {projected.valuation >= 1e9 ? `$${(projected.valuation / 1e9).toFixed(1)}B` : `$${(projected.valuation / 1e6).toFixed(0)}M`}{" "}
+                  <span className="sim-hud__delta-mono">
+                    {projected.valuation > state.valuation ? "▲" : "▼"}
+                  </span>
+                </>
+              ) : null
+            }
+            ariaLabel={`Valuation: $${state.valuation.toLocaleString()}, goal ${winThresholdLabel}`}
+          />
+          <HudTile
+            icon={<Chip size={28} />}
+            value={<>v{state.agentVersion}</>}
+            subtitle={
+              state.agentVersion > 2 && !state.hasDocumentation ? (
+                <>AI · ⚠ token leakage</>
+              ) : state.agentVersion < 6 ? (
+                <>AI · {turnsToUpgrade}t to v{state.agentVersion + 1}</>
+              ) : (
+                <>AI version</>
+              )
+            }
+            projected={
+              projected && projected.agentVersion !== state.agentVersion ? (
+                <>
+                  → v{projected.agentVersion}{" "}
+                  <span className="sim-hud__delta-mono">▲</span>
+                </>
+              ) : null
+            }
+            ariaLabel={`AI version ${state.agentVersion}`}
+          />
+          <HudTile
+            icon={<Scroll size={28} />}
+            value={<>{state.hasDocumentation ? "✓" : "✗"}</>}
+            subtitle={<>Docs · {state.hasDocumentation ? "Wiki active" : "missing"}</>}
+            projected={
+              projected && projected.hasDocumentation !== state.hasDocumentation ? (
+                <>→ {projected.hasDocumentation ? "✓ active" : "✗ off"}</>
+              ) : null
+            }
+            ariaLabel={`Documentation status: ${state.hasDocumentation ? "active" : "missing"}`}
+          />
         </section>
 
         {/* Office floor — the visual centerpiece */}
@@ -969,8 +1002,7 @@ export default function AgentGameClient() {
             <p className="sim-fs__warn">❄️ Board has frozen hiring this turn.</p>
           )}
           <div className="sim-fs__move-grid">
-            <button
-              type="button"
+            <SimButton
               onClick={handleHireWorker}
               {...withHover(hover, { type: "EMPLOY_WORKER" })}
               disabled={
@@ -983,19 +1015,16 @@ export default function AgentGameClient() {
               className={`sim-fs__move-btn ${state.hiredThisTurn ? "is-used" : ""}`}
               title={state.hiredThisTurn ? "Already hired this turn — pacing matters." : "Hires a human employee ($30,000 upfront). Generates revenue at their level once fully onboarded (6 turns, or 3 with Markdown Wiki). Salary: $8k/turn at L1, $18k at L2, $45k at L3."}
               aria-describedby="hire-human-help"
-            >
-              <span className="sim-fs__move-btn-name">
-                {state.hiredThisTurn ? "✓ Hired this turn" : "Hire Human"}
-              </span>
-              <span className="sim-fs__move-btn-cost">$30k</span>
-            </button>
+              icon={<UserPlus size={20} />}
+              label={state.hiredThisTurn ? "✓ Hired this turn" : "Hire Human"}
+              cost="$30k"
+            />
             <div id="hire-human-help" className="sr-only">
               Hires a human employee ($30,000 upfront). Generates revenue at their level once fully onboarded (6 turns, or 3 with Markdown Wiki). Salary: $8k/turn at L1, $18k at L2, $45k at L3.
             </div>
             {state.turn >= TURN_AGENT_UNLOCKED ? (
               <>
-              <button
-                type="button"
+              <SimButton
                 onClick={handleHireAgent}
                 {...withHover(hover, { type: "EMPLOY_AGENT" })}
                 disabled={
@@ -1008,26 +1037,23 @@ export default function AgentGameClient() {
                 className={`sim-fs__move-btn ${state.hiredThisTurn ? "is-used" : ""}`}
                 title={state.hiredThisTurn ? "Already hired this turn — pacing matters." : "Deploys a Cognitive Agent ($15,000 upfront, no ongoing salary). With Markdown Wiki: boosts each human +25% productivity. Without docs: costs $10k/turn maintenance and drains team loyalty."}
                 aria-describedby="hire-agent-help"
-              >
-                <span className="sim-fs__move-btn-name">
-                  {state.hiredThisTurn ? "✓ Hired this turn" : "Hire Cognitive Agent"}
-                </span>
-                <span className="sim-fs__move-btn-cost">$15k</span>
-              </button>
+                icon={<BotPlus size={20} />}
+                label={state.hiredThisTurn ? "✓ Hired this turn" : "Hire Cognitive Agent"}
+                cost="$15k"
+              />
               <div id="hire-agent-help" className="sr-only">
                 Deploys a Cognitive Agent ($15,000 upfront, no ongoing salary). With Markdown Wiki: boosts each human +25% productivity. Without docs: costs $10k/turn maintenance and drains team loyalty.
               </div>
               </>
             ) : (
-              <button
-                type="button"
-                disabled
-                className="sim-fs__move-btn is-locked"
+              <SimButton
+                locked
+                className="sim-fs__move-btn"
                 title={`Cognitive Agents unlock at turn ${TURN_AGENT_UNLOCKED}`}
-              >
-                <span className="sim-fs__move-btn-name">🔒 Cognitive Agent</span>
-                <span className="sim-fs__move-btn-cost">turn {TURN_AGENT_UNLOCKED}</span>
-              </button>
+                icon={<BotPlus size={20} />}
+                label="🔒 Cognitive Agent"
+                cost={`turn ${TURN_AGENT_UNLOCKED}`}
+              />
             )}
             {(() => {
               const target = nextTier(state.officeTier);
@@ -1040,8 +1066,8 @@ export default function AgentGameClient() {
                 state.activeEventId !== null ||
                 state.draftChoices !== null;
               return (
-                <button
-                  type="button"
+                <SimButton
+                  variant="office"
                   className={`sim-fs__move-btn ${state.upgradedOfficeThisTurn ? "is-used" : ""}`}
                   disabled={disabled}
                   onClick={() => dispatch({ type: "UPGRADE_OFFICE", tier: target })}
@@ -1051,16 +1077,13 @@ export default function AgentGameClient() {
                       ? "Already upgraded the office this turn."
                       : `Upgrade office: ${state.officeTier} → ${target}. Cost: $${cost.toLocaleString()} (setup + first month's rent).`
                   }
-                >
-                  <span className="sim-fs__move-btn-name">
-                    {state.upgradedOfficeThisTurn ? "✓ Office upgraded" : `🏢 Upgrade → ${target}`}
-                  </span>
-                  <span className="sim-fs__move-btn-cost">${(cost / 1000).toLocaleString()}k</span>
-                </button>
+                  icon={<Layers size={20} />}
+                  label={state.upgradedOfficeThisTurn ? "✓ Office upgraded" : `Upgrade → ${target}`}
+                  cost={`$${(cost / 1000).toLocaleString()}k`}
+                />
               );
             })()}
-            <button
-              type="button"
+            <SimButton
               onClick={handleRedefineOkrs}
               {...withHover(hover, { type: "REDEFINE_OKRS" })}
               disabled={
@@ -1073,12 +1096,10 @@ export default function AgentGameClient() {
               className={`sim-fs__move-btn ${state.redefinedOkrsThisTurn ? "is-used" : ""}`}
               title={state.redefinedOkrsThisTurn ? "Already redefined this turn — the team can't handle two alignment meetings." : "Adds one OKR Level ($10,000). Permanently increases global productivity by +15% per level. Costs 40% productivity this turn (alignment meeting penalty)."}
               aria-describedby="okr-help"
-            >
-              <span className="sim-fs__move-btn-name">
-                {state.redefinedOkrsThisTurn ? "✓ OKRs redefined" : "Redefine OKRs"}
-              </span>
-              <span className="sim-fs__move-btn-cost">$10k</span>
-            </button>
+              icon={<Target size={20} />}
+              label={state.redefinedOkrsThisTurn ? "✓ OKRs redefined" : "Redefine OKRs"}
+              cost="$10k"
+            />
             <div id="okr-help" className="sr-only">
               Adds one OKR Level ($10,000). Permanently increases global productivity by +15% per level. Costs 40% productivity this turn (alignment meeting penalty).
             </div>
@@ -1118,14 +1139,15 @@ export default function AgentGameClient() {
 
         {/* Next Turn — primary CTA */}
         <div className="sim-fs__next-wrap">
-          <button
-            type="button"
+          <SimButton
+            variant="next"
             onClick={handleEndTurn}
             disabled={state.activeEventId !== null || state.draftChoices !== null}
             className="sim-fs__next"
-          >
-            Next Turn <span aria-hidden>→</span>
-          </button>
+            icon={<Sparkles size={22} />}
+            label="Next Turn"
+            cost={<ArrowRight size={22} />}
+          />
           {state.lastSnapshot && (
             <button
               type="button"
