@@ -70,6 +70,8 @@ body { overflow-x: hidden; }
   background: rgba(11, 11, 12, 0.82);
   border-bottom: var(--border-hairline);
   padding: var(--space-3) var(--container-gutter);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 .rt-nav--sticky .rt-nav__items { gap: var(--space-6); }
 .rt-nav--sticky .rt-nav__item { white-space: nowrap; position: relative; }
@@ -350,7 +352,7 @@ body { padding-top: 0; }
 
 .rt-hero__portrait-dots {
   position: absolute;
-  right: var(--space-6);
+  right: calc(var(--space-6) + 12px);
   top: 50%;
   transform: translateY(-50%);
   display: flex; flex-direction: column;
@@ -377,7 +379,7 @@ body { padding-top: 0; }
 .rt-hero__content {
   position: relative;
   z-index: 4;
-  padding-top: 18vh;
+  padding-top: max(160px, 20vh);
   padding-bottom: var(--space-8);
   min-height: 100vh;
   display: flex; flex-direction: column;
@@ -491,6 +493,10 @@ body { padding-top: 0; }
   width: 30px; height: 1px;
   background: var(--color-fg-3);
   margin-top: 14px;
+}
+.rt-hero__leads {
+  display: flex;
+  flex-direction: column;
 }
 .rt-hero__lead {
   margin: 0;
@@ -633,7 +639,7 @@ body { padding-top: 0; }
    ============================================================ */
 .rt-transit {
   position: relative;
-  height: 192px;
+  height: 96px;
   width: 100%;
   pointer-events: none;
 }
@@ -693,7 +699,7 @@ body { padding-top: 0; }
 .rt-hook {
   position: relative;
   background: var(--color-bg-base);
-  padding: var(--space-11) 0;
+  padding: var(--space-9) 0;
 }
 .rt-hook__inner {
   max-width: 980px;
@@ -759,7 +765,7 @@ body { padding-top: 0; }
 .rt-editorial {
   background: var(--color-bg-surface);
   position: relative;
-  padding-top: var(--space-11);
+  padding-top: var(--space-9);
 }
 .rt-editorial__head {
   position: relative;
@@ -798,7 +804,8 @@ body { padding-top: 0; }
 .rt-editorial__article-photo {
   position: relative;
   margin: 0 0 var(--space-6);
-  aspect-ratio: 21 / 9;
+  /* matches /assets/events/*.png — 633×356, 16:9. See docs/visual-style.md. */
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   background: var(--color-bg-sunken);
 }
@@ -869,6 +876,9 @@ body { padding-top: 0; }
 }
 
 /* Image panel — three big tiles + one feature-large */
+.rt-creative__panel-art img {
+  object-position: center 20%;
+}
 .rt-creative__panel:first-of-type .rt-creative__panel-art {
   grid-template-columns: 1.5fr 1fr 1fr;
   gap: 1px;
@@ -1062,7 +1072,7 @@ body { padding-top: 0; }
    ============================================================ */
 .rt-footer {
   background: var(--color-bg-sunken);
-  padding: var(--space-11) 0 var(--space-7);
+  padding: var(--space-9) 0 var(--space-7);
 }
 .rt-footer__headline em {
   font-style: italic;
@@ -1161,7 +1171,7 @@ body { padding-top: 0; }
 /* Stop-cycling button for the hero portrait carousel (keyboard pause control) */
 .rt-hero__pause {
   position: absolute;
-  right: var(--space-6);
+  right: calc(var(--space-6) + 12px);
   top: calc(50% + 130px);
   z-index: 6;
   background: transparent;
@@ -3420,7 +3430,10 @@ body { padding-top: 0; }
 /* === Stats strip === */
 .sim-fs__stats {
   display: grid;
-  grid-template-columns: 1fr 1.5fr 1fr 1fr;
+  /* minmax(0, ...) so the HUD tiles can compress below their min-content
+     (the numeric values are mono-fixed-width). Without it the columns push
+     past their fr-share and the HUD overflows on narrow viewports. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--space-3);
   padding: var(--space-4);
   background: linear-gradient(180deg, #1c1a18 0%, #14110d 100%);
@@ -3732,7 +3745,7 @@ body { padding-top: 0; }
   .sim-fs__game-name { font-size: 10px; }
   .sim-fs__head-meta { font-size: 9px; }
   .sim-fs__stats {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: var(--space-2);
     padding: var(--space-3);
   }
@@ -4572,9 +4585,11 @@ body { padding-top: 0; }
   inset: 0;
   z-index: 50;
   background: rgba(0, 0, 0, 0.92);
-  display: grid;
-  place-items: center;
-  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 8vh var(--space-6);
   overflow-y: auto;
 }
 .sim-mode__heading {
@@ -4620,7 +4635,7 @@ body { padding-top: 0; }
 .sim-mode__target strong { color: var(--color-accent-warm); }
 .sim-mode__cash { font-family: var(--font-mono); font-size: var(--fs-50); color: var(--color-fg-3); }
 .sim-mode__body { color: var(--color-fg-2); margin: 0; font-size: var(--fs-100); }
-@media (max-width: 720px) {
+@media (max-width: 1024px) {
   .sim-mode__grid { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {

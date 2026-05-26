@@ -7,6 +7,15 @@
 
 html, body { margin: 0; }
 
+html {
+  scrollbar-color: var(--color-fg-3) var(--color-bg-sunken);
+  scrollbar-width: thin;
+}
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--color-bg-sunken); }
+::-webkit-scrollbar-thumb { background: var(--color-fg-4); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-fg-3); }
+
 /* Visually hidden — accessible to screen readers */
 .sr-only {
   position: absolute;
@@ -677,22 +686,31 @@ html, body { margin: 0; }
 }
 .rt-creative__grid {
   display: grid;
-  grid-template-columns: 1fr;
+  /* minmax(0, 1fr) so the track can shrink below child min-content — without
+     this, the nested panel-art grid's image content forces the column past 1fr.
+     See docs/visual-style.md (Image containers rule 6). */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-9);
 }
 .rt-creative__panel {
   display: grid;
-  grid-template-columns: 1.4fr 1fr;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
   gap: var(--space-8);
   align-items: center;
   border-top: var(--border-hairline);
   padding-top: var(--space-7);
+  min-width: 0;
 }
+/* Grid-item children default to min-width: auto, which is "min-content".
+   That's what forces panel children to push past the 1fr track. Reset to 0
+   so the panel's minmax(0, 1fr) actually constrains them. */
+.rt-creative__panel > * { min-width: 0; }
 .rt-creative__panel-art {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1px;
   background: var(--color-fg-4);
+  min-width: 0;
 }
 .rt-creative__panel-art img {
   width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block;
@@ -769,7 +787,7 @@ html, body { margin: 0; }
 }
 .rt-boombox__top {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   gap: var(--space-3);
   align-items: center;
   padding: 0 var(--space-3) var(--space-3);
@@ -793,10 +811,20 @@ html, body { margin: 0; }
 }
 .rt-boombox__body {
   display: grid;
-  grid-template-columns: 1fr 1.7fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr) minmax(0, 1fr);
   gap: var(--space-3);
   align-items: stretch;
   margin-bottom: var(--space-4);
+  min-width: 0;
+}
+.rt-boombox__body > * { min-width: 0; }
+.rt-boombox__top > * { min-width: 0; }
+
+/* Boombox speaker is a circle (aspect-ratio: 1) inside a stretched grid row.
+   On narrow viewports the row stretch can drive the speaker past its
+   fr-share, so cap it explicitly. */
+@media (max-width: 720px) {
+  .rt-boombox__speaker { max-width: 80px; max-height: 80px; justify-self: center; align-self: center; }
 }
 .rt-boombox__speaker {
   aspect-ratio: 1;
@@ -1155,13 +1183,20 @@ html, body { margin: 0; }
   padding: 2px 6px;
 }
 .rt-redact {
-  background: var(--color-fg-3);
-  color: transparent;
-  padding: 0 6px;
-  border-radius: 1px;
+  background: rgba(242, 238, 229, 0.06);
+  color: var(--color-fg-2);
+  border: 1px solid rgba(242, 238, 229, 0.15);
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  padding: 1px 6px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 .rt-redact--warm {
-  background: var(--color-accent-warm);
+  background: rgba(200, 85, 61, 0.08);
+  border-color: rgba(200, 85, 61, 0.3);
+  color: var(--color-accent-warm-strong);
 }
 
 /* ============================================================
@@ -1243,6 +1278,7 @@ html, body { margin: 0; }
 .rt-mk__bio-switch {
   display: flex;
   gap: var(--space-2);
+  flex-wrap: wrap;
 }
 .rt-mk__bio-switch button {
   font-family: var(--font-mono);
@@ -1289,14 +1325,17 @@ html, body { margin: 0; }
 }
 .rt-mk__photo figcaption {
   position: absolute;
-  bottom: var(--space-3);
-  left: var(--space-3);
+  bottom: 12px;
+  left: 12px;
+  z-index: 10;
   font-family: var(--font-mono);
-  font-size: var(--fs-50);
-  letter-spacing: var(--tracking-eyebrow);
+  font-size: 10px;
   color: var(--color-fg-1);
-  background: rgba(5,5,7,0.6);
-  padding: 4px 7px;
+  background: rgba(5, 5, 7, 0.85);
+  border: 1px solid rgba(242, 238, 229, 0.15);
+  padding: 4px 8px;
+  border-radius: 3px;
+  letter-spacing: var(--tracking-eyebrow);
 }
 
 .rt-mk__logos {
@@ -1727,13 +1766,13 @@ html, body { margin: 0; }
     grid-column: 1;
     grid-row: 3;
   }
-  .rt-creative__panel { grid-template-columns: 1fr; }
+  .rt-creative__panel { grid-template-columns: minmax(0, 1fr); }
   .rt-footer__meta { grid-template-columns: repeat(2, 1fr); }
   .rt-mk__photos { grid-template-columns: repeat(2, 1fr); }
   .rt-mk__nav { gap: var(--space-4); overflow-x: auto; }
   .rt-press__quotes { grid-template-columns: 1fr; }
   .rt-press__item { grid-template-columns: 40px 1fr; gap: var(--space-3); }
-  .rt-boombox__body { grid-template-columns: 1fr 2fr 1fr; }
+  .rt-boombox__body { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr); }
   .rt-tuit__video { margin: var(--space-7) 0; }
   .rt-podcast {
     grid-template-columns: auto 1fr auto;

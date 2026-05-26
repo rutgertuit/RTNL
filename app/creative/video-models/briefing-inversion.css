@@ -797,7 +797,10 @@
 
 .rt-bi-sim__board {
   display: grid;
-  grid-template-columns: 5fr 7fr;
+  /* minmax(0, ...) lets the tracks shrink past inner content's min-content.
+     Without it the monitor/transcript pushed past the viewport at mobile.
+     See docs/visual-style.md (Image containers rule 6). */
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
   gap: var(--space-5);
   margin: var(--space-8) 0;
 }
@@ -933,6 +936,10 @@
   position: relative;
   background: var(--color-bg-sunken);
   border: var(--border-hairline);
+  /* The "monitor" container stays 16:9 because that matches the omni video
+     output it frames. Source images may be portrait (08-desk.png is 3:4),
+     so the frame letterboxes with object-fit:contain rather than cropping
+     out the subject. See docs/visual-style.md (Image containers rule 3). */
   aspect-ratio: 16 / 9;
   overflow: hidden;
 }
@@ -940,7 +947,7 @@
 .rt-bi-sim__monitor-frame {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   filter: brightness(0.85) contrast(1.05);
 }
 
@@ -1034,7 +1041,7 @@
 
 @media (max-width: 768px) {
   .rt-bi-sim__board {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .rt-bi-sim__stage { order: -1; }
 }
