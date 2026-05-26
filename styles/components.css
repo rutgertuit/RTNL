@@ -4490,3 +4490,186 @@ body { padding-top: 0; }
 @media (max-width: 720px) {
   .sim-febo__compartments { grid-template-columns: 1fr; }
 }
+
+/* Phase 5d.9 — Edgar narrator */
+.sim-edgar {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: var(--space-4);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-accent-warm);
+  border-radius: var(--sim-radius-card);
+  padding: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+.sim-edgar__avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--color-accent-warm);
+  color: var(--color-bg-base);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: var(--fs-500);
+  font-weight: var(--fw-bold);
+  align-self: start;
+}
+.sim-edgar__bubble { display: grid; gap: var(--space-2); }
+.sim-edgar__eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  color: var(--color-accent-warm);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-eyebrow);
+}
+.sim-edgar__name {
+  font-family: var(--font-display);
+  font-size: var(--fs-300);
+  margin: 0;
+  color: var(--color-fg-1);
+}
+.sim-edgar__body { color: var(--color-fg-2); }
+.sim-edgar__body p { margin: 0 0 var(--space-2); }
+.sim-edgar__body p:last-child { margin-bottom: 0; }
+.sim-edgar__actions { display: flex; gap: var(--space-2); align-items: center; }
+.sim-edgar__cta {
+  background: var(--color-accent-warm);
+  color: var(--color-bg-base);
+  border: 0;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--sim-radius-tile);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  font-family: var(--font-body, var(--font-sans));
+}
+.sim-edgar__cta:hover { background: var(--color-accent-warm-strong); }
+.sim-edgar__dismiss {
+  background: transparent;
+  border: 0;
+  color: var(--color-fg-3);
+  cursor: pointer;
+  font-size: var(--fs-400);
+  line-height: 1;
+  padding: 0 var(--space-2);
+}
+
+/* Phase 5d.10 — Mode-select tiles */
+.sim-mode {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.92);
+  display: grid;
+  place-items: center;
+  padding: var(--space-6);
+  overflow-y: auto;
+}
+.sim-mode__heading {
+  font-family: var(--font-display);
+  font-size: var(--fs-700);
+  text-align: center;
+  margin: 0 0 var(--space-6);
+  color: var(--color-fg-1);
+}
+.sim-mode__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  max-width: 1100px;
+  width: 100%;
+}
+.sim-mode__card {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  background: var(--color-bg-raised);
+  border: var(--border-hairline);
+  border-radius: var(--sim-radius-card);
+  text-align: left;
+  cursor: pointer;
+  color: var(--color-fg-1);
+  font-family: var(--font-body, var(--font-sans));
+  transition:
+    transform var(--duration-ui, 150ms) var(--ease-swing, ease-out),
+    border-color var(--duration-ui, 150ms) var(--ease-swing, ease-out);
+}
+.sim-mode__card:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-accent-warm);
+}
+.sim-mode__card--boardroom { border-top: 4px solid #5e8c5a; }
+.sim-mode__card--reality   { border-top: 4px solid var(--color-accent-warm); }
+.sim-mode__card--zirp      { border-top: 4px solid #c83a3a; }
+.sim-mode__icon { color: var(--color-accent-warm); }
+.sim-mode__title { font-family: var(--font-display); font-size: var(--fs-500); margin: 0; }
+.sim-mode__sub { font-family: var(--font-mono); font-size: var(--fs-50); color: var(--color-fg-3); text-transform: uppercase; letter-spacing: var(--tracking-eyebrow); margin: 0; }
+.sim-mode__target { font-family: var(--font-display); font-size: var(--fs-300); color: var(--color-fg-1); }
+.sim-mode__target strong { color: var(--color-accent-warm); }
+.sim-mode__cash { font-family: var(--font-mono); font-size: var(--fs-50); color: var(--color-fg-3); }
+.sim-mode__body { color: var(--color-fg-2); margin: 0; font-size: var(--fs-100); }
+@media (max-width: 720px) {
+  .sim-mode__grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sim-mode__card { transition: none; }
+  .sim-mode__card:hover { transform: none; }
+}
+
+/* Phase 5d.11 — EndCard */
+.sim-endcard {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: var(--color-bg-base);
+  display: grid;
+  place-items: center;
+  padding: var(--space-6);
+  text-align: center;
+}
+.sim-endcard__inner {
+  display: grid;
+  gap: var(--space-5);
+  max-width: 720px;
+  width: 100%;
+  justify-items: center;
+}
+.sim-endcard__verdict {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 10vw, 6rem);
+  margin: 0;
+  letter-spacing: var(--tracking-display);
+  line-height: 1;
+}
+.sim-endcard__verdict.is-win { color: var(--color-accent-warm); }
+.sim-endcard__verdict.is-loss { color: var(--color-fg-1); }
+.sim-endcard__cause { color: var(--color-fg-2); margin: 0; max-width: 540px; }
+.sim-endcard__stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-5);
+  width: 100%;
+}
+.sim-endcard__stat { display: grid; gap: var(--space-2); }
+.sim-endcard__stat strong { font-family: var(--font-display); font-size: var(--fs-600); color: var(--color-fg-1); }
+.sim-endcard__stat span {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  color: var(--color-fg-3);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-eyebrow);
+}
+.sim-endcard__again { min-width: 220px; justify-self: center; }
+@media (max-width: 720px) {
+  .sim-endcard__stats { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Phase 5d.12 — motion polish */
+@keyframes sim-card-play-out {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-40px) scale(0.85); opacity: 0; }
+}
+.sim-card.is-playing { animation: sim-card-play-out 280ms ease-out forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .sim-card.is-playing { animation: none; opacity: 0; }
+}

@@ -25,15 +25,18 @@ import {
 import { nextTier, setupCostOf, rentOf, capacityOf, type OfficeTier } from "./office";
 import { ProjectionProvider, ProjectionConsumer } from "./ProjectionContext";
 import type { Action } from "./reducer";
-import { HudTile } from "@/components/agent-game/HudTile";
+import { HudTile, CountUp } from "@/components/agent-game/HudTile";
 import { SimButton } from "@/components/agent-game/SimButton";
 import { EmployeeAvatar } from "@/components/agent-game/EmployeeAvatar";
 import { CardTile } from "@/components/agent-game/CardTile";
 import { OfficePlate } from "@/components/agent-game/OfficePlate";
 import { FeboVendingMachine } from "@/components/agent-game/FeboVendingMachine";
+import { Edgar } from "@/components/agent-game/Edgar";
+import { EndCard } from "@/components/agent-game/EndCard";
 import {
   Cash,
   Building,
+  BuildingOffice,
   Chip,
   Scroll,
   UserPlus,
@@ -42,6 +45,7 @@ import {
   Layers,
   Sparkles,
   ArrowRight,
+  Warning,
 } from "@/components/agent-game/icons";
 
 // Phase 5c.2/5c.3 — Hover-projection presentation helpers.
@@ -188,7 +192,6 @@ export default function AgentGameClient() {
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [showDifficultySelector, setShowDifficultySelector] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
-  const [copiedText, setCopiedText] = useState(false);
   // Full-screen v3: bottom-drawer state — at most one drawer open at a time.
   const [drawer, setDrawer] = useState<"log" | "cards" | "details" | null>(null);
   // Fix FF: trait popover open state per employee id
@@ -460,32 +463,6 @@ export default function AgentGameClient() {
     }
   };
 
-  // Generate shareable copy-pasteable scorecard text
-  const getShareableText = () => {
-    const turns = state.turn - 1;
-    const val = (state.valuation / 1000000000).toFixed(1);
-    const difficultyName = state.difficulty.toUpperCase();
-    
-    let comment = "";
-    if (state.gameResult === "win") {
-      comment = "🏆 CEO called me 'General Manager of Cognitive Capital'. Edgar is parameterised, Jochem has his coffee.";
-    } else if (state.cash < -1000000) {
-      comment = "💀 Bankrupt because of KPMG audit fees. Edgar sued the company and Lous went to a hei-sessie without me.";
-    } else {
-      comment = "⏱️ Time expired. Too much interpersonal vagueness. Lous spent 30% of her week bellen with Debiteuren.";
-    }
-
-    return `I survived ${turns} turns of the Agent Inclusive Sim [${difficultyName} Mode] — final valuation $${val}B.\n${comment}\nPlay the sim: rutgertuit.nl/technical/agent-game`;
-  };
-
-  const handleCopyToClipboard = () => {
-    const text = getShareableText();
-    navigator.clipboard.writeText(text).then(() => {
-      setCopiedText(true);
-      setTimeout(() => setCopiedText(false), 2000);
-    });
-  };
-
   const selectedCard = selectedCardId ? CARD_DATABASE[selectedCardId] : null;
 
   // Calculate turns until next upgrade
@@ -573,39 +550,24 @@ export default function AgentGameClient() {
           </div>
         </header>
 
-        {/* Progressive-disclosure tutorial banner — turns 1..5, dismissible */}
+        {/* Phase 5d.9 — Edgar narrator replaces the old sim-tut banner.
+            Progressive-disclosure tutorial — turns 1..5, dismissible. */}
         {(() => {
           const step = TUTORIAL_STEPS[state.turn];
           const dismissed = state.tutorialDismissed ?? [];
           if (!step || dismissed.includes(state.turn)) return null;
           return (
-            <aside className="sim-tut sim-tut--banner" aria-live="polite" aria-label={step.title}>
-              <div className="sim-tut__art" aria-hidden>
-                <span className="sim-tut__art-label">IMAGE · Turn {state.turn}</span>
-              </div>
-              <div className="sim-tut__body">
-                <div className="sim-tut__eyebrow">{step.eyebrow}</div>
-                <h3 className="sim-tut__title">{step.title}</h3>
-                {step.body.map((p, i) => (
-                  <p key={i} className="sim-tut__p">{p}</p>
-                ))}
-                <button
-                  type="button"
-                  className="button button--warm sim-tut__cta"
-                  onClick={() => dispatch({ type: "DISMISS_TUTORIAL", turn: state.turn })}
-                >
-                  {step.cta} <span aria-hidden>→</span>
-                </button>
-              </div>
-              <button
-                type="button"
-                className="sim-tut__close"
-                onClick={() => dispatch({ type: "DISMISS_TUTORIAL", turn: state.turn })}
-                aria-label="Dismiss tutorial"
-              >
-                ×
-              </button>
-            </aside>
+            <Edgar
+              eyebrow={step.eyebrow}
+              title={step.title}
+              cta={step.cta}
+              onCtaClick={() => dispatch({ type: "DISMISS_TUTORIAL", turn: state.turn })}
+              onDismiss={() => dispatch({ type: "DISMISS_TUTORIAL", turn: state.turn })}
+            >
+              {step.body.map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
+            </Edgar>
           );
         })()}
 
@@ -618,11 +580,7 @@ export default function AgentGameClient() {
             icon={<Cash size={28} />}
             value={
               <>
-                {state.cash < 0 ? "-" : ""}${
-                  Math.abs(state.cash) >= 1_000_000
-                    ? `${(state.cash / 1_000_000).toFixed(1)}M`
-                    : `${Math.round(state.cash / 1000)}k`
-                }
+                <CountUp to={state.cash} format={(n) => formatCashCompact(n)} />
                 {cashDelta !== null && (
                   <span
                     className={`sim-hud__delta ${cashDelta >= 0 ? "is-positive" : "is-negative"}`}
@@ -650,9 +608,7 @@ export default function AgentGameClient() {
           <HudTile
             icon={<Building size={28} />}
             value={
-              <>
-                ${state.valuation >= 1e9 ? `${(state.valuation / 1e9).toFixed(1)}B` : `${(state.valuation / 1e6).toFixed(0)}M`}
-              </>
+              <CountUp to={state.valuation} format={(n) => formatCashCompact(n)} />
             }
             subtitle={<>Valuation · goal {winThresholdLabel}</>}
             projected={
@@ -1384,180 +1340,69 @@ export default function AgentGameClient() {
           />
         )}
 
-        {/* Win/Loss Modal */}
+        {/* Phase 5d.11 — EndCard replaces the old Win/Loss modal. */}
         {state.isGameOver && (
-          <div className="sim-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-            <div className="sim-modal">
-              {state.gameResult === "win" ? (
-                <>
-                  <h2 className="sim-modal__title sim-modal__title--win" id="modal-title">🏆 Victory!</h2>
-                  <p className="sim-modal__text">
-                    You have successfully navigated the exponential AI upgrade timeline! Under your guidance,
-                    the company optimized documentation, structured build-plan PDPs, and leveraged agentic version updates
-                    to scale performance to the moon without breaking the org&apos;s structural limits.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <h2 className="sim-modal__title sim-modal__title--lose" id="modal-title">💀 Bankruptcy / Failure</h2>
-                  <p className="sim-modal__text">
-                    {state.cash < -1000000 ? (
-                      "Your cash fell below -$1,000,000. In trying to build wrappers and OKR loops, you neglected documentation hygiene. The token compliance audit fines have forced the business into receivership."
-                    ) : (
-                      `The 30-turn sprint has expired, and you fell short of the ${state.difficulty === "boardroom" ? "$1.1 Billion" : state.difficulty === "reality" ? "$25 Billion" : "$140 Billion"} valuation target. Your organization could not adapt fast enough to the exponential rate of AI upgrades.`
-                    )}
-                  </p>
-                </>
-              )}
-
-              <div className="sim-modal__stats">
-                <div className="sim-modal__stat-item">
-                  <span className="sim-stat__label">Final Valuation</span>
-                  <span className="sim-stat__value" style={{ color: "goldenrod" }}>${state.valuation.toLocaleString()}</span>
-                </div>
-                <div className="sim-modal__stat-item">
-                  <span className="sim-stat__label">Final Cash</span>
-                  <span className="sim-stat__value">${state.cash.toLocaleString()}</span>
-                </div>
-                <div className="sim-modal__stat-item">
-                  <span className="sim-stat__label">AI Version</span>
-                  <span className="sim-stat__value">v{state.agentVersion}</span>
-                </div>
-                <div className="sim-modal__stat-item">
-                  <span className="sim-stat__label">Turns Survived</span>
-                  <span className="sim-stat__value">{state.turn - 1} / 30</span>
-                </div>
-              </div>
-
-              {/* Sub-step 11: Post-mortem run summary */}
-              <div className="sim-postmortem">
-                <h4>Run summary</h4>
-                <dl>
-                  <dt>Final cash</dt>
-                  <dd>{formatCash(state.cash)}</dd>
-                  <dt>Final valuation</dt>
-                  <dd>{formatCash(state.valuation)}</dd>
-                  <dt>Turns played</dt>
-                  <dd>{state.turn - 1} / 30</dd>
-                  <dt>AI version</dt>
-                  <dd>v{state.agentVersion}</dd>
-                  <dt>Docs active</dt>
-                  <dd>{state.hasDocumentation ? "Yes" : "No"}</dd>
-                  <dt>Team size</dt>
-                  <dd>{state.employees.length}</dd>
-                </dl>
-              </div>
-
-              {/* Share Card Block */}
-              <div style={{ background: "var(--color-bg-sunken)", border: "var(--border-hairline)", padding: "var(--space-3)", display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
-                <span className="sim-stat__label" style={{ textAlign: "left" }}>Scorecard</span>
-                <textarea
-                  readOnly
-                  value={getShareableText()}
-                  style={{
-                    width: "100%",
-                    height: "80px",
-                    background: "transparent",
-                    border: "0",
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "11px",
-                    color: "var(--color-fg-2)",
-                    resize: "none",
-                    outline: "none"
-                  }}
-                />
-                <button
-                  onClick={handleCopyToClipboard}
-                  className="button button--warm"
-                  style={{ width: "100%", padding: "6px 0", fontSize: "11px", justifyContent: "center" }}
-                >
-                  {copiedText ? "✓ Copied Scorecard" : "Copy Scorecard"}
-                </button>
-              </div>
-
-              <button
-                onClick={() => setShowDifficultySelector(true)}
-                className="sim-btn-primary"
-                style={{ width: "100%" }}
-              >
-                Restart Simulation
-              </button>
-            </div>
-          </div>
+          <EndCard
+            state={state}
+            onReset={() => {
+              dispatch({ type: "RESET_GAME", difficulty: state.difficulty });
+              setSelectedCardId(null);
+            }}
+          />
         )}
 
         {/* Difficulty Selector Modal */}
         {showDifficultySelector && (
-          <div className="sim-overlay" role="dialog" aria-modal="true" aria-labelledby="diff-title">
-            <div className="sim-modal" style={{ maxWidth: "600px" }}>
-              <h2 className="sim-modal__title" id="diff-title" style={{ fontFamily: "var(--font-display)", color: "var(--color-fg-1)" }}>
-                Choose Your Cognitive Reality
-              </h2>
-              <p className="sim-modal__text">
-                Select your starting difficulty parameters for the Agent Inclusive sprint.
-              </p>
-
-              {/* Sub-step 1: 3-column mode grid via .sim-mode__grid */}
+          <div className="sim-mode" role="dialog" aria-modal="true" aria-labelledby="mode-title">
+            <div>
+              <h1 id="mode-title" className="sim-mode__heading">Choose your cognitive reality</h1>
               <div className="sim-mode__grid">
-                {/* Boardroom */}
-                <button
-                  onClick={() => handleDifficultySelect("boardroom")}
-                  className="mtg-card"
-                  style={{ width: "100%", height: "auto", padding: "var(--space-4)", aspectRatio: "auto" }}
-                  aria-label="Boardroom Difficulty: $500,000 cash, AI upgrade every 7 turns"
-                >
-                  <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", textAlign: "left" }}>
-                    <span className="sim-stat__value" style={{ color: "#a3be8c" }}>Boardroom</span>
-                    <span className="sim-stat__label">Easy Mode</span>
-                    <div className="sim-mode__target">Target <strong>$1.1B</strong></div>
-                    <div className="sim-mode__detail">~10 min · ≈80% win rate</div>
-                    <p style={{ fontSize: "11px", color: "var(--color-fg-2)", margin: "0" }}>
-                      Start with <strong>$500,000</strong> cash.<br />
-                      AI upgrades slowly (every <strong>7 turns</strong>).<br />
-                      Comfortable room to build clean Markdown documentation before the compliance audits drop.
-                    </p>
-                  </div>
-                </button>
-
-                {/* Reality */}
-                <button
-                  onClick={() => handleDifficultySelect("reality")}
-                  className="mtg-card mtg-card--selected"
-                  style={{ width: "100%", height: "auto", padding: "var(--space-4)", aspectRatio: "auto" }}
-                  aria-label="Reality Difficulty: $250,000 cash, AI upgrade every 5 turns"
-                >
-                  <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", textAlign: "left" }}>
-                    <span className="sim-stat__value" style={{ color: "goldenrod" }}>Reality</span>
-                    <span className="sim-stat__label">Standard Mode</span>
-                    <div className="sim-mode__target">Target <strong>$25B</strong></div>
-                    <div className="sim-mode__detail">~10 min · ≈45% win rate</div>
-                    <p style={{ fontSize: "11px", color: "var(--color-fg-2)", margin: "0" }}>
-                      Start with <strong>$250,000</strong> cash.<br />
-                      AI upgrades every <strong>5 turns</strong>.<br />
-                      The authentic consulting experience. Balance employee loyalty and AI version upgrades.
-                    </p>
-                  </div>
-                </button>
-
-                {/* ZIRP Nightmare */}
-                <button
-                  onClick={() => handleDifficultySelect("zirp")}
-                  className="mtg-card"
-                  style={{ width: "100%", height: "auto", padding: "var(--space-4)", aspectRatio: "auto", borderColor: "var(--color-accent-warm)" }}
-                  aria-label="ZIRP Nightmare Difficulty: $30,000 cash, AI upgrade every 4 turns"
-                >
-                  <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", textAlign: "left" }}>
-                    <span className="sim-stat__value" style={{ color: "var(--color-accent-warm-strong)" }}>ZIRP Nightmare</span>
-                    <span className="sim-stat__label">Hard Mode</span>
-                    <div className="sim-mode__target">Target <strong>$140B</strong></div>
-                    <div className="sim-mode__detail">~12 min · ≈10% win rate</div>
-                    <p style={{ fontSize: "11px", color: "var(--color-fg-2)", margin: "0" }}>
-                      Start with <strong>$30,000</strong> cash (only enough to hire exactly 1 worker).<br />
-                      AI upgrades at neck-breaking speeds (every <strong>4 turns</strong>).<br />
-                      No room for error. One bad OKR redefinition will bankrupt you.
-                    </p>
-                  </div>
-                </button>
+                {(
+                  [
+                    {
+                      id: "boardroom" as const,
+                      title: "Boardroom",
+                      subtitle: "Easy · 15 min",
+                      target: "$1.1B",
+                      cash: "$500k",
+                      body: "Comfortable room. AI upgrades every 7 turns.",
+                      icon: <Building size={48} />,
+                    },
+                    {
+                      id: "reality" as const,
+                      title: "Reality",
+                      subtitle: "Standard · 10 min",
+                      target: "$25B",
+                      cash: "$250k",
+                      body: "The authentic consulting experience.",
+                      icon: <BuildingOffice size={48} />,
+                    },
+                    {
+                      id: "zirp" as const,
+                      title: "ZIRP Nightmare",
+                      subtitle: "Hard · 8 min",
+                      target: "$140B",
+                      cash: "$30k",
+                      body: "1 worker. Rent-free t1-2. No room for error.",
+                      icon: <Warning size={48} />,
+                    },
+                  ]
+                ).map((m) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    className={`sim-mode__card sim-mode__card--${m.id}`}
+                    onClick={() => handleDifficultySelect(m.id)}
+                    aria-label={`${m.title}: start with ${m.cash} cash, reach ${m.target}`}
+                  >
+                    <div className="sim-mode__icon" aria-hidden>{m.icon}</div>
+                    <h2 className="sim-mode__title">{m.title}</h2>
+                    <p className="sim-mode__sub">{m.subtitle}</p>
+                    <div className="sim-mode__target">Reach <strong>{m.target}</strong></div>
+                    <div className="sim-mode__cash">Start: {m.cash}</div>
+                    <p className="sim-mode__body">{m.body}</p>
+                  </button>
+                ))}
               </div>
             </div>
           </div>
