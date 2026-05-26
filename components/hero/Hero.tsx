@@ -222,44 +222,6 @@ export function Hero() {
           </div>
         </div>
 
-        <nav className="rt-hero__index" aria-label="Section index">
-          <a href="#hook" className="rt-hero__index-item">
-            <span className="rt-hero__index-num">00</span>
-            <span className="rt-hero__index-label">
-              The hook
-              <span className="rt-hero__index-arrow" aria-hidden>→</span>
-            </span>
-          </a>
-          <a href="#business" className="rt-hero__index-item">
-            <span className="rt-hero__index-num">01</span>
-            <span className="rt-hero__index-label">
-              Business &amp; Leadership
-              <span className="rt-hero__index-arrow" aria-hidden>→</span>
-            </span>
-          </a>
-          <a href="#creative" className="rt-hero__index-item">
-            <span className="rt-hero__index-num">02</span>
-            <span className="rt-hero__index-label">
-              Creative Playground
-              <span className="rt-hero__index-arrow" aria-hidden>→</span>
-            </span>
-          </a>
-          <a href="#technical" className="rt-hero__index-item">
-            <span className="rt-hero__index-num">03</span>
-            <span className="rt-hero__index-label">
-              Technical · Deep End
-              <span className="rt-hero__index-arrow" aria-hidden>→</span>
-            </span>
-          </a>
-          <a href="#media-kit" className="rt-hero__index-item">
-            <span className="rt-hero__index-num">04</span>
-            <span className="rt-hero__index-label">
-              Media Kit
-              <span className="rt-hero__index-arrow" aria-hidden>→</span>
-            </span>
-          </a>
-        </nav>
-
         <div className="rt-hero__scroll-hint" aria-hidden>
           <span>SCROLL · THE HOOK BEGINS</span>
           <span className="rt-hero__scroll-line" />

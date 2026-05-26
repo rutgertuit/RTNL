@@ -6,9 +6,10 @@ const PROJECTS = [
     id: "D · 01",
     name: "Luminary",
     desc:
-      "Multi-agent research orchestrator. Locally compiled briefs that get longer the more you trust them.",
-    tags: ["NEXT.JS · TS", "GEMMA · LOCAL"],
+      "Voice-first deep-research agent. Multi-phase pipeline (query analysis → study planning → iterative source-grounded research → claim validation → synthesis) that reads the result back aloud. Google ADK + Gemini + ElevenLabs on Cloud Run.",
+    tags: ["GOOGLE ADK", "GEMINI", "ELEVENLABS"],
     status: "open",
+    href: "https://github.com/rutgertuit/Luminary",
   },
   {
     id: "D · 02",
@@ -165,6 +166,22 @@ export function TechnicalIndex() {
                 >
                   {content}
                 </Link>
+              );
+            }
+
+            const externalHref = "href" in p ? (p as { href: string }).href : undefined;
+            if (externalHref) {
+              return (
+                <a
+                  key={p.id}
+                  href={externalHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rt-tile rt-tile--linked"
+                  data-corner={p.id.replace("D · ", "NODE-")}
+                >
+                  {content}
+                </a>
               );
             }
 
