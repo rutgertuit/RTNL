@@ -29,6 +29,8 @@ import { ProjectionProvider, ProjectionConsumer } from "./ProjectionContext";
 import type { Action } from "./reducer";
 import { HudTile } from "@/components/agent-game/HudTile";
 import { SimButton } from "@/components/agent-game/SimButton";
+import { EmployeeAvatar } from "@/components/agent-game/EmployeeAvatar";
+import { CardTile } from "@/components/agent-game/CardTile";
 import {
   Cash,
   Building,
@@ -792,23 +794,21 @@ export default function AgentGameClient() {
                             <span className="sim-desk__badge sim-desk__badge--critical" title="Token hallucination — needs Markdown Wiki">⚠</span>
                           )}
                         </div>
-                        <svg className="sim-desk__character" viewBox="0 0 60 70" aria-hidden>
-                          {isAgent ? (
-                            <>
-                              <rect x="14" y="14" width="32" height="40" rx="3" fill="currentColor" />
-                              <rect x="18" y="20" width="24" height="2" fill="#0B0B0C" />
-                              <rect x="18" y="26" width="24" height="2" fill="#0B0B0C" />
-                              <rect x="18" y="32" width="24" height="2" fill="#0B0B0C" />
-                              <circle cx="20" cy="46" r="1.5" fill="goldenrod" />
-                              <circle cx="26" cy="46" r="1.5" fill="#a3be8c" />
-                            </>
-                          ) : (
-                            <>
-                              <circle cx="30" cy="18" r="10" fill="currentColor" />
-                              <path d="M14 50 L14 38 Q14 28 30 28 Q46 28 46 38 L46 50 Z" fill="currentColor" />
-                            </>
-                          )}
-                        </svg>
+                        {isAgent ? (
+                          <svg className="sim-desk__character" viewBox="0 0 60 70" aria-hidden>
+                            <rect x="14" y="14" width="32" height="40" rx="3" fill="currentColor" />
+                            <rect x="18" y="20" width="24" height="2" fill="#0B0B0C" />
+                            <rect x="18" y="26" width="24" height="2" fill="#0B0B0C" />
+                            <rect x="18" y="32" width="24" height="2" fill="#0B0B0C" />
+                            <circle cx="20" cy="46" r="1.5" fill="goldenrod" />
+                            <circle cx="26" cy="46" r="1.5" fill="#a3be8c" />
+                          </svg>
+                        ) : (
+                          <EmployeeAvatar
+                            employee={emp}
+                            projected={projected?.employees.find((p) => p.id === emp.id) ?? null}
+                          />
+                        )}
                         <svg className="sim-desk__furniture" viewBox="0 0 100 36" aria-hidden>
                           <rect x="0" y="20" width="100" height="14" rx="2" fill="#3a352e" />
                           <rect x="0" y="20" width="100" height="2" fill="rgba(255,255,255,0.08)" />
@@ -1229,73 +1229,43 @@ export default function AgentGameClient() {
                 ✓ You&apos;ve played a card this turn. End the turn to play another.
               </div>
             )}
-            <div className="sim-hand-shelf" role="group" aria-label="Cards in hand">
+            <div className="sim-hand-shelf sim-cards-grid" role="group" aria-label="Cards in hand">
               {state.cardsHand.map((cardId, index) => {
                 const card = CARD_DATABASE[cardId];
                 if (!card) return null;
                 const isSelected = selectedCardId === cardId;
+                const hoverHandlers = withHover(
+                  hover,
+                  card.requiresTarget
+                    ? state.employees[0]
+                      ? { type: "PLAY_CARD", cardId, targetEmployeeId: state.employees[0].id }
+                      : null
+                    : { type: "PLAY_CARD", cardId },
+                );
+                const disabled =
+                  state.isGameOver ||
+                  !!state.activeEventId ||
+                  !!state.draftChoices ||
+                  state.playedCardThisTurn === true ||
+                  state.cash < card.cost;
                 return (
-                  <button
+                  <CardTile
                     key={`${cardId}-${index}`}
-                    type="button"
-                    onClick={() => handleCardClick(cardId)}
-                    onDoubleClick={() => {
-                      if (!card.requiresTarget && !state.playedCardThisTurn) {
+                    card={card}
+                    selected={isSelected}
+                    disabled={disabled}
+                    onSelect={() => handleCardClick(cardId)}
+                    onPlay={() => {
+                      if (card.requiresTarget) {
+                        // Keep current selection so the target-hint shows on the
+                        // office floor; user clicks a desk to confirm target.
                         setSelectedCardId(cardId);
-                        dispatch({ type: "PLAY_CARD", cardId });
-                        setSelectedCardId(null);
+                      } else {
+                        handlePlayNoTargetCard();
                       }
                     }}
-                    onKeyDown={(e) => handleCardKeyDown(e, cardId)}
-                    ref={(el) => { cardElementsRef.current[index] = el as HTMLButtonElement | null; }}
-                    tabIndex={0}
-                    {...withHover(
-                      hover,
-                      card.requiresTarget
-                        ? state.employees[0]
-                          ? { type: "PLAY_CARD", cardId, targetEmployeeId: state.employees[0].id }
-                          : null
-                        : { type: "PLAY_CARD", cardId },
-                    )}
-                    className={`mtg-card mtg-card--${card.class} ${isSelected ? "mtg-card--selected" : ""}`}
-                    aria-label={`${card.name}, Cost: ${card.cost}. ${card.rulesText}${isSelected && !card.requiresTarget ? ". Press Enter to play." : ""}`}
-                    aria-pressed={isSelected}
-                  >
-                    <div className="mtg-card__header">
-                      <h3 className="mtg-card__name" style={{ fontSize: "13px" }}>{card.name}</h3>
-                      <span className="mtg-card__cost">play ${(card.cost / 1000)}k</span>
-                    </div>
-                    <div className="mtg-card__type">Sorcery — {card.class}</div>
-                    <div className="mtg-card__art-window">
-                      {renderCardArt(card.id)}
-                    </div>
-                    <div className="mtg-card__textbox">
-                      <p className="mtg-card__rules">{card.rulesText}</p>
-                      <p className="mtg-card__flavor">{card.flavor}</p>
-                    </div>
-                    {isSelected && !card.requiresTarget && !state.playedCardThisTurn && (
-                      <span
-                        className="mtg-card__play"
-                        role="button"
-                        tabIndex={0}
-                        onClick={(e) => { e.stopPropagation(); handlePlayNoTargetCard(); }}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handlePlayNoTargetCard();
-                          }
-                        }}
-                      >
-                        Play this card <span aria-hidden>→</span>
-                      </span>
-                    )}
-                    {isSelected && card.requiresTarget && !state.playedCardThisTurn && (
-                      <span className="mtg-card__play mtg-card__play--target">
-                        Click a desk to target <span aria-hidden>→</span>
-                      </span>
-                    )}
-                  </button>
+                    {...hoverHandlers}
+                  />
                 );
               })}
             </div>
