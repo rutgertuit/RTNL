@@ -121,7 +121,7 @@ export default function CharacterSheetPage() {
           <div className="rt-tuit__stage">
             <h2 className="rt-tuit__stage-marker">
               <span className="rt-tuit__stage-num">01</span>
-              <span className="rt-tuit__stage-label"><a href="https://flow.google.com" rel="noopener noreferrer" target="_blank">Google Flow</a> · Use Character</span>
+              <span className="rt-tuit__stage-label"><a href="https://labs.google/fx/tools/flow" rel="noopener noreferrer" target="_blank">Google Flow</a> · Use Character</span>
             </h2>
             <div className="rt-tuit__stage-body">
               <p>

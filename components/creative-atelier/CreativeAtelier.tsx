@@ -103,28 +103,24 @@ export function CreativeAtelier() {
         <div className="rt-creative__grid">
           {/* Image */}
           <article className="rt-creative__panel">
-            <div className="rt-creative__panel-art">
-              <Image
-                src="/assets/portraits/02-warehouse.png"
-                alt=""
-                width={1440}
-                height={1920}
-                sizes="(max-width: 720px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
-              <Image
-                src="/assets/portraits/03-cinematic.png"
-                alt=""
-                width={1440}
-                height={1920}
-                sizes="(max-width: 720px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
-              <Image
-                src="/assets/portraits/04-profile.png"
-                alt=""
-                width={1440}
-                height={1920}
-                sizes="(max-width: 720px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
+            <div className="rt-creative__panel-art rt-creative__panel-art--grid">
+              {[
+                "01-studio",
+                "02-warehouse",
+                "03-cinematic",
+                "04-profile",
+                "05-mid-shot",
+                "06-stage",
+              ].map((id) => (
+                <Image
+                  key={id}
+                  src={`/assets/portraits/${id}.png`}
+                  alt=""
+                  width={1248}
+                  height={1248}
+                  sizes="(max-width: 720px) 33vw, (max-width: 1200px) 16vw, 11vw"
+                />
+              ))}
             </div>
             <div className="rt-creative__panel-meta">
               <div className="eyebrow">IMAGE · NANO BANANA</div>

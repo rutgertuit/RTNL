@@ -1320,7 +1320,11 @@ html {
   background: var(--color-bg-base);
 }
 .rt-mk__photo img {
-  width: 100%; aspect-ratio: 3 / 4; object-fit: cover; display: block;
+  /* Square crop keeps the press-kit gallery compact (6 photos in two rows
+     of three at desktop ≈ 720px tall total, vs ~1280px when the photos
+     were 3:4). Source PNGs are 1248×1664 portrait — object-fit: cover
+     centers the head-and-shoulders crop. */
+  width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block;
   filter: contrast(1.05) saturate(0.9);
 }
 .rt-mk__photo figcaption {

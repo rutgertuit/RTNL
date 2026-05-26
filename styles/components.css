@@ -879,15 +879,16 @@ body { padding-top: 0; }
 .rt-creative__panel-art img {
   object-position: center 20%;
 }
-.rt-creative__panel:first-of-type .rt-creative__panel-art {
-  grid-template-columns: 1.5fr 1fr 1fr;
+.rt-creative__panel:first-of-type .rt-creative__panel-art--grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1px;
+  align-items: start;
 }
-.rt-creative__panel:first-of-type .rt-creative__panel-art img:first-child {
-  aspect-ratio: 4 / 5;
-}
-.rt-creative__panel:first-of-type .rt-creative__panel-art img:nth-child(n+2) {
-  aspect-ratio: 3 / 5;
+.rt-creative__panel:first-of-type .rt-creative__panel-art--grid img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
 }
 .rt-creative__panel--motion .rt-creative__video {
   aspect-ratio: 21 / 11;
@@ -1233,8 +1234,7 @@ body { padding-top: 0; }
   .rt-hero__index { grid-template-columns: 1fr 1fr; max-width: 100%; }
   .rt-hero__index-num { font-size: clamp(20px, 5vw, 28px); }
   .rt-creative__panel:last-of-type { grid-template-columns: 1fr; }
-  .rt-creative__panel:first-of-type .rt-creative__panel-art { grid-template-columns: 1fr 1fr; }
-  .rt-creative__panel:first-of-type .rt-creative__panel-art img:nth-child(3) { display: none; }
+  .rt-creative__panel:first-of-type .rt-creative__panel-art--grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 /* Fix L (H-6): Mobile hero scrim — body copy needs contrast against the warehouse
