@@ -24,6 +24,7 @@ import {
   TURN_PROMOTION_UNLOCKED,
   MAX_PROMOTIONS_PER_TURN,
 } from "./reducer";
+import { nextTier, setupCostOf, rentOf, type OfficeTier } from "./office";
 
 
 // --- Tutorial copy for turns 1..5 ---
@@ -121,6 +122,9 @@ export default function AgentGameClient() {
       gameResult: null as "win" | "lose" | null,
       activeEventId: null,
       draftChoices: null,
+      officeTier: "home" as OfficeTier,
+      overcapacityCollapseTurns: 0,
+      upgradedOfficeThisTurn: false,
     };
   });
 
@@ -157,6 +161,15 @@ export default function AgentGameClient() {
               typeof parsed.nextEntityId === "number"
                 ? parsed.nextEntityId
                 : (parsed.employees?.length ?? 0) + 1000,
+            // Phase 5b.2 / 5b.3 backfill for saves predating the office tier.
+            officeTier:
+              parsed.officeTier === "home" || parsed.officeTier === "coworking" || parsed.officeTier === "kantoorpand"
+                ? parsed.officeTier
+                : "home",
+            overcapacityCollapseTurns:
+              typeof parsed.overcapacityCollapseTurns === "number" ? parsed.overcapacityCollapseTurns : 0,
+            upgradedOfficeThisTurn:
+              typeof parsed.upgradedOfficeThisTurn === "boolean" ? parsed.upgradedOfficeThisTurn : false,
           };
           dispatch({ type: "LOAD_STATE", state: hydrated });
         } else {
@@ -844,6 +857,35 @@ export default function AgentGameClient() {
                 <span className="sim-fs__move-btn-cost">turn {TURN_AGENT_UNLOCKED}</span>
               </button>
             )}
+            {(() => {
+              const target = nextTier(state.officeTier);
+              if (!target) return null;
+              const cost = setupCostOf(target) + rentOf(target);
+              const disabled =
+                !!state.upgradedOfficeThisTurn ||
+                state.cash < cost ||
+                state.isGameOver ||
+                state.activeEventId !== null ||
+                state.draftChoices !== null;
+              return (
+                <button
+                  type="button"
+                  className={`sim-fs__move-btn ${state.upgradedOfficeThisTurn ? "is-used" : ""}`}
+                  disabled={disabled}
+                  onClick={() => dispatch({ type: "UPGRADE_OFFICE", tier: target })}
+                  title={
+                    state.upgradedOfficeThisTurn
+                      ? "Already upgraded the office this turn."
+                      : `Upgrade office: ${state.officeTier} → ${target}. Cost: $${cost.toLocaleString()} (setup + first month's rent).`
+                  }
+                >
+                  <span className="sim-fs__move-btn-name">
+                    {state.upgradedOfficeThisTurn ? "✓ Office upgraded" : `🏢 Upgrade → ${target}`}
+                  </span>
+                  <span className="sim-fs__move-btn-cost">${(cost / 1000).toLocaleString()}k</span>
+                </button>
+              );
+            })()}
             <button
               type="button"
               onClick={handleRedefineOkrs}

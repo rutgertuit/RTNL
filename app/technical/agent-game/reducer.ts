@@ -15,6 +15,16 @@ import {
   TRAIT_DATABASE,
   EVENT_DATABASE,
 } from "./cards";
+import {
+  capacityOf,
+  rentOf,
+  setupCostOf,
+  isOvercapacity,
+  overcapacityProductivityPenalty,
+  overcapacityLoyaltyDelta,
+  nextTier,
+  type OfficeTier,
+} from "./office";
 import { createRng, type Rng } from "./rng";
 
 // ============================================================
@@ -26,6 +36,7 @@ export type Action =
   | { type: "EMPLOY_AGENT" } // homologue cortex node (Hermes) agent hire
   | { type: "PROMOTE_WORKER"; employeeId: string }
   | { type: "REDEFINE_OKRS" }
+  | { type: "UPGRADE_OFFICE"; tier: OfficeTier }
   | { type: "END_TURN" }
   | { type: "RESET_GAME"; difficulty: "boardroom" | "reality" | "zirp" }
   | { type: "LOAD_STATE"; state: GameState }
@@ -112,6 +123,13 @@ export const createInitialState = (
   let startingCash = 250000;
   if (difficulty === "boardroom") startingCash = 500000;
   if (difficulty === "zirp") startingCash = 30000; // ZIRP Nightmare edge starts
+
+  // Phase 5b.2: every run starts with a 'home' office. Deduct the setup cost
+  // up front so the starting balance reflects the office tier. ZIRP at 30k
+  // setup goes to exactly $0 — survives bankruptcy check (-1M floor) but
+  // leaves zero room for any first-turn spend. Re-baseline will quantify;
+  // ZIRP free-rent in Phase 5b.8 will help.
+  startingCash -= setupCostOf("home");
 
   const traitKeys = Object.keys(TRAIT_DATABASE);
   const shuffledTraits = shuffleArray(traitKeys, startRng);
@@ -200,6 +218,9 @@ export const createInitialState = (
     gameResult: null,
     activeEventId: null,
     draftChoices: null,
+    officeTier: "home" as OfficeTier,
+    overcapacityCollapseTurns: 0,
+    upgradedOfficeThisTurn: false,
   };
 };
 
@@ -443,6 +464,50 @@ export function gameReducer(state: GameState, action: Action): GameState {
         eventLog: [
           ...state.eventLog,
           `🤖 Hired AI Cognitive Agent ${name} for $15,000. Required: Markdown Wiki documentation active for proper synergy.`,
+        ],
+      };
+    }
+
+    case "UPGRADE_OFFICE": {
+      if (state.isGameOver) return state;
+      if (state.upgradedOfficeThisTurn) {
+        return {
+          ...state,
+          eventLog: [...state.eventLog, "Already upgraded the office this turn."],
+        };
+      }
+      const candidate = nextTier(state.officeTier);
+      if (candidate === null) {
+        return {
+          ...state,
+          eventLog: [...state.eventLog, "No further office tiers available."],
+        };
+      }
+      if (candidate !== action.tier) {
+        // Can only upgrade to the immediate next tier — skip silently to keep
+        // the log clean if a stale UI click races against a state change.
+        return state;
+      }
+      const cost = setupCostOf(action.tier) + rentOf(action.tier);
+      if (state.cash < cost) {
+        return {
+          ...state,
+          eventLog: [
+            ...state.eventLog,
+            `Insufficient cash to upgrade to ${action.tier} (need $${cost.toLocaleString()}).`,
+          ],
+        };
+      }
+      return {
+        ...state,
+        cash: state.cash - cost,
+        officeTier: action.tier,
+        upgradedOfficeThisTurn: true,
+        overcapacityCollapseTurns: 0, // upgrading resets the collapse timer
+        lastSnapshot: { ...state, lastSnapshot: null },
+        eventLog: [
+          ...state.eventLog,
+          `🏢 Office upgrade: ${state.officeTier} → ${action.tier} (-$${cost.toLocaleString()})`,
         ],
       };
     }
@@ -784,6 +849,17 @@ export function gameReducer(state: GameState, action: Action): GameState {
         (e) => e.traitId === "perkel" && e.turnsOnboarded >= (state.hasDocumentation ? 3 : 6)
       );
 
+      // Phase 5b.2: capacity check based on HUMAN headcount only — agents
+      // don't take a desk. We snapshot the pre-turn human count so this
+      // turn's revenue & loyalty calculations reflect the office state the
+      // player committed to (resignations land at the end of the turn).
+      const humanHeadcountPreTurn = state.employees.filter((e) => e.type === "human").length;
+      const capCheck = { headcount: humanHeadcountPreTurn, tier: state.officeTier };
+      const isOver = isOvercapacity(capCheck);
+      const nextOvercapacityCollapseTurns = isOver ? state.overcapacityCollapseTurns + 1 : 0;
+      const overcapMultClamped = Math.max(0, 1 + overcapacityProductivityPenalty(capCheck));
+      const overcapLoyaltyHit = overcapacityLoyaltyDelta(capCheck);
+
       // Decrement temporary event durations
       const nextBoardAngerTurns = state.boardAngerTurns && state.boardAngerTurns > 0 ? state.boardAngerTurns - 1 : 0;
       const nextRtoActiveTurns = state.rtoActiveTurns && state.rtoActiveTurns > 0 ? state.rtoActiveTurns - 1 : 0;
@@ -952,7 +1028,8 @@ export function gameReducer(state: GameState, action: Action): GameState {
           pptMult *
           rtoMult *
           traitProdMult *
-          agentSynergyMult;
+          agentSynergyMult *
+          overcapMultClamped;
         totalTurnRevenue += finalProductivity;
 
         const pdpDecayMultiplier = e.promotionLevel > 1 && !e.hasPDP ? 2 : 1;
@@ -971,6 +1048,9 @@ export function gameReducer(state: GameState, action: Action): GameState {
         }
 
         nextLoyalty = nextLoyalty - decay;
+
+        // Phase 5b.2: office overcapacity loyalty hit (-3 flat per overcap turn)
+        nextLoyalty = nextLoyalty + overcapLoyaltyHit;
 
         // Margaret Patcher passive: Loyalty cannot drop below 1%
         if (e.traitId === "patcher") {
@@ -1029,7 +1109,18 @@ export function gameReducer(state: GameState, action: Action): GameState {
         );
       }
 
-      const totalExpenses = totalSalaries + totalOverhead + leakageCashCost + agentUndocumentedCost;
+      // Phase 5b.2: office rent. No ZIRP free-rent yet (that's 5b.8).
+      const rent = rentOf(state.officeTier);
+      logs.push(
+        `🏢 Rent: -$${rent.toLocaleString()} (${state.officeTier}, cap ${capacityOf(state.officeTier)}).`
+      );
+      if (isOver) {
+        logs.push(
+          `⚠️ Office over capacity: ${humanHeadcountPreTurn} humans vs ${capacityOf(state.officeTier)} desks (${nextOvercapacityCollapseTurns}/6 turns until collapse). Productivity ×${overcapMultClamped.toFixed(2)}, loyalty ${overcapLoyaltyHit}.`
+        );
+      }
+
+      const totalExpenses = totalSalaries + totalOverhead + leakageCashCost + agentUndocumentedCost + rent;
       let nextCash = state.cash + totalTurnRevenue - totalExpenses;
 
       // 6. Dividend reward
@@ -1120,6 +1211,12 @@ export function gameReducer(state: GameState, action: Action): GameState {
         logs.push(
           `❌ GAME OVER: Bankrupt! Your cash fell below -$1,000,000. Jochem and Edgar have sued the company.`
         );
+      } else if (nextOvercapacityCollapseTurns > 5) {
+        isGameOver = true;
+        gameResult = "lose";
+        logs.push(
+          `❌ GAME OVER: Office collapse. Your team has been over capacity for 6 consecutive turns.`
+        );
       } else if (nextValuation >= winThreshold) {
         isGameOver = true;
         gameResult = "win";
@@ -1174,6 +1271,11 @@ export function gameReducer(state: GameState, action: Action): GameState {
         surgeThrottledTurnsLeft: nextSurgeThrottledTurnsLeft,
         freezeHiringNextTurn: false, // Decays at the end of the turn
         lastSnapshot: null, // GG.2: clear undo snapshot at turn boundary
+        // Phase 5b.2 / 5b.3: office tier carries; only UPGRADE_OFFICE mutates
+        // officeTier. Reset the per-turn upgrade lock. Carry overcapacity
+        // counter forward (zeroed earlier if this turn was at-cap).
+        overcapacityCollapseTurns: nextOvercapacityCollapseTurns,
+        upgradedOfficeThisTurn: false,
         eventLog: [...state.eventLog, ...logs],
       };
     }

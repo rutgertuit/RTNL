@@ -1,3 +1,5 @@
+import type { OfficeTier } from "./office";
+
 export interface Employee {
   id: string;
   name: string;
@@ -197,6 +199,12 @@ export interface GameState {
   // GG.2: Snapshot of state before last player action — cleared on END_TURN.
   // Used by the Undo button. Never recurses (lastSnapshot within snapshot is null).
   lastSnapshot?: GameState | null;
+  // Phase 5b.2 / 5b.3: office tier model.
+  officeTier: OfficeTier;
+  /** Tracks consecutive turns the office has been over capacity. >5 = overcapacity_collapse loss. */
+  overcapacityCollapseTurns: number;
+  /** True after UPGRADE_OFFICE this turn; reset in END_TURN. Prevents double-upgrades. */
+  upgradedOfficeThisTurn: boolean;
 }
 
 // ============================================================

@@ -22,7 +22,8 @@ export type CauseOfDeath =
   | "win"
   | "bankruptcy"
   | "valuation_miss"
-  | "talent_walkout";
+  | "talent_walkout"
+  | "overcapacity_collapse";
 
 export interface Strategy {
   /** Returns the next action to take this turn, or `null` to end the turn. */
@@ -97,5 +98,6 @@ function deriveCauseOfDeath(state: GameState): CauseOfDeath {
   if (state.gameResult === "win") return "win";
   if (state.cash <= -1_000_000) return "bankruptcy";
   if (state.employees.filter((e) => e.type === "human").length === 0) return "talent_walkout";
+  if (state.overcapacityCollapseTurns > 5) return "overcapacity_collapse";
   return "valuation_miss";
 }

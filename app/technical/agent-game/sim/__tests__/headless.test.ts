@@ -42,6 +42,6 @@ describe("runHeadlessGame", () => {
 
   it("classifies the run as one of the known causes of death", () => {
     const r = runHeadlessGame({ difficulty: "zirp", seed: 5, strategy: naiveHire });
-    expect(["bankruptcy", "valuation_miss", "win", "talent_walkout"]).toContain(r.causeOfDeath);
+    expect(["bankruptcy", "valuation_miss", "win", "talent_walkout", "overcapacity_collapse"]).toContain(r.causeOfDeath);
   });
 });
