@@ -9,1159 +9,80 @@ import {
   Employee,
   GameState,
   CARD_DATABASE,
-  renderCardArt,
-  renderEmployeeArt,
   TRAIT_DATABASE,
   EVENT_DATABASE,
 } from "./cards";
+// Reducer + initial-state + gating constants live in a pure (React-free) module
+// so the headless sim harness (sim/headless.ts) can drive them too. Anything
+// the UI references below is re-exported from ./reducer.
+import {
+  gameReducer,
+  TURN_AGENT_UNLOCKED,
+  TURN_CARDS_UNLOCKED,
+  TURN_PROMOTION_UNLOCKED,
+  MAX_PROMOTIONS_PER_TURN,
+} from "./reducer";
+import { nextTier, setupCostOf, rentOf, capacityOf, type OfficeTier } from "./office";
+import { ProjectionProvider, ProjectionConsumer } from "./ProjectionContext";
+import type { Action } from "./reducer";
+import { HudTile, CountUp } from "@/components/agent-game/HudTile";
+import { SimButton } from "@/components/agent-game/SimButton";
+import { EmployeeAvatar } from "@/components/agent-game/EmployeeAvatar";
+import { CardTile } from "@/components/agent-game/CardTile";
+import { OfficePlate } from "@/components/agent-game/OfficePlate";
+import { FeboVendingMachine } from "@/components/agent-game/FeboVendingMachine";
+import { Edgar } from "@/components/agent-game/Edgar";
+import { EndCard } from "@/components/agent-game/EndCard";
+import {
+  Cash,
+  Building,
+  BuildingOffice,
+  Chip,
+  Scroll,
+  UserPlus,
+  BotPlus,
+  Target,
+  Layers,
+  Sparkles,
+  ArrowRight,
+  Warning,
+} from "@/components/agent-game/icons";
 
-// ============================================================
-// Types & Actions
-// ============================================================
-export type Action =
-  | { type: "PLAY_CARD"; cardId: string; targetEmployeeId?: string }
-  | { type: "EMPLOY_WORKER" }
-  | { type: "EMPLOY_AGENT" } // homologue cortex node (Hermes) agent hire
-  | { type: "PROMOTE_WORKER"; employeeId: string }
-  | { type: "REDEFINE_OKRS" }
-  | { type: "END_TURN" }
-  | { type: "RESET_GAME"; difficulty: "boardroom" | "reality" | "zirp" }
-  | { type: "LOAD_STATE"; state: GameState }
-  | { type: "CHOOSE_EVENT_OPTION"; option: "A" | "B" }
-  | { type: "DRAFT_CARD"; cardId: string }
-  | { type: "SKIP_DRAFT" }
-  | { type: "UNDO" }
-  | { type: "DISMISS_TUTORIAL"; turn: number };
-
-// Tutorial gating — mechanics unlock by turn so new players see one
-// concept at a time instead of all of them on turn 1.
-//   Turn 1: Hire Human, Redefine OKRs, advance.
-//   Turn 2: revenue/onboarding becomes visible (just status).
-//   Turn 3: promotion unlocks (capped at 1/turn).
-//   Turn 4: cognitive agent unlocks (deliberately unproductive at first).
-//   Turn 5: card hand unlocks.
-const TURN_AGENT_UNLOCKED = 4;
-const TURN_CARDS_UNLOCKED = 5;
-const TURN_PROMOTION_UNLOCKED = 3;
-const MAX_PROMOTIONS_PER_TURN = 1;
-
-const EMPLOYEE_NAMES = [
-  "Edgar",
-  "Jochem",
-  "Lous",
-  "Jos",
-  "Storm",
-  "Debby",
-  "Jules",
-  "Fleur",
-  "Wouter",
-  "Boudewijn",
-  "Dwight",
-  "Michael",
-  "Pam",
-  "Jim",
-];
-
-const INITIAL_DECK = [
-  "markdown_wiki", "markdown_wiki",
-  "pdp", "pdp", "pdp", "pdp",
-  "kroket_lunch", "kroket_lunch", "kroket_lunch",
-  "hei_sessie", "hei_sessie",
-  "kantoortuin",
-  "gpt5_wrapper", "gpt5_wrapper",
-  "kroket_lobby",
-  "vage_okr", "vage_okr",
-  "auditor", "auditor",
-  "powerpoint_clinic",
-  "koffie_apparaat",
-];
-
-/** Returns the famous-person display name for log messages and tooltips.
- *  Falls back to emp.name for legacy state without a traitId. */
-function getDisplayName(emp: { name: string; traitId?: string }): string {
-  return (emp.traitId ? TRAIT_DATABASE[emp.traitId]?.displayName : undefined) ?? emp.name;
-}
-
-function shuffleArray<T>(array: T[]): T[] {
-  const arr = [...array];
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const temp = arr[i]!;
-    arr[i] = arr[j]!;
-    arr[j] = temp;
-  }
-  return arr;
-}
-
-// Initial state builder based on difficulty
-export const createInitialState = (difficulty: "boardroom" | "reality" | "zirp"): GameState => {
-  // Guarantee at least 1 Markdown Wiki card in the starting hand to avoid bad RNG draw curves
-  const deckWithoutWiki = [...INITIAL_DECK];
-  const wikiIdx = deckWithoutWiki.indexOf("markdown_wiki");
-  if (wikiIdx > -1) {
-    deckWithoutWiki.splice(wikiIdx, 1);
-  }
-  const shuffledRest = shuffleArray(deckWithoutWiki);
-  const cardsHand = ["markdown_wiki", ...shuffledRest.slice(0, 4)];
-  const cardsDeck = shuffledRest.slice(4);
-
-  let startingCash = 250000;
-  if (difficulty === "boardroom") startingCash = 500000;
-  if (difficulty === "zirp") startingCash = 30000; // ZIRP Nightmare edge starts
-
-  const traitKeys = Object.keys(TRAIT_DATABASE);
-  const shuffledTraits = shuffleArray(traitKeys);
-
-  const initialEmployees: Employee[] = [
-    {
-      id: "emp_1",
-      name: "Edgar",
-      type: "human",
-      promotionLevel: 1,
-      experience: 0,
-      loyalty: 100,
-      hasPDP: true,
-      inspirationTurnsLeft: 0,
-      isAsleep: false,
-      turnsOnboarded: 6,
-      pptPoisoningTurns: 0,
-      traitId: shuffledTraits[0],
-    },
-    {
-      id: "emp_2",
-      name: "Jochem",
-      type: "human",
-      promotionLevel: 1,
-      experience: 0,
-      loyalty: 85,
-      hasPDP: false,
-      inspirationTurnsLeft: 0,
-      isAsleep: false,
-      turnsOnboarded: 6,
-      pptPoisoningTurns: 0,
-      traitId: shuffledTraits[1],
-    },
-    {
-      id: "emp_3",
-      name: "Lous",
-      type: "human",
-      promotionLevel: 1,
-      experience: 0,
-      loyalty: 90,
-      hasPDP: false,
-      inspirationTurnsLeft: 0,
-      isAsleep: false,
-      turnsOnboarded: 0,
-      pptPoisoningTurns: 0,
-      traitId: shuffledTraits[2],
-    },
-  ];
-
-  // Initial Valuation calculations
-  const baseRevenue = 20000;
-  const initialRev = baseRevenue * 2 + baseRevenue * 0.1;
-  const peMultiplier = 7;
-  const initialValuation = (initialRev * 12 * peMultiplier) + startingCash;
-
-  const winThresholdLabel = difficulty === "boardroom" ? "$1.1B" : difficulty === "reality" ? "$25B" : "$140B";
-
+// Phase 5c.2/5c.3 — Hover-projection presentation helpers.
+//
+// `withHover` returns the 4 handlers that wire an action surface to the
+// projection context. Spread it onto a <button> or interactive element:
+//   <button {...withHover(hover, { type: "EMPLOY_WORKER" })} onClick={...}>
+// Pass `null` (or skip the call) when an action shouldn't preview (e.g. a
+// card needing a target with no good default).
+function withHover(
+  hover: (a: Action | null) => void,
+  action: Action | null,
+): {
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
+  onFocus: () => void;
+  onBlur: () => void;
+} {
   return {
-    version: 1,
-    difficulty,
-    turn: 1,
-    cash: startingCash,
-    valuation: initialValuation,
-    okrLevel: 0,
-    agentVersion: 0,
-    employees: initialEmployees,
-    cardsHand,
-    cardsDeck,
-    cardsDiscard: [],
-    eventLog: [
-      "--- SYSTEM START ---",
-      `Difficulty: ${difficulty.toUpperCase()}`,
-      `Survive 30 turns of exponential AI upgrades and reach a ${winThresholdLabel} valuation.`,
-      "Avoid bankruptcy: keep cash above -$1,000,000.",
-    ],
-    hasDocumentation: false,
-    hasKroketLobby: false,
-    hasKoffieApparaat: false,
-    kantoortuinPenaltyTurns: 0,
-    redefinedOkrsThisTurn: false,
-    hypeTurnsLeft: 0,
-    isGameOver: false,
-    gameResult: null,
-    activeEventId: null,
-    draftChoices: null,
+    onMouseEnter: () => hover(action),
+    onMouseLeave: () => hover(null),
+    onFocus: () => hover(action),
+    onBlur: () => hover(null),
   };
-};
-
-// ============================================================
-// State Reducer
-// ============================================================
-function gameReducer(state: GameState, action: Action): GameState {
-  if (
-    state &&
-    (state.activeEventId !== null || state.draftChoices !== null) &&
-    action.type !== "CHOOSE_EVENT_OPTION" &&
-    action.type !== "DRAFT_CARD" &&
-    action.type !== "SKIP_DRAFT" &&
-    action.type !== "RESET_GAME" &&
-    action.type !== "LOAD_STATE"
-  ) {
-    return state;
-  }
-
-  switch (action.type) {
-    case "LOAD_STATE":
-      return action.state;
-
-    case "RESET_GAME":
-      return createInitialState(action.difficulty);
-
-    case "UNDO": {
-      if (!state.lastSnapshot) return state;
-      return state.lastSnapshot;
-    }
-
-    case "SKIP_DRAFT": {
-      if (!state.draftChoices) return state;
-      return { ...state, draftChoices: null };
-    }
-
-    case "DISMISS_TUTORIAL": {
-      const dismissed = state.tutorialDismissed ?? [];
-      if (dismissed.includes(action.turn)) return state;
-      return { ...state, tutorialDismissed: [...dismissed, action.turn] };
-    }
-
-    case "CHOOSE_EVENT_OPTION": {
-      if (state.isGameOver || !state.activeEventId) return state;
-      const event = EVENT_DATABASE[state.activeEventId];
-      if (!event) return state;
-
-      let nextCash = state.cash;
-      let updatedEmployees = [...state.employees];
-      let boardAngerTurns = state.boardAngerTurns ?? 0;
-      let freezeHiringNextTurn = state.freezeHiringNextTurn ?? false;
-      let rtoActiveTurns = state.rtoActiveTurns ?? 0;
-      let surgeTurnsLeft = state.surgeTurnsLeft ?? 0;
-      let surgeThrottledTurnsLeft = state.surgeThrottledTurnsLeft ?? 0;
-
-      const logs = [`⚖️ Corporate Event Decision Resolved: ${event.title}`];
-
-      if (action.option === "A") {
-        logs.push(`Selected Option A: ${event.optionALabel}`);
-        logs.push(`Effect: ${event.optionAFlavor}`);
-        
-        if (state.activeEventId === "kpmg_audit") {
-          nextCash = Math.max(-1000000, nextCash - 30000);
-        } else if (state.activeEventId === "rto_mandate") {
-          updatedEmployees = updatedEmployees.map(e => e.type === "human" ? { ...e, loyalty: Math.max(0, e.loyalty - 20) } : e);
-          rtoActiveTurns = 1;
-        } else if (state.activeEventId === "headcount_freeze") {
-          nextCash += 25000;
-          freezeHiringNextTurn = true;
-        } else if (state.activeEventId === "kroket_shortage") {
-          nextCash = Math.max(-1000000, nextCash - 10000);
-        } else if (state.activeEventId === "homelab_surge") {
-          nextCash = Math.max(-1000000, nextCash - 20000);
-          surgeTurnsLeft = 1;
-        }
-      } else {
-        logs.push(`Selected Option B: ${event.optionBLabel}`);
-        logs.push(`Effect: ${event.optionBFlavor}`);
-
-        if (state.activeEventId === "kpmg_audit") {
-          updatedEmployees = updatedEmployees.map(e => e.type === "human" ? { ...e, loyalty: Math.max(0, e.loyalty - 15) } : e);
-        } else if (state.activeEventId === "rto_mandate") {
-          nextCash = Math.max(-1000000, nextCash - 15000);
-          updatedEmployees = updatedEmployees.map(e => e.type === "human" ? { ...e, loyalty: Math.min(100, e.loyalty + 10) } : e);
-        } else if (state.activeEventId === "headcount_freeze") {
-          boardAngerTurns = 3;
-        } else if (state.activeEventId === "kroket_shortage") {
-          updatedEmployees = updatedEmployees.map(e => e.type === "human" ? { ...e, loyalty: Math.max(0, e.loyalty - 15) } : e);
-        } else if (state.activeEventId === "homelab_surge") {
-          updatedEmployees = updatedEmployees.map(e => e.type === "human" ? { ...e, loyalty: Math.min(100, e.loyalty + 10) } : e);
-          surgeThrottledTurnsLeft = 1;
-        }
-      }
-
-      return {
-        ...state,
-        cash: nextCash,
-        employees: updatedEmployees,
-        boardAngerTurns,
-        freezeHiringNextTurn,
-        rtoActiveTurns,
-        surgeTurnsLeft,
-        surgeThrottledTurnsLeft,
-        activeEventId: null, // Clear event overlay blocker
-        eventLog: [...state.eventLog, ...logs],
-      };
-    }
-
-    case "DRAFT_CARD": {
-      // Single log emission — reducer is the source of truth. No useEffect re-fires this.
-      // Guard: if draftChoices already cleared (e.g. StrictMode double-dispatch), bail early.
-      if (state.isGameOver || !state.draftChoices) return state;
-      const card = CARD_DATABASE[action.cardId];
-      if (!card) return state;
-
-      const logs = [`🃏 Drafted Card: ${card.name} added to hand.`];
-
-      // Add to hand and discard pile (deck structure)
-      const nextHand = [...state.cardsHand, action.cardId];
-      const nextDiscard = [action.cardId, ...state.cardsDiscard];
-
-      return {
-        ...state,
-        cardsHand: nextHand,
-        cardsDiscard: nextDiscard,
-        draftChoices: null, // Clear overlay — second dispatch sees draftChoices=null and returns early
-        eventLog: [...state.eventLog, ...logs],
-      };
-    }
-
-    case "EMPLOY_WORKER": {
-      if (state.isGameOver) return state;
-      if (state.hiredThisTurn) {
-        return {
-          ...state,
-          eventLog: [
-            ...state.eventLog,
-            "Already hired this turn. End the turn to hire again — pacing matters.",
-          ],
-        };
-      }
-      const cost = 30000;
-      if (state.cash < cost) {
-        return {
-          ...state,
-          eventLog: [...state.eventLog, "Cannot hire worker: insufficient cash (requires $30,000)."],
-        };
-      }
-
-      const activeNames = state.employees.map((e) => e.name);
-      const availableNames = EMPLOYEE_NAMES.filter((n) => !activeNames.includes(n));
-      const name = availableNames[0] ?? `Worker ${state.employees.length + 1}`;
-
-      const traitKeys = Object.keys(TRAIT_DATABASE);
-      const randomTraitId = traitKeys[Math.floor(Math.random() * traitKeys.length)]!;
-      const traitInfo = TRAIT_DATABASE[randomTraitId]!;
-
-      const newEmployee: Employee = {
-        id: `emp_${Date.now()}`,
-        name,
-        type: "human",
-        promotionLevel: 1,
-        experience: 0,
-        loyalty: 100,
-        hasPDP: false,
-        inspirationTurnsLeft: 0,
-        isAsleep: false,
-        turnsOnboarded: 0,
-        pptPoisoningTurns: 0,
-        traitId: randomTraitId,
-      };
-
-      return {
-        ...state,
-        cash: state.cash - cost,
-        employees: [...state.employees, newEmployee],
-        hiredThisTurn: true,
-        lastSnapshot: { ...state, lastSnapshot: null },
-        eventLog: [
-          ...state.eventLog,
-          `💼 Hired ${traitInfo.displayName} for $30,000 (onboarding: ${state.hasDocumentation ? "3" : "6"} turns).`,
-        ],
-      };
-    }
-
-    case "EMPLOY_AGENT": {
-      if (state.isGameOver) return state;
-      if (state.turn < TURN_AGENT_UNLOCKED) {
-        return {
-          ...state,
-          eventLog: [
-            ...state.eventLog,
-            `Cognitive Agents unlock at turn ${TURN_AGENT_UNLOCKED}. Frontier AI hasn't shipped yet.`,
-          ],
-        };
-      }
-      if (state.hiredThisTurn) {
-        return {
-          ...state,
-          eventLog: [
-            ...state.eventLog,
-            "Already hired this turn. One headcount move per turn — end the turn first.",
-          ],
-        };
-      }
-      const cost = 15000;
-      if (state.cash < cost) {
-        return {
-          ...state,
-          eventLog: [...state.eventLog, "Cannot deploy agent: insufficient cash (requires $15,000)."],
-        };
-      }
-
-      const agentCount = state.employees.filter((e) => e.type === "agent").length + 1;
-      const name = `Hermes-Node_${agentCount}`;
-
-      const newAgent: Employee = {
-        id: `agent_${Date.now()}`,
-        name,
-        type: "agent",
-        promotionLevel: 1,
-        experience: 0,
-        loyalty: 100, // Agents don't decay loyalty unless undocumented AI frustration happens
-        hasPDP: true, // Auto PDP
-        inspirationTurnsLeft: 0,
-        isAsleep: false,
-        turnsOnboarded: 3, // Starts fully onboarded
-        pptPoisoningTurns: 0,
-      };
-
-      return {
-        ...state,
-        cash: state.cash - cost,
-        employees: [...state.employees, newAgent],
-        hiredThisTurn: true,
-        lastSnapshot: { ...state, lastSnapshot: null },
-        eventLog: [
-          ...state.eventLog,
-          `🤖 Hired AI Cognitive Agent ${name} for $15,000. Required: Markdown Wiki documentation active for proper synergy.`,
-        ],
-      };
-    }
-
-    case "PROMOTE_WORKER": {
-      if (state.isGameOver) return state;
-      if (state.turn < TURN_PROMOTION_UNLOCKED) {
-        return {
-          ...state,
-          eventLog: [
-            ...state.eventLog,
-            `Promotion is unlocked from turn ${TURN_PROMOTION_UNLOCKED}. End the turn to advance the tutorial.`,
-          ],
-        };
-      }
-      const promotionsUsed = state.promotionsThisTurn ?? 0;
-      if (promotionsUsed >= MAX_PROMOTIONS_PER_TURN) {
-        return {
-          ...state,
-          eventLog: [
-            ...state.eventLog,
-            `You can only promote one employee per turn. End the turn to promote again next round.`,
-          ],
-        };
-      }
-      const emp = state.employees.find((e) => e.id === action.employeeId);
-      if (!emp) return state;
-      if (emp.type === "agent") {
-        return {
-          ...state,
-          eventLog: [...state.eventLog, `Cannot promote ${getDisplayName(emp)}: AI Agents do not receive human title promotions.`],
-        };
-      }
-      if (emp.promotionLevel >= 3) {
-        return {
-          ...state,
-          eventLog: [...state.eventLog, `Cannot promote ${getDisplayName(emp)}: already at max Level 3.`],
-        };
-      }
-
-      const cost = emp.promotionLevel === 1 ? 15000 : 40000;
-      if (state.cash < cost) {
-        return {
-          ...state,
-          eventLog: [
-            ...state.eventLog,
-            `Cannot promote ${getDisplayName(emp)}: insufficient cash (requires $${cost.toLocaleString()}).`,
-          ],
-        };
-      }
-
-      const nextLevel = (emp.promotionLevel + 1) as 1 | 2 | 3;
-      const hasPDP = emp.hasPDP;
-      const logs = [`📈 Promoted ${getDisplayName(emp)} to Level ${nextLevel} for $${cost.toLocaleString()}.`];
-
-      if (!hasPDP) {
-        logs.push(
-          `⚠️ WARNING: ${getDisplayName(emp)} promoted without a Build-Plan PDP! -30% productivity penalty and double loyalty decay applied.`
-        );
-      }
-
-      const isTaylorShift = emp.traitId === "shift";
-      const isMargaretPatcher = emp.traitId === "patcher";
-      if (isTaylorShift) {
-        logs.push(`🎤 POP ERA: Taylor Shift's promotion tour boosts all other active humans' loyalty by +8%!`);
-      }
-      if (isMargaretPatcher) {
-        logs.push(`👵 IRON LADY: Margaret Patcher does not inspire anyone upon promotion.`);
-      }
-
-      const updatedEmployees = state.employees.map((e) => {
-        if (e.id === action.employeeId) {
-          return {
-            ...e,
-            promotionLevel: nextLevel,
-            loyalty: 100,
-          };
-        } else {
-          let loyaltyVal = e.loyalty;
-          if (isTaylorShift && e.type === "human") {
-            loyaltyVal = Math.min(100, loyaltyVal + 8);
-          }
-          if (!isMargaretPatcher && e.promotionLevel < nextLevel && e.type === "human") {
-            logs.push(`✨ ${getDisplayName(e)} is inspired by ${getDisplayName(emp)}'s promotion! (+50% productivity for 5 turns)`);
-            return {
-              ...e,
-              inspirationTurnsLeft: 5,
-              loyalty: loyaltyVal,
-            };
-          } else {
-            return {
-              ...e,
-              loyalty: loyaltyVal,
-            };
-          }
-        }
-      });
-
-      return {
-        ...state,
-        cash: state.cash - cost,
-        employees: updatedEmployees,
-        promotionsThisTurn: (state.promotionsThisTurn ?? 0) + 1,
-        lastSnapshot: { ...state, lastSnapshot: null },
-        eventLog: [...state.eventLog, ...logs],
-      };
-    }
-
-    case "REDEFINE_OKRS": {
-      if (state.isGameOver) return state;
-      if (state.redefinedOkrsThisTurn) {
-        return {
-          ...state,
-          eventLog: [
-            ...state.eventLog,
-            "Already redefined OKRs this turn. The team can't handle two alignment meetings in a row.",
-          ],
-        };
-      }
-      const cost = 10000;
-      if (state.cash < cost) {
-        return {
-          ...state,
-          eventLog: [...state.eventLog, "Cannot redefine OKRs: insufficient cash (requires $10,000)."],
-        };
-      }
-      if (state.okrLevel >= 5) {
-        return {
-          ...state,
-          eventLog: [...state.eventLog, "Cannot redefine OKRs: already at max level 5."],
-        };
-      }
-
-      const nextOkr = state.okrLevel + 1;
-      const logs = [
-        `🔄 Redefined OKRs to Level ${nextOkr} for $10,000.`,
-        `⚠️ Alignment Meeting: All employees suffer -40% productivity for this turn.`,
-        `📈 Global long-term productivity multiplier increased to +${nextOkr * 15}%.`,
-      ];
-
-      return {
-        ...state,
-        cash: state.cash - cost,
-        okrLevel: nextOkr,
-        redefinedOkrsThisTurn: true,
-        lastSnapshot: { ...state, lastSnapshot: null },
-        eventLog: [...state.eventLog, ...logs],
-      };
-    }
-
-    case "PLAY_CARD": {
-      if (state.isGameOver) return state;
-      if (state.turn < TURN_CARDS_UNLOCKED) {
-        return {
-          ...state,
-          eventLog: [
-            ...state.eventLog,
-            `Cards unlock at turn ${TURN_CARDS_UNLOCKED}. Your playbook hasn't been published yet.`,
-          ],
-        };
-      }
-      if (state.playedCardThisTurn) {
-        return {
-          ...state,
-          eventLog: [
-            ...state.eventLog,
-            "Already played a card this turn. One card per turn — end the turn to play another.",
-          ],
-        };
-      }
-      const card = CARD_DATABASE[action.cardId];
-      if (!card) return state;
-
-      if (state.cash < card.cost) {
-        return {
-          ...state,
-          eventLog: [
-            ...state.eventLog,
-            `Cannot play ${card.name}: insufficient cash (requires $${card.cost.toLocaleString()}).`,
-          ],
-        };
-      }
-
-      if (card.requiresTarget && !action.targetEmployeeId) {
-        return {
-          ...state,
-          eventLog: [...state.eventLog, `Cannot play ${card.name}: target employee required.`],
-        };
-      }
-
-      let updatedEmployees = [...state.employees];
-      let nextCash = state.cash - card.cost;
-      let hasDocumentation = state.hasDocumentation;
-      let agentVersion = state.agentVersion;
-      let hasKroketLobby = state.hasKroketLobby;
-      let hasKoffieApparaat = state.hasKoffieApparaat;
-      let kantoortuinPenaltyTurns = state.kantoortuinPenaltyTurns;
-      let okrLevel = state.okrLevel;
-      let redefinedOkrsThisTurn = state.redefinedOkrsThisTurn;
-      let hypeTurnsLeft = state.hypeTurnsLeft;
-
-      const logs = [`🎴 Card Played: ${card.name} (-$${card.cost.toLocaleString()}).`];
-
-      if (card.id === "markdown_wiki") {
-        hasDocumentation = true;
-        logs.push(`📖 Documentation Enabled! Onboarding times cut in half. AI agent compliance audits mitigated.`);
-      } else if (card.id === "pdp") {
-        updatedEmployees = updatedEmployees.map((e) => {
-          if (e.id === action.targetEmployeeId) {
-            logs.push(`📋 Applied Build-Plan PDP to ${getDisplayName(e)}. They can now be promoted safely.`);
-            return { ...e, hasPDP: true };
-          }
-          return e;
-        });
-      } else if (card.id === "kroket_lunch") {
-        updatedEmployees = updatedEmployees.map((e) => {
-          if (e.id === action.targetEmployeeId) {
-            const isMarieFurie = e.traitId === "furie";
-            const loyaltyGain = isMarieFurie ? 50 : 35;
-            logs.push(`🍔 ${getDisplayName(e)} ate two kroketten. Loyalty +${loyaltyGain}${isMarieFurie ? " (Marie Furie Radical Energy bonus!)" : ""}, but fell asleep ('tapped') for 1 turn.`);
-            return { ...e, loyalty: Math.min(100, e.loyalty + loyaltyGain), isAsleep: true };
-          }
-          return e;
-        });
-      } else if (card.id === "hei_sessie") {
-        const promoter = updatedEmployees.find((e) => e.id === action.targetEmployeeId);
-        if (promoter) {
-          logs.push(`🌲 Hei-sessie: ${getDisplayName(promoter)} is inspired (+20 Loyalty, +50% productivity for 5 turns).`);
-          updatedEmployees = updatedEmployees.map((e) => {
-            if (e.id === action.targetEmployeeId) {
-              return { ...e, loyalty: Math.min(100, e.loyalty + 20), inspirationTurnsLeft: 5 };
-            } else if (e.promotionLevel < promoter.promotionLevel && e.type === "human") {
-              logs.push(`✨ ${getDisplayName(e)} is inspired by ${getDisplayName(promoter)}'s leadership!`);
-              return { ...e, inspirationTurnsLeft: 5 };
-            }
-            return e;
-          });
-        }
-      } else if (card.id === "kantoortuin") {
-        kantoortuinPenaltyTurns = 2;
-        updatedEmployees = updatedEmployees.map((e) => ({
-          ...e,
-          loyalty: Math.min(100, e.loyalty + 15),
-        }));
-        logs.push(
-          `🏢 Kantoortuin Herinrichting: All employees +15 Loyalty, but get distracted (-10% productivity for 2 turns).`
-        );
-      } else if (card.id === "gpt5_wrapper") {
-        agentVersion = Math.min(6, agentVersion + 1);
-        logs.push(`🤖 Upgraded AI Agent to version v${agentVersion}!`);
-        hypeTurnsLeft = 3;
-        logs.push(`🚀 MARKET HYPE ACTIVE: AI Wrapper hype spikes P/E multiplier by +8x for 3 turns!`);
-        if (!hasDocumentation) {
-          nextCash -= 25000;
-          logs.push(
-            `⚠️ Compliance Alert: No documentation active! Tunneling tokens caused immediate Token Leakage penalty (-$25,000 cash).`
-          );
-        }
-      } else if (card.id === "kroket_lobby") {
-        hasKroketLobby = true;
-        logs.push(
-          `🏪 Febo Kroket-automatiek installed in the lobby. Employees will gain passive loyalty at the end of each turn.`
-        );
-      } else if (card.id === "vage_okr") {
-        if (okrLevel < 5) {
-          okrLevel += 1;
-          redefinedOkrsThisTurn = true;
-          logs.push(`🔄 OKR Level increased to ${okrLevel}. Immediate -40% alignment penalty applied this turn.`);
-        } else {
-          logs.push(`OKR Level already at max (5).`);
-        }
-      } else if (card.id === "auditor") {
-        if (hasDocumentation) {
-          logs.push(`🧹 Auditor cleared token compliance concerns. Discharged compliance penalty risks.`);
-        } else {
-          logs.push(`❌ Auditor cannot proceed without Markdown Wiki documentation.`);
-          return {
-            ...state,
-            eventLog: [...state.eventLog, "Cannot play Auditor: requires Markdown Wiki documentation active."],
-          };
-        }
-      } else if (card.id === "powerpoint_clinic") {
-        updatedEmployees = updatedEmployees.map((e) => {
-          if (e.id === action.targetEmployeeId) {
-            logs.push(
-              `📊 ${getDisplayName(e)} attended PowerPoint Clinic. Loyalty +40, but PowerPoint Poisoning applied (-20% productivity for 3 turns).`
-            );
-            return { ...e, loyalty: Math.min(100, e.loyalty + 40), pptPoisoningTurns: 3 };
-          }
-          return e;
-        });
-      } else if (card.id === "koffie_apparaat") {
-        hasKoffieApparaat = true;
-        logs.push(
-          `☕ Jochem's Koffie-apparaat installed. All workers gain +10% productivity permanently, maintenance costs $1,000/turn.`
-        );
-      }
-
-      const handIndex = state.cardsHand.indexOf(action.cardId);
-      const nextHand = [...state.cardsHand];
-      if (handIndex > -1) {
-        nextHand.splice(handIndex, 1);
-      }
-      const nextDiscard = [action.cardId, ...state.cardsDiscard];
-
-      return {
-        ...state,
-        cash: nextCash,
-        hasDocumentation,
-        agentVersion,
-        hasKroketLobby,
-        hasKoffieApparaat,
-        kantoortuinPenaltyTurns,
-        okrLevel,
-        redefinedOkrsThisTurn,
-        hypeTurnsLeft,
-        employees: updatedEmployees,
-        cardsHand: nextHand,
-        cardsDiscard: nextDiscard,
-        playedCardThisTurn: true,
-        lastSnapshot: { ...state, lastSnapshot: null },
-        eventLog: [...state.eventLog, ...logs],
-      };
-    }
-
-    case "END_TURN": {
-      if (state.isGameOver) return state;
-
-      const currentTurn = state.turn;
-      const logs = [`--- TURN ${currentTurn} SUMMARY ---`];
-
-      // 0. Active traits and event checks
-      const isAngelaActive = state.employees.some(
-        (e) => e.traitId === "perkel" && e.turnsOnboarded >= (state.hasDocumentation ? 3 : 6)
-      );
-
-      // Decrement temporary event durations
-      const nextBoardAngerTurns = state.boardAngerTurns && state.boardAngerTurns > 0 ? state.boardAngerTurns - 1 : 0;
-      const nextRtoActiveTurns = state.rtoActiveTurns && state.rtoActiveTurns > 0 ? state.rtoActiveTurns - 1 : 0;
-      const nextSurgeTurnsLeft = state.surgeTurnsLeft && state.surgeTurnsLeft > 0 ? state.surgeTurnsLeft - 1 : 0;
-      const nextSurgeThrottledTurnsLeft = state.surgeThrottledTurnsLeft && state.surgeThrottledTurnsLeft > 0 ? state.surgeThrottledTurnsLeft - 1 : 0;
-
-      // 1. Onboarding Progression
-      let updatedEmployees = state.employees.map((e) => {
-        const onboardingTarget = state.hasDocumentation ? 3 : 6;
-        const employeeOnboardingTarget = e.traitId === "zweistein" ? Math.max(1, Math.floor(onboardingTarget / 2)) : onboardingTarget;
-        if (e.turnsOnboarded < employeeOnboardingTarget) {
-          const nextOnboard = e.turnsOnboarded + 1;
-          if (nextOnboard === employeeOnboardingTarget) {
-            logs.push(`🎉 ${getDisplayName(e)} is now fully onboarded and ready at 100% capacity.`);
-          } else {
-            logs.push(`📈 ${getDisplayName(e)} onboarding progress: ${nextOnboard}/${employeeOnboardingTarget} turns.`);
-          }
-          return {
-            ...e,
-            turnsOnboarded: nextOnboard,
-            experience: e.experience + 1,
-          };
-        }
-        return {
-          ...e,
-          experience: e.experience + 1,
-        };
-      });
-
-      // 2. Exponential AI Upgrade (cadence depends on difficulty)
-      const upgradeCadence =
-        state.difficulty === "boardroom" ? 7 : state.difficulty === "zirp" ? 4 : 5;
-
-      let nextAgentVersion = state.agentVersion;
-      if (currentTurn % upgradeCadence === 0) {
-        nextAgentVersion = Math.min(6, nextAgentVersion + 1);
-        logs.push(`🤖 EXPONENTIAL UPGRADE: The industry has updated! AI Agent is now v${nextAgentVersion}.`);
-        if (nextAgentVersion > 2 && !state.hasDocumentation) {
-          logs.push(
-            `⚠️ WARNING: Your lack of Markdown documentation causes integration mismatch with v${nextAgentVersion}.`
-          );
-        }
-      }
-
-      // 3. Loyalty Passive Adjustments (Kroket Lobby)
-      if (state.hasKroketLobby) {
-        updatedEmployees = updatedEmployees.map((e) => ({
-          ...e,
-          loyalty: Math.min(100, e.loyalty + 2),
-        }));
-      }
-
-      // 4. homelab Node connection: Cognitive Agents helper check
-      const activeAgentsCount = updatedEmployees.filter((e) => e.type === "agent").length;
-
-      // Calculate Individual Productivity, Revenue, Salaries, and Loyalty Decay
-      let totalTurnRevenue = 0;
-      let totalSalaries = 0;
-
-      const okrDecayPenalty = state.okrLevel * 3;
-      const hasTokenLeakage = nextAgentVersion > 2 && !state.hasDocumentation;
-      const leakageDecayPenalty = hasTokenLeakage ? 4 : 0;
-      // If undocumented agent is active, add extra decay penalty due to troubleshoot anger
-      const agentTroubleDecay = (!state.hasDocumentation && activeAgentsCount > 0) ? 5 : 0;
-      
-      const baseLoyaltyDecay = 4 + okrDecayPenalty + leakageDecayPenalty + agentTroubleDecay;
-
-      const activeEmployeesAfterTurn: Employee[] = [];
-
-      updatedEmployees.forEach((e) => {
-        // AI Agents don't have salaries or normal loyalty decay but suffer from no documentation
-        if (e.type === "agent") {
-          let agentLoyalty = e.loyalty;
-          if (!state.hasDocumentation) {
-            agentLoyalty = Math.max(0, agentLoyalty - 15);
-            logs.push(`⚠️ ${getDisplayName(e)} is hallucinating due to lack of docs. Core alignment drops.`);
-          }
-          if (agentLoyalty > 0) {
-            activeEmployeesAfterTurn.push({
-              ...e,
-              loyalty: agentLoyalty,
-              isAsleep: false,
-            });
-          } else {
-            logs.push(`❌ CRASH: AI Agent ${getDisplayName(e)} has suffered token collapse and crashed.`);
-          }
-          return;
-        }
-
-        // Human employee logic
-        const onboardingTarget = state.hasDocumentation ? 3 : 6;
-        const employeeOnboardingTarget = e.traitId === "zweistein" ? Math.max(1, Math.floor(onboardingTarget / 2)) : onboardingTarget;
-        const isOnboarded = e.turnsOnboarded >= employeeOnboardingTarget;
-
-        let baseRevenue = 20000;
-        if (e.promotionLevel === 2) baseRevenue = 50000;
-        if (e.promotionLevel === 3) baseRevenue = 120000;
-
-        let salary = 8000;
-        if (e.promotionLevel === 2) salary = 18000;
-        if (e.promotionLevel === 3) salary = 45000;
-        
-        // Ronald Rump passive: +50% salary
-        if (e.traitId === "rump") {
-          salary = Math.floor(salary * 1.5);
-        }
-        totalSalaries += salary;
-
-        const onboardingMult = isOnboarded ? 1.0 : 0.1;
-        
-        // Ronald Rump passive: double OKR productivity multiplier boost
-        const okrMult = e.traitId === "rump" 
-          ? 1.0 + state.okrLevel * 0.30 
-          : 1.0 + state.okrLevel * 0.15;
-
-        let aiMult = 1.0;
-        if (nextAgentVersion === 1) aiMult = 2.0;
-        if (nextAgentVersion === 2) aiMult = 4.0;
-        if (nextAgentVersion === 3) aiMult = 12.0;
-        if (nextAgentVersion === 4) aiMult = 40.0;
-        if (nextAgentVersion === 5) aiMult = 150.0;
-        if (nextAgentVersion === 6) aiMult = 600.0;
-
-        // Melon Husk passive: double AI Version productivity leverage
-        if (e.traitId === "husk") {
-          aiMult = aiMult * 2.0;
-        }
-
-        const inspirationMult = e.inspirationTurnsLeft > 0 ? 1.5 : 1.0;
-        const asleepMult = e.isAsleep ? 0.0 : 1.0;
-        const pdpMult = e.promotionLevel > 1 && !e.hasPDP ? 0.7 : 1.0;
-        const kantoortuinMult = state.kantoortuinPenaltyTurns > 0 ? 0.9 : 1.0;
-        const okrMeetingMult = state.redefinedOkrsThisTurn ? 0.6 : 1.0;
-        const koffieMult = state.hasKoffieApparaat ? 1.1 : 1.0;
-        const pptMult = e.pptPoisoningTurns > 0 ? 0.8 : 1.0;
-
-        // Corporate Event RTO Mandate: +25% productivity to humans if active
-        const rtoMult = state.rtoActiveTurns && state.rtoActiveTurns > 0 ? 1.25 : 1.0;
-
-        // Traits permanent productivity bonuses
-        const traitProdMult = (e.traitId === "zweistein" || e.traitId === "furie") ? 1.2 : 1.0;
-
-        // homelab Agent synergy boost: if documented agents are active, each multiplies humans by 1.25x
-        let agentEffect = 0.25;
-        if (state.surgeTurnsLeft && state.surgeTurnsLeft > 0) {
-          agentEffect *= 1.5; // +50% Agent Prod
-        }
-        if (state.surgeThrottledTurnsLeft && state.surgeThrottledTurnsLeft > 0) {
-          agentEffect *= 0.7; // -30% Agent Prod
-        }
-        const agentSynergyMult = (state.hasDocumentation && activeAgentsCount > 0)
-          ? 1.0 + (activeAgentsCount * agentEffect)
-          : 1.0;
-
-        const finalProductivity =
-          baseRevenue *
-          onboardingMult *
-          okrMult *
-          aiMult *
-          inspirationMult *
-          asleepMult *
-          pdpMult *
-          kantoortuinMult *
-          okrMeetingMult *
-          koffieMult *
-          pptMult *
-          rtoMult *
-          traitProdMult *
-          agentSynergyMult;
-        totalTurnRevenue += finalProductivity;
-
-        const pdpDecayMultiplier = e.promotionLevel > 1 && !e.hasPDP ? 2 : 1;
-        
-        // Melon Husk passive: suffers 2x base loyalty decay
-        const huskDecayMultiplier = e.traitId === "husk" ? 2 : 1;
-        
-        const decay = baseLoyaltyDecay * pdpDecayMultiplier * huskDecayMultiplier;
-        
-        let nextLoyalty = e.loyalty;
-        
-        // Marie Furie passive: Restores +15 loyalty to herself upon sleeping
-        if (e.isAsleep && e.traitId === "furie") {
-          nextLoyalty = Math.min(100, nextLoyalty + 15);
-          logs.push(`✨ Marie Furie passive: Restores +15 loyalty while sleeping.`);
-        }
-        
-        nextLoyalty = nextLoyalty - decay;
-
-        // Margaret Patcher passive: Loyalty cannot drop below 1%
-        if (e.traitId === "patcher") {
-          nextLoyalty = Math.max(1, nextLoyalty);
-        } else {
-          nextLoyalty = Math.max(0, nextLoyalty);
-        }
-
-        if (nextLoyalty === 0) {
-          logs.push(`❌ RESIGNATION: ${getDisplayName(e)} has resigned in protest of corporate alignment meetings.`);
-        } else if (nextLoyalty <= 20) {
-          logs.push(
-            `⚠️ WARNING: ${getDisplayName(e)} loyalty is critical (${Math.floor(nextLoyalty)}%)! Promote them or play Broodje Kroket.`
-          );
-        }
-
-        const nextInspiration = Math.max(0, e.inspirationTurnsLeft - 1);
-        const nextPpt = Math.max(0, e.pptPoisoningTurns - 1);
-
-        if (nextLoyalty > 0) {
-          activeEmployeesAfterTurn.push({
-            ...e,
-            loyalty: Math.floor(nextLoyalty),
-            inspirationTurnsLeft: nextInspiration,
-            isAsleep: false,
-            pptPoisoningTurns: nextPpt,
-          });
-        }
-      });
-
-      // 5. Overhead, Agent Costs, & Penalties
-      let totalOverhead = 15000;
-      if (state.hasKoffieApparaat) {
-        // Angela Perkel passive: Halves coffee apparatus maintenance cost to $500
-        const coffeeMaintenance = isAngelaActive ? 500 : 1000;
-        totalOverhead += coffeeMaintenance;
-        if (isAngelaActive) {
-          logs.push(`🇩🇪 Angela Perkel passive: coffee apparatus maintenance cost is halved to $500.`);
-        }
-      }
-
-      // homelab node agent penalty: if undocumented, agents cost $10,000/turn in maintenance
-      let agentUndocumentedCost = 0;
-      if (!state.hasDocumentation && activeAgentsCount > 0) {
-        agentUndocumentedCost = activeAgentsCount * 10000;
-        logs.push(
-          `💸 Troubleshooting Tax: Troubled Cognitive Agents costed $${agentUndocumentedCost.toLocaleString()} resolving token errors.`
-        );
-      }
-
-      let leakageCashCost = 0;
-      if (hasTokenLeakage) {
-        leakageCashCost = (nextAgentVersion - 2) * 20000;
-        logs.push(
-          `💸 Compliance Tax: Token Leakage with v${nextAgentVersion} costed $${leakageCashCost.toLocaleString()} in API fines.`
-        );
-      }
-
-      const totalExpenses = totalSalaries + totalOverhead + leakageCashCost + agentUndocumentedCost;
-      let nextCash = state.cash + totalTurnRevenue - totalExpenses;
-
-      // 6. Dividend reward
-      if (nextCash > 0) {
-        const dividend = Math.floor(nextCash * 0.02);
-        nextCash += dividend;
-        logs.push(`💰 Treasury Dividend: Earned $${dividend.toLocaleString()} (2% yield on positive reserves).`);
-      }
-
-      logs.push(
-        `📊 Financials: Revenue $${totalTurnRevenue.toLocaleString()} | Expenses $${totalExpenses.toLocaleString()}`
-      );
-
-      // 7. Valuation
-      let peMultiplier = state.hasDocumentation ? 10 + nextAgentVersion * 4 : 7;
-      if (state.hypeTurnsLeft > 0) {
-        peMultiplier += 8;
-      }
-      if (state.boardAngerTurns && state.boardAngerTurns > 0) {
-        peMultiplier = Math.max(1, peMultiplier - 10);
-        logs.push(`⚠️ Boardroom Anger active: P/E multiplier reduced by 10x (${state.boardAngerTurns} turns left).`);
-      }
-      
-      const annualizedRevenue = totalTurnRevenue * 12;
-      const nextValuation = annualizedRevenue * peMultiplier + nextCash;
-
-      let hypeText = "";
-      if (state.hypeTurnsLeft > 0) {
-        hypeText = ` (including +8x Hype bonus, ${state.hypeTurnsLeft} turns left)`;
-      }
-      logs.push(`📈 Valuation updated: $${nextValuation.toLocaleString()} (P/E Multiplier: ${peMultiplier}x${hypeText}).`);
-
-      const nextHypeTurnsLeft = Math.max(0, state.hypeTurnsLeft - 1);
-      if (state.hypeTurnsLeft > 0 && nextHypeTurnsLeft === 0) {
-        logs.push(`📉 Hype Bubble Popped: Market valuation multiplier normalized.`);
-      }
-
-      const nextKantoortuinTurns = Math.max(0, state.kantoortuinPenaltyTurns - 1);
-
-      // 9. Card Draw (draw up to 4 automatically, draft the 5th)
-      const currentHand = [...state.cardsHand];
-      let currentDeck = [...state.cardsDeck];
-      let currentDiscard = [...state.cardsDiscard];
-
-      const cardsNeeded = 4 - currentHand.length;
-      if (cardsNeeded > 0) {
-        const cardsDrawn: string[] = [];
-        for (let i = 0; i < cardsNeeded; i++) {
-          if (currentDeck.length === 0) {
-            if (currentDiscard.length === 0) break;
-            currentDeck = shuffleArray(currentDiscard);
-            currentDiscard = [];
-            logs.push(`🎴 Deck shuffled from discard pile.`);
-          }
-          const cardDrawn = currentDeck.shift();
-          if (cardDrawn) {
-            const dbCard = CARD_DATABASE[cardDrawn];
-            if (dbCard) {
-              cardsDrawn.push(dbCard.name);
-              currentHand.push(cardDrawn);
-            }
-          }
-        }
-        if (cardsDrawn.length > 0) {
-          logs.push(`🎴 Drew ${cardsDrawn.length} cards: ${cardsDrawn.join(", ")}.`);
-        }
-      }
-
-      // Determine corporate event triggers: triggers every 5 turns
-      let nextActiveEventId: string | null = null;
-      if (currentTurn % 5 === 0) {
-        const eventKeys = Object.keys(EVENT_DATABASE);
-        nextActiveEventId = eventKeys[Math.floor(Math.random() * eventKeys.length)]!;
-        logs.push(`⚠️ ALERT: Corporate Event Triggered! ${EVENT_DATABASE[nextActiveEventId]?.title}`);
-      }
-
-      let isGameOver = false;
-      let gameResult: "win" | "lose" | null = null;
-
-      // Win thresholds re-tuned after one-action-per-bucket-per-turn caps.
-      // 3 x 100-game runs: Boardroom 71-75%, Reality 47-58%, ZIRP 0-2%.
-      const winThreshold = state.difficulty === "boardroom" ? 1100000000 : state.difficulty === "reality" ? 25000000000 : 140000000000;
-      const winThresholdLabel = state.difficulty === "boardroom" ? "$1.1 Billion" : state.difficulty === "reality" ? "$25 Billion" : "$140 Billion";
-
-      if (nextCash < -1000000) {
-        isGameOver = true;
-        gameResult = "lose";
-        logs.push(
-          `❌ GAME OVER: Bankrupt! Your cash fell below -$1,000,000. Jochem and Edgar have sued the company.`
-        );
-      } else if (nextValuation >= winThreshold) {
-        isGameOver = true;
-        gameResult = "win";
-        logs.push(
-          `🏆 VICTORY: You crossed the ${winThresholdLabel} valuation mark! The CEO has promoted you to 'General Manager of Cognitive Capital'.`
-        );
-      } else if (currentTurn >= 30) {
-        isGameOver = true;
-        if (nextValuation >= winThreshold) {
-          gameResult = "win";
-          logs.push(`🏆 VICTORY: You survived 30 turns and reached a valuation of $${nextValuation.toLocaleString()}!`);
-        } else {
-          gameResult = "lose";
-          logs.push(
-            `❌ GAME OVER: 30 turns completed, but valuation ($${nextValuation.toLocaleString()}) fell short of the ${winThresholdLabel} target.`
-          );
-        }
-      }
-
-      // Card drafting trigger: If game is not won or lost, select 3 random card keys and set draftChoices
-      let nextDraftChoices: string[] | null = null;
-      if (!isGameOver) {
-        const cardKeys = Object.keys(CARD_DATABASE);
-        nextDraftChoices = shuffleArray(cardKeys).slice(0, 3);
-      }
-
-      return {
-        ...state,
-        turn: currentTurn + 1,
-        cash: nextCash,
-        prevCash: state.cash, // capture pre-turn cash for delta display
-        valuation: nextValuation,
-        agentVersion: nextAgentVersion,
-        employees: activeEmployeesAfterTurn,
-        cardsHand: currentHand,
-        cardsDeck: currentDeck,
-        cardsDiscard: currentDiscard,
-        kantoortuinPenaltyTurns: nextKantoortuinTurns,
-        redefinedOkrsThisTurn: false,
-        promotionsThisTurn: 0, // Reset the per-turn promotion cap
-        hiredThisTurn: false,    // Reset hire-bucket cap (humans + agents)
-        playedCardThisTurn: false, // Reset card-play cap
-        hypeTurnsLeft: nextHypeTurnsLeft,
-        isGameOver,
-        gameResult,
-        activeEventId: nextActiveEventId,
-        draftChoices: nextDraftChoices,
-        boardAngerTurns: nextBoardAngerTurns,
-        rtoActiveTurns: nextRtoActiveTurns,
-        surgeTurnsLeft: nextSurgeTurnsLeft,
-        surgeThrottledTurnsLeft: nextSurgeThrottledTurnsLeft,
-        freezeHiringNextTurn: false, // Decays at the end of the turn
-        lastSnapshot: null, // GG.2: clear undo snapshot at turn boundary
-        eventLog: [...state.eventLog, ...logs],
-      };
-    }
-  }
 }
+
+// Compact money formatter for HUD ghost overlays. Matches the live HUD
+// rounding (k / M / B) so the projected "→ $X" doesn't visually disagree
+// with the current value formatting.
+function formatCashCompact(n: number): string {
+  const abs = Math.abs(n);
+  const sign = n < 0 ? "-" : "";
+  if (abs >= 1_000_000_000) return `${sign}$${(abs / 1_000_000_000).toFixed(1)}B`;
+  if (abs >= 1_000_000) return `${sign}$${(abs / 1_000_000).toFixed(1)}M`;
+  return `${sign}$${Math.round(abs / 1000)}k`;
+}
+
 
 // --- Tutorial copy for turns 1..5 ---
 // One screen per turn introducing exactly one new mechanic. Concise on
@@ -1234,6 +155,9 @@ export default function AgentGameClient() {
   const [state, dispatch] = useReducer(gameReducer, null, () => {
     return {
       version: 1 as const,
+      seed: 0,
+      rngTick: 0,
+      nextEntityId: 1,
       difficulty: "reality" as const,
       turn: 1,
       cash: 250000,
@@ -1255,13 +179,19 @@ export default function AgentGameClient() {
       gameResult: null as "win" | "lose" | null,
       activeEventId: null,
       draftChoices: null,
+      officeTier: "home" as OfficeTier,
+      officeChosen: false,
+      overcapacityCollapseTurns: 0,
+      upgradedOfficeThisTurn: false,
+      hangoverTurnsLeft: 0,
+      saunaActiveTurnsLeft: 0,
+      hasIso9001: false,
     };
   });
 
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [showDifficultySelector, setShowDifficultySelector] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
-  const [copiedText, setCopiedText] = useState(false);
   // Full-screen v3: bottom-drawer state — at most one drawer open at a time.
   const [drawer, setDrawer] = useState<"log" | "cards" | "details" | null>(null);
   // Fix FF: trait popover open state per employee id
@@ -1280,7 +210,37 @@ export default function AgentGameClient() {
         const parsed = JSON.parse(savedState);
         // Schema v1 guard
         if (parsed && parsed.version === 1 && parsed.difficulty) {
-          dispatch({ type: "LOAD_STATE", state: parsed });
+          // Backfill 5a.4 fields for saves predating state-seeded RNG.
+          // Existing employees may have Date.now()-based IDs — pick a
+          // nextEntityId comfortably past anything they could collide with.
+          const hydrated: GameState = {
+            ...parsed,
+            seed: typeof parsed.seed === "number" ? parsed.seed : Math.floor(Math.random() * 2 ** 31),
+            rngTick: typeof parsed.rngTick === "number" ? parsed.rngTick : 0,
+            nextEntityId:
+              typeof parsed.nextEntityId === "number"
+                ? parsed.nextEntityId
+                : (parsed.employees?.length ?? 0) + 1000,
+            // Phase 5b.2 / 5b.3 backfill for saves predating the office tier.
+            officeTier:
+              parsed.officeTier === "home" || parsed.officeTier === "coworking" || parsed.officeTier === "kantoorpand"
+                ? parsed.officeTier
+                : "home",
+            officeChosen: typeof parsed.officeChosen === "boolean" ? parsed.officeChosen : true,
+            // True for legacy saves — they were already past this gate.
+            overcapacityCollapseTurns:
+              typeof parsed.overcapacityCollapseTurns === "number" ? parsed.overcapacityCollapseTurns : 0,
+            upgradedOfficeThisTurn:
+              typeof parsed.upgradedOfficeThisTurn === "boolean" ? parsed.upgradedOfficeThisTurn : false,
+            // Phase 5b.5 backfill for saves predating the pre-AI era counters.
+            hangoverTurnsLeft:
+              typeof parsed.hangoverTurnsLeft === "number" ? parsed.hangoverTurnsLeft : 0,
+            saunaActiveTurnsLeft:
+              typeof parsed.saunaActiveTurnsLeft === "number" ? parsed.saunaActiveTurnsLeft : 0,
+            hasIso9001:
+              typeof parsed.hasIso9001 === "boolean" ? parsed.hasIso9001 : false,
+          };
+          dispatch({ type: "LOAD_STATE", state: hydrated });
         } else {
           // Clear legacy schema
           localStorage.removeItem("agent_inclusive_game_state");
@@ -1503,32 +463,6 @@ export default function AgentGameClient() {
     }
   };
 
-  // Generate shareable copy-pasteable scorecard text
-  const getShareableText = () => {
-    const turns = state.turn - 1;
-    const val = (state.valuation / 1000000000).toFixed(1);
-    const difficultyName = state.difficulty.toUpperCase();
-    
-    let comment = "";
-    if (state.gameResult === "win") {
-      comment = "🏆 CEO called me 'General Manager of Cognitive Capital'. Edgar is parameterised, Jochem has his coffee.";
-    } else if (state.cash < -1000000) {
-      comment = "💀 Bankrupt because of KPMG audit fees. Edgar sued the company and Lous went to a hei-sessie without me.";
-    } else {
-      comment = "⏱️ Time expired. Too much interpersonal vagueness. Lous spent 30% of her week bellen with Debiteuren.";
-    }
-
-    return `I survived ${turns} turns of the Agent Inclusive Sim [${difficultyName} Mode] — final valuation $${val}B.\n${comment}\nPlay the sim: rutgertuit.nl/technical/agent-game`;
-  };
-
-  const handleCopyToClipboard = () => {
-    const text = getShareableText();
-    navigator.clipboard.writeText(text).then(() => {
-      setCopiedText(true);
-      setTimeout(() => setCopiedText(false), 2000);
-    });
-  };
-
   const selectedCard = selectedCardId ? CARD_DATABASE[selectedCardId] : null;
 
   // Calculate turns until next upgrade
@@ -1564,7 +498,21 @@ export default function AgentGameClient() {
           viewport and competing with the game for attention. This page now
           renders as its own application. */}
 
+      {/* Phase 5c.2: ProjectionProvider wraps every projection-consuming
+          surface (HUD tiles, action buttons, desks, card hand, modal options).
+          Top-level useReducer + useEffect machinery stays outside so hover
+          changes don't trigger reducer re-execution. */}
+      <ProjectionProvider state={state}>
+      <ProjectionConsumer>{({ hover, projected }) => (
       <section className="sim-fs sim-v2" id="game-content">
+        {/* Phase 5c.3: projection watermark — anchors top-right while any
+            action surface is hovered/focused. Pointer-events:none so it
+            doesn't block clicks. */}
+        {projected && (
+          <div className="sim-projection__watermark" aria-hidden>
+            Projected · NEXT TURN
+          </div>
+        )}
         {/* Compact game-canvas header */}
         <header className="sim-fs__head">
           <Link href="/" className="sim-fs__home" aria-label="Back to rutgertuit.nl">
@@ -1602,84 +550,112 @@ export default function AgentGameClient() {
           </div>
         </header>
 
-        {/* Progressive-disclosure tutorial banner — turns 1..5, dismissible */}
+        {/* Phase 5d.9 — Edgar narrator replaces the old sim-tut banner.
+            Progressive-disclosure tutorial — turns 1..5, dismissible. */}
         {(() => {
           const step = TUTORIAL_STEPS[state.turn];
           const dismissed = state.tutorialDismissed ?? [];
           if (!step || dismissed.includes(state.turn)) return null;
           return (
-            <aside className="sim-tut sim-tut--banner" aria-live="polite" aria-label={step.title}>
-              <div className="sim-tut__art" aria-hidden>
-                <span className="sim-tut__art-label">IMAGE · Turn {state.turn}</span>
-              </div>
-              <div className="sim-tut__body">
-                <div className="sim-tut__eyebrow">{step.eyebrow}</div>
-                <h3 className="sim-tut__title">{step.title}</h3>
-                {step.body.map((p, i) => (
-                  <p key={i} className="sim-tut__p">{p}</p>
-                ))}
-                <button
-                  type="button"
-                  className="button button--warm sim-tut__cta"
-                  onClick={() => dispatch({ type: "DISMISS_TUTORIAL", turn: state.turn })}
-                >
-                  {step.cta} <span aria-hidden>→</span>
-                </button>
-              </div>
-              <button
-                type="button"
-                className="sim-tut__close"
-                onClick={() => dispatch({ type: "DISMISS_TUTORIAL", turn: state.turn })}
-                aria-label="Dismiss tutorial"
-              >
-                ×
-              </button>
-            </aside>
+            <Edgar
+              eyebrow={step.eyebrow}
+              title={step.title}
+              cta={step.cta}
+              onCtaClick={() => dispatch({ type: "DISMISS_TUTORIAL", turn: state.turn })}
+              onDismiss={() => dispatch({ type: "DISMISS_TUTORIAL", turn: state.turn })}
+            >
+              {step.body.map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
+            </Edgar>
           );
         })()}
 
-        {/* Primary stats — large and legible at a glance */}
+        {/* Primary stats — large and legible at a glance.
+            Phase 5c.3: each tile renders a ghost projection (→ projected value,
+            ▲/▼ delta) when a hovered action would change it. Ghosts are inline
+            additions so the live tile layout stays unchanged when no hover. */}
         <section className="sim-fs__stats" aria-label="Game stats">
-          <div className={`sim-fs__stat ${state.cash < 0 ? "is-warn" : ""}`} title="Available cash. Bankruptcy below -$1M.">
-            <span className="sim-fs__stat-label">Cash</span>
-            <span className="sim-fs__stat-value">
-              {state.cash < 0 ? "-" : ""}${
-                Math.abs(state.cash) >= 1_000_000
-                  ? `${(state.cash / 1_000_000).toFixed(1)}M`
-                  : `${Math.round(state.cash / 1000)}k`
-              }
-            </span>
-            {cashDelta !== null && (
-              <div
-                className={`sim-hud__delta ${cashDelta >= 0 ? "is-positive" : "is-negative"}`}
-                aria-label={`Cash change this turn: ${cashDelta >= 0 ? "+" : ""}${formatDelta(cashDelta)}`}
-              >
-                {cashDelta >= 0 ? "▲" : "▼"} {formatDelta(Math.abs(cashDelta))}
-              </div>
-            )}
-          </div>
-          <div className="sim-fs__stat sim-fs__stat--primary" title={`Win at ${winThresholdLabel}`}>
-            <span className="sim-fs__stat-label">Valuation</span>
-            <span className="sim-fs__stat-value">
-              ${state.valuation >= 1e9 ? `${(state.valuation / 1e9).toFixed(1)}B` : `${(state.valuation / 1e6).toFixed(0)}M`}
-            </span>
-            <span className="sim-fs__stat-target">goal {winThresholdLabel}</span>
-          </div>
-          <div className="sim-fs__stat" title="Current frontier AI version.">
-            <span className="sim-fs__stat-label">AI</span>
-            <span className="sim-fs__stat-value">v{state.agentVersion}</span>
-            {state.agentVersion < 6 && (
-              <span className="sim-fs__stat-target">{turnsToUpgrade}t to v{state.agentVersion + 1}</span>
-            )}
-            {state.agentVersion > 2 && !state.hasDocumentation && (
-              <span className="sim-fs__stat-target sim-fs__stat-target--warn">⚠ token leakage</span>
-            )}
-          </div>
-          <div className={`sim-fs__stat ${state.hasDocumentation ? "is-good" : "is-warn"}`} title="Markdown documentation status.">
-            <span className="sim-fs__stat-label">Docs</span>
-            <span className="sim-fs__stat-value">{state.hasDocumentation ? "✓" : "✗"}</span>
-            <span className="sim-fs__stat-target">{state.hasDocumentation ? "Wiki active" : "missing"}</span>
-          </div>
+          <HudTile
+            icon={<Cash size={28} />}
+            value={
+              <>
+                <CountUp to={state.cash} format={(n) => formatCashCompact(n)} />
+                {cashDelta !== null && (
+                  <span
+                    className={`sim-hud__delta ${cashDelta >= 0 ? "is-positive" : "is-negative"}`}
+                    aria-label={`Cash change this turn: ${cashDelta >= 0 ? "+" : ""}${formatDelta(cashDelta)}`}
+                    style={{ marginLeft: "var(--space-2)" }}
+                  >
+                    {cashDelta >= 0 ? "▲" : "▼"} {formatDelta(Math.abs(cashDelta))}
+                  </span>
+                )}
+              </>
+            }
+            subtitle="Cash"
+            projected={
+              projected && projected.cash !== state.cash ? (
+                <>
+                  → {formatCashCompact(projected.cash)}{" "}
+                  <span className="sim-hud__delta-mono">
+                    {projected.cash > state.cash ? "▲" : "▼"} {formatCashCompact(Math.abs(projected.cash - state.cash))}
+                  </span>
+                </>
+              ) : null
+            }
+            ariaLabel={`Available cash: $${state.cash.toLocaleString()}`}
+          />
+          <HudTile
+            icon={<Building size={28} />}
+            value={
+              <CountUp to={state.valuation} format={(n) => formatCashCompact(n)} />
+            }
+            subtitle={<>Valuation · goal {winThresholdLabel}</>}
+            projected={
+              projected && projected.valuation !== state.valuation ? (
+                <>
+                  → {projected.valuation >= 1e9 ? `$${(projected.valuation / 1e9).toFixed(1)}B` : `$${(projected.valuation / 1e6).toFixed(0)}M`}{" "}
+                  <span className="sim-hud__delta-mono">
+                    {projected.valuation > state.valuation ? "▲" : "▼"}
+                  </span>
+                </>
+              ) : null
+            }
+            ariaLabel={`Valuation: $${state.valuation.toLocaleString()}, goal ${winThresholdLabel}`}
+          />
+          <HudTile
+            icon={<Chip size={28} />}
+            value={<>v{state.agentVersion}</>}
+            subtitle={
+              state.agentVersion > 2 && !state.hasDocumentation ? (
+                <>AI · ⚠ token leakage</>
+              ) : state.agentVersion < 6 ? (
+                <>AI · {turnsToUpgrade}t to v{state.agentVersion + 1}</>
+              ) : (
+                <>AI version</>
+              )
+            }
+            projected={
+              projected && projected.agentVersion !== state.agentVersion ? (
+                <>
+                  → v{projected.agentVersion}{" "}
+                  <span className="sim-hud__delta-mono">▲</span>
+                </>
+              ) : null
+            }
+            ariaLabel={`AI version ${state.agentVersion}`}
+          />
+          <HudTile
+            icon={<Scroll size={28} />}
+            value={<>{state.hasDocumentation ? "✓" : "✗"}</>}
+            subtitle={<>Docs · {state.hasDocumentation ? "Wiki active" : "missing"}</>}
+            projected={
+              projected && projected.hasDocumentation !== state.hasDocumentation ? (
+                <>→ {projected.hasDocumentation ? "✓ active" : "✗ off"}</>
+              ) : null
+            }
+            ariaLabel={`Documentation status: ${state.hasDocumentation ? "active" : "missing"}`}
+          />
         </section>
 
         {/* Office floor — the visual centerpiece */}
@@ -1689,6 +665,7 @@ export default function AgentGameClient() {
               🎯 Click a desk to target <strong>{selectedCard.name}</strong>
             </div>
           )}
+          <OfficePlate tier={state.officeTier} />
           <div className="sim-employees-grid sim-office-floor">
             {state.employees.length === 0 ? (
               <div className="sim-office-empty">
@@ -1774,23 +751,21 @@ export default function AgentGameClient() {
                             <span className="sim-desk__badge sim-desk__badge--critical" title="Token hallucination — needs Markdown Wiki">⚠</span>
                           )}
                         </div>
-                        <svg className="sim-desk__character" viewBox="0 0 60 70" aria-hidden>
-                          {isAgent ? (
-                            <>
-                              <rect x="14" y="14" width="32" height="40" rx="3" fill="currentColor" />
-                              <rect x="18" y="20" width="24" height="2" fill="#0B0B0C" />
-                              <rect x="18" y="26" width="24" height="2" fill="#0B0B0C" />
-                              <rect x="18" y="32" width="24" height="2" fill="#0B0B0C" />
-                              <circle cx="20" cy="46" r="1.5" fill="goldenrod" />
-                              <circle cx="26" cy="46" r="1.5" fill="#a3be8c" />
-                            </>
-                          ) : (
-                            <>
-                              <circle cx="30" cy="18" r="10" fill="currentColor" />
-                              <path d="M14 50 L14 38 Q14 28 30 28 Q46 28 46 38 L46 50 Z" fill="currentColor" />
-                            </>
-                          )}
-                        </svg>
+                        {isAgent ? (
+                          <svg className="sim-desk__character" viewBox="0 0 60 70" aria-hidden>
+                            <rect x="14" y="14" width="32" height="40" rx="3" fill="currentColor" />
+                            <rect x="18" y="20" width="24" height="2" fill="#0B0B0C" />
+                            <rect x="18" y="26" width="24" height="2" fill="#0B0B0C" />
+                            <rect x="18" y="32" width="24" height="2" fill="#0B0B0C" />
+                            <circle cx="20" cy="46" r="1.5" fill="goldenrod" />
+                            <circle cx="26" cy="46" r="1.5" fill="#a3be8c" />
+                          </svg>
+                        ) : (
+                          <EmployeeAvatar
+                            employee={emp}
+                            projected={projected?.employees.find((p) => p.id === emp.id) ?? null}
+                          />
+                        )}
                         <svg className="sim-desk__furniture" viewBox="0 0 100 36" aria-hidden>
                           <rect x="0" y="20" width="100" height="14" rx="2" fill="#3a352e" />
                           <rect x="0" y="20" width="100" height="2" fill="rgba(255,255,255,0.08)" />
@@ -1852,6 +827,16 @@ export default function AgentGameClient() {
                               <span className="sim-desk__metric-icon" aria-hidden>❤</span>
                               <span className="sim-desk__metric-num">{emp.loyalty}%</span>
                             </span>
+                            {(() => {
+                              if (!projected) return null;
+                              const pEmp = projected.employees.find((p) => p.id === emp.id);
+                              if (!pEmp || pEmp.loyalty === emp.loyalty) return null;
+                              return (
+                                <span className="sim-desk__projected" aria-hidden>
+                                  ~{pEmp.loyalty}❤
+                                </span>
+                              );
+                            })()}
                           </div>
                         </div>
                         {traitPopoverOpen[emp.id] && traitInfo && (
@@ -1876,6 +861,7 @@ export default function AgentGameClient() {
                         {!isAgent && isOnboarded && emp.promotionLevel < 3 && state.turn >= TURN_PROMOTION_UNLOCKED && (
                           <button
                             onClick={(e) => { e.stopPropagation(); handlePromoteWorker(emp.id); }}
+                            {...withHover(hover, { type: "PROMOTE_WORKER", employeeId: emp.id })}
                             disabled={
                               state.cash < (emp.promotionLevel === 1 ? 15000 : 40000) ||
                               (state.promotionsThisTurn ?? 0) >= MAX_PROMOTIONS_PER_TURN
@@ -1901,6 +887,71 @@ export default function AgentGameClient() {
           </div>
         </section>
 
+        {/* Phase 5b.9: Starter-office selection modal. Renders on turn 1 before
+            the action row until the player confirms a starting office. Costs are
+            the delta above the home setup already taken in createInitialState —
+            picking home is free (the $30k home setup is already deducted). */}
+        {state.turn === 1 && !state.officeChosen && !state.isGameOver && !showDifficultySelector && (
+          <div className="sim-overlay" role="dialog" aria-modal="true" aria-labelledby="office-title">
+            <div className="sim-modal" style={{ maxWidth: "640px" }}>
+              <h2 className="sim-modal__title" id="office-title" style={{ fontFamily: "var(--font-display)", color: "var(--color-fg-1)" }}>
+                Choose Your Starting Office
+              </h2>
+              <p className="sim-modal__text">
+                Where does the company set up? Home setup ($30k) is already taken — coworking and kantoorpand cost the delta. Bigger offices fit more headcount but charge rent every turn.
+              </p>
+              <div className="sim-mode__grid">
+                {(["home", "coworking", "kantoorpand"] as const).map((tier) => {
+                  const delta = setupCostOf(tier) - setupCostOf("home");
+                  const disabled = state.cash < delta;
+                  const label =
+                    tier === "home" ? "🏠 Home" : tier === "coworking" ? "☕ Coworking" : "🏢 Kantoorpand";
+                  return (
+                    <button
+                      key={tier}
+                      type="button"
+                      onClick={() => dispatch({ type: "CHOOSE_OFFICE", tier })}
+                      {...withHover(hover, { type: "CHOOSE_OFFICE", tier })}
+                      disabled={disabled}
+                      className="mtg-card"
+                      style={{
+                        width: "100%",
+                        height: "auto",
+                        padding: "var(--space-4)",
+                        aspectRatio: "auto",
+                        opacity: disabled ? 0.45 : 1,
+                        cursor: disabled ? "not-allowed" : "pointer",
+                      }}
+                      aria-label={`Choose ${tier}: extra setup $${delta.toLocaleString()}, rent $${rentOf(tier).toLocaleString()}/turn, capacity ${capacityOf(tier)}`}
+                    >
+                      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", textAlign: "left" }}>
+                        <span className="sim-stat__value" style={{ color: "var(--color-fg-1)" }}>{label}</span>
+                        <span className="sim-stat__label">
+                          {tier === "home" ? "Default" : tier === "coworking" ? "Mid-tier" : "Top-tier"}
+                        </span>
+                        <div className="sim-mode__detail">
+                          Extra setup: <strong>{delta === 0 ? "$0 (already paid)" : `$${delta.toLocaleString()}`}</strong>
+                        </div>
+                        <div className="sim-mode__detail">
+                          Rent: <strong>${rentOf(tier).toLocaleString()}/turn</strong>
+                        </div>
+                        <div className="sim-mode__detail">
+                          Capacity: <strong>{capacityOf(tier)} seats</strong>
+                        </div>
+                        {disabled && (
+                          <p style={{ fontSize: "11px", color: "var(--color-accent-warm-strong)", margin: 0 }}>
+                            Insufficient cash for setup delta.
+                          </p>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Your move — action chips */}
         <section className="sim-fs__move" aria-label="Your Move">
           <h2 className="sim-fs__move-title">⚡ Your move</h2>
@@ -1908,9 +959,9 @@ export default function AgentGameClient() {
             <p className="sim-fs__warn">❄️ Board has frozen hiring this turn.</p>
           )}
           <div className="sim-fs__move-grid">
-            <button
-              type="button"
+            <SimButton
               onClick={handleHireWorker}
+              {...withHover(hover, { type: "EMPLOY_WORKER" })}
               disabled={
                 state.cash < 30000 ||
                 state.activeEventId !== null ||
@@ -1921,20 +972,18 @@ export default function AgentGameClient() {
               className={`sim-fs__move-btn ${state.hiredThisTurn ? "is-used" : ""}`}
               title={state.hiredThisTurn ? "Already hired this turn — pacing matters." : "Hires a human employee ($30,000 upfront). Generates revenue at their level once fully onboarded (6 turns, or 3 with Markdown Wiki). Salary: $8k/turn at L1, $18k at L2, $45k at L3."}
               aria-describedby="hire-human-help"
-            >
-              <span className="sim-fs__move-btn-name">
-                {state.hiredThisTurn ? "✓ Hired this turn" : "Hire Human"}
-              </span>
-              <span className="sim-fs__move-btn-cost">$30k</span>
-            </button>
+              icon={<UserPlus size={20} />}
+              label={state.hiredThisTurn ? "✓ Hired this turn" : "Hire Human"}
+              cost="$30k"
+            />
             <div id="hire-human-help" className="sr-only">
               Hires a human employee ($30,000 upfront). Generates revenue at their level once fully onboarded (6 turns, or 3 with Markdown Wiki). Salary: $8k/turn at L1, $18k at L2, $45k at L3.
             </div>
             {state.turn >= TURN_AGENT_UNLOCKED ? (
               <>
-              <button
-                type="button"
+              <SimButton
                 onClick={handleHireAgent}
+                {...withHover(hover, { type: "EMPLOY_AGENT" })}
                 disabled={
                   state.cash < 15000 ||
                   state.activeEventId !== null ||
@@ -1945,30 +994,55 @@ export default function AgentGameClient() {
                 className={`sim-fs__move-btn ${state.hiredThisTurn ? "is-used" : ""}`}
                 title={state.hiredThisTurn ? "Already hired this turn — pacing matters." : "Deploys a Cognitive Agent ($15,000 upfront, no ongoing salary). With Markdown Wiki: boosts each human +25% productivity. Without docs: costs $10k/turn maintenance and drains team loyalty."}
                 aria-describedby="hire-agent-help"
-              >
-                <span className="sim-fs__move-btn-name">
-                  {state.hiredThisTurn ? "✓ Hired this turn" : "Hire Cognitive Agent"}
-                </span>
-                <span className="sim-fs__move-btn-cost">$15k</span>
-              </button>
+                icon={<BotPlus size={20} />}
+                label={state.hiredThisTurn ? "✓ Hired this turn" : "Hire Cognitive Agent"}
+                cost="$15k"
+              />
               <div id="hire-agent-help" className="sr-only">
                 Deploys a Cognitive Agent ($15,000 upfront, no ongoing salary). With Markdown Wiki: boosts each human +25% productivity. Without docs: costs $10k/turn maintenance and drains team loyalty.
               </div>
               </>
             ) : (
-              <button
-                type="button"
-                disabled
-                className="sim-fs__move-btn is-locked"
+              <SimButton
+                locked
+                className="sim-fs__move-btn"
                 title={`Cognitive Agents unlock at turn ${TURN_AGENT_UNLOCKED}`}
-              >
-                <span className="sim-fs__move-btn-name">🔒 Cognitive Agent</span>
-                <span className="sim-fs__move-btn-cost">turn {TURN_AGENT_UNLOCKED}</span>
-              </button>
+                icon={<BotPlus size={20} />}
+                label="🔒 Cognitive Agent"
+                cost={`turn ${TURN_AGENT_UNLOCKED}`}
+              />
             )}
-            <button
-              type="button"
+            {(() => {
+              const target = nextTier(state.officeTier);
+              if (!target) return null;
+              const cost = setupCostOf(target) + rentOf(target);
+              const disabled =
+                !!state.upgradedOfficeThisTurn ||
+                state.cash < cost ||
+                state.isGameOver ||
+                state.activeEventId !== null ||
+                state.draftChoices !== null;
+              return (
+                <SimButton
+                  variant="office"
+                  className={`sim-fs__move-btn ${state.upgradedOfficeThisTurn ? "is-used" : ""}`}
+                  disabled={disabled}
+                  onClick={() => dispatch({ type: "UPGRADE_OFFICE", tier: target })}
+                  {...withHover(hover, { type: "UPGRADE_OFFICE", tier: target })}
+                  title={
+                    state.upgradedOfficeThisTurn
+                      ? "Already upgraded the office this turn."
+                      : `Upgrade office: ${state.officeTier} → ${target}. Cost: $${cost.toLocaleString()} (setup + first month's rent).`
+                  }
+                  icon={<Layers size={20} />}
+                  label={state.upgradedOfficeThisTurn ? "✓ Office upgraded" : `Upgrade → ${target}`}
+                  cost={`$${(cost / 1000).toLocaleString()}k`}
+                />
+              );
+            })()}
+            <SimButton
               onClick={handleRedefineOkrs}
+              {...withHover(hover, { type: "REDEFINE_OKRS" })}
               disabled={
                 state.cash < 10000 ||
                 state.okrLevel >= 5 ||
@@ -1979,12 +1053,10 @@ export default function AgentGameClient() {
               className={`sim-fs__move-btn ${state.redefinedOkrsThisTurn ? "is-used" : ""}`}
               title={state.redefinedOkrsThisTurn ? "Already redefined this turn — the team can't handle two alignment meetings." : "Adds one OKR Level ($10,000). Permanently increases global productivity by +15% per level. Costs 40% productivity this turn (alignment meeting penalty)."}
               aria-describedby="okr-help"
-            >
-              <span className="sim-fs__move-btn-name">
-                {state.redefinedOkrsThisTurn ? "✓ OKRs redefined" : "Redefine OKRs"}
-              </span>
-              <span className="sim-fs__move-btn-cost">$10k</span>
-            </button>
+              icon={<Target size={20} />}
+              label={state.redefinedOkrsThisTurn ? "✓ OKRs redefined" : "Redefine OKRs"}
+              cost="$10k"
+            />
             <div id="okr-help" className="sr-only">
               Adds one OKR Level ($10,000). Permanently increases global productivity by +15% per level. Costs 40% productivity this turn (alignment meeting penalty).
             </div>
@@ -2024,14 +1096,15 @@ export default function AgentGameClient() {
 
         {/* Next Turn — primary CTA */}
         <div className="sim-fs__next-wrap">
-          <button
-            type="button"
+          <SimButton
+            variant="next"
             onClick={handleEndTurn}
             disabled={state.activeEventId !== null || state.draftChoices !== null}
             className="sim-fs__next"
-          >
-            Next Turn <span aria-hidden>→</span>
-          </button>
+            icon={<Sparkles size={22} />}
+            label="Next Turn"
+            cost={<ArrowRight size={22} />}
+          />
           {state.lastSnapshot && (
             <button
               type="button"
@@ -2113,65 +1186,43 @@ export default function AgentGameClient() {
                 ✓ You&apos;ve played a card this turn. End the turn to play another.
               </div>
             )}
-            <div className="sim-hand-shelf" role="group" aria-label="Cards in hand">
+            <div className="sim-hand-shelf sim-cards-grid" role="group" aria-label="Cards in hand">
               {state.cardsHand.map((cardId, index) => {
                 const card = CARD_DATABASE[cardId];
                 if (!card) return null;
                 const isSelected = selectedCardId === cardId;
+                const hoverHandlers = withHover(
+                  hover,
+                  card.requiresTarget
+                    ? state.employees[0]
+                      ? { type: "PLAY_CARD", cardId, targetEmployeeId: state.employees[0].id }
+                      : null
+                    : { type: "PLAY_CARD", cardId },
+                );
+                const disabled =
+                  state.isGameOver ||
+                  !!state.activeEventId ||
+                  !!state.draftChoices ||
+                  state.playedCardThisTurn === true ||
+                  state.cash < card.cost;
                 return (
-                  <button
+                  <CardTile
                     key={`${cardId}-${index}`}
-                    type="button"
-                    onClick={() => handleCardClick(cardId)}
-                    onDoubleClick={() => {
-                      if (!card.requiresTarget && !state.playedCardThisTurn) {
+                    card={card}
+                    selected={isSelected}
+                    disabled={disabled}
+                    onSelect={() => handleCardClick(cardId)}
+                    onPlay={() => {
+                      if (card.requiresTarget) {
+                        // Keep current selection so the target-hint shows on the
+                        // office floor; user clicks a desk to confirm target.
                         setSelectedCardId(cardId);
-                        dispatch({ type: "PLAY_CARD", cardId });
-                        setSelectedCardId(null);
+                      } else {
+                        handlePlayNoTargetCard();
                       }
                     }}
-                    onKeyDown={(e) => handleCardKeyDown(e, cardId)}
-                    ref={(el) => { cardElementsRef.current[index] = el as HTMLButtonElement | null; }}
-                    tabIndex={0}
-                    className={`mtg-card mtg-card--${card.class} ${isSelected ? "mtg-card--selected" : ""}`}
-                    aria-label={`${card.name}, Cost: ${card.cost}. ${card.rulesText}${isSelected && !card.requiresTarget ? ". Press Enter to play." : ""}`}
-                    aria-pressed={isSelected}
-                  >
-                    <div className="mtg-card__header">
-                      <h3 className="mtg-card__name" style={{ fontSize: "13px" }}>{card.name}</h3>
-                      <span className="mtg-card__cost">play ${(card.cost / 1000)}k</span>
-                    </div>
-                    <div className="mtg-card__type">Sorcery — {card.class}</div>
-                    <div className="mtg-card__art-window">
-                      {renderCardArt(card.id)}
-                    </div>
-                    <div className="mtg-card__textbox">
-                      <p className="mtg-card__rules">{card.rulesText}</p>
-                      <p className="mtg-card__flavor">{card.flavor}</p>
-                    </div>
-                    {isSelected && !card.requiresTarget && !state.playedCardThisTurn && (
-                      <span
-                        className="mtg-card__play"
-                        role="button"
-                        tabIndex={0}
-                        onClick={(e) => { e.stopPropagation(); handlePlayNoTargetCard(); }}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handlePlayNoTargetCard();
-                          }
-                        }}
-                      >
-                        Play this card <span aria-hidden>→</span>
-                      </span>
-                    )}
-                    {isSelected && card.requiresTarget && !state.playedCardThisTurn && (
-                      <span className="mtg-card__play mtg-card__play--target">
-                        Click a desk to target <span aria-hidden>→</span>
-                      </span>
-                    )}
-                  </button>
+                    {...hoverHandlers}
+                  />
                 );
               })}
             </div>
@@ -2247,6 +1298,7 @@ export default function AgentGameClient() {
                     onClick={() => {
                       dispatch({ type: "CHOOSE_EVENT_OPTION", option: "A" });
                     }}
+                    {...withHover(hover, { type: "CHOOSE_EVENT_OPTION", option: "A" })}
                     className="button button--warm"
                     style={{ padding: "12px", fontSize: "12px", justifyContent: "center", fontWeight: "bold" }}
                   >
@@ -2261,6 +1313,7 @@ export default function AgentGameClient() {
                     onClick={() => {
                       dispatch({ type: "CHOOSE_EVENT_OPTION", option: "B" });
                     }}
+                    {...withHover(hover, { type: "CHOOSE_EVENT_OPTION", option: "B" })}
                     className="button"
                     style={{ padding: "12px", fontSize: "12px", justifyContent: "center", fontWeight: "bold", background: "var(--color-bg-sunken)", border: "1px solid var(--color-fg-3)" }}
                   >
@@ -2275,287 +1328,81 @@ export default function AgentGameClient() {
           </div>
         )}
 
-        {/* FEBO Card Automat Modal */}
+        {/* FEBO Card Automat Modal (5d.8 — FeboVendingMachine component) */}
         {state.draftChoices && (
-          <div className="sim-overlay" role="dialog" aria-modal="true" aria-labelledby="draft-title">
-            <div className="sim-modal" style={{ maxWidth: "800px", border: "2px solid #e8623e" }}>
-              <div style={{ textAlign: "center", marginBottom: "var(--space-4)" }}>
-                <span style={{ fontSize: "28px" }}>🍔</span>
-                <h2 className="sim-modal__title" id="draft-title" style={{ margin: "5px 0 0 0", color: "#e8623e", fontFamily: "var(--font-display)" }}>
-                  FEBO Card Automat
-                </h2>
-                <p className="sim-modal__text" style={{ fontSize: "12px", color: "var(--color-fg-3)" }}>
-                  Pull a window to add one card to your hand. Free to draft — pay the play cost later.
-                </p>
-              </div>
-
-              {/* Sub-step 7: febo-cards wrapper for mobile carousel snap */}
-              <div className="febo-cards" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "var(--space-4)" }}>
-                {state.draftChoices.map((cardId) => {
-                  const card = CARD_DATABASE[cardId];
-                  if (!card) return null;
-                  return (
-                    <div
-                      key={cardId}
-                      className="febo-slot"
-                      style={{
-                        background: "var(--color-bg-sunken)",
-                        borderRadius: "6px",
-                        padding: "var(--space-3)",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        position: "relative",
-                        overflow: "hidden",
-                        boxShadow: "inset 0 0 10px rgba(0,0,0,0.5)"
-                      }}
-                    >
-                      {/* Compartment frame header */}
-                      <div
-                        style={{
-                          background: "#e8623e",
-                          color: "white",
-                          width: "100%",
-                          textAlign: "center",
-                          fontSize: "9px",
-                          fontWeight: "bold",
-                          fontFamily: "var(--font-mono)",
-                          padding: "2px 0",
-                          borderRadius: "4px 4px 0 0",
-                          marginBottom: "var(--space-3)",
-                          letterSpacing: "1px"
-                        }}
-                      >
-                        COMPARTMENT ACTIVE
-                      </div>
-
-                      {/* Card rendering inside slot */}
-                      <div className={`mtg-card mtg-card--${card.class}`} style={{ transform: "scale(0.85)", transformOrigin: "top center", marginBottom: "-20px" }}>
-                        <div className="mtg-card__header">
-                          <h3 className="mtg-card__name" style={{ fontSize: "13px" }}>{card.name}</h3>
-                          <span className="mtg-card__cost">play ${(card.cost / 1000)}k</span>
-                        </div>
-                        <div className="mtg-card__type">Sorcery — {card.class}</div>
-                        <div className="mtg-card__art-window">
-                          {renderCardArt(card.id)}
-                        </div>
-                        <div className="mtg-card__textbox">
-                          <p className="mtg-card__rules" style={{ fontSize: "9px" }}>{card.rulesText}</p>
-                        </div>
-                      </div>
-
-                      {/* Slot Pull Button */}
-                      <button
-                        onClick={() => {
-                          dispatch({ type: "DRAFT_CARD", cardId });
-                        }}
-                        className="button button--warm"
-                        style={{
-                          width: "90%",
-                          padding: "8px 0",
-                          fontSize: "11px",
-                          fontWeight: "bold",
-                          justifyContent: "center",
-                          borderRadius: "4px",
-                          border: "1px solid #ff7e5a",
-                          boxShadow: "0 4px 6px rgba(0,0,0,0.2)",
-                          marginTop: "var(--space-4)"
-                        }}
-                      >
-                        🚪 Pull Window (Draft)
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-              {/* GG.3: Skip draft — dismiss FEBO without taking a card */}
-              <div style={{ textAlign: "center", marginTop: "var(--space-4)" }}>
-                <button
-                  type="button"
-                  className="sim-febo__skip"
-                  onClick={() => dispatch({ type: "SKIP_DRAFT" })}
-                >
-                  Skip draft
-                </button>
-              </div>
-            </div>
-          </div>
+          <FeboVendingMachine
+            cards={state.draftChoices
+              .map((id) => CARD_DATABASE[id])
+              .filter((c): c is NonNullable<typeof c> => Boolean(c))}
+            onPull={(cardId) => dispatch({ type: "DRAFT_CARD", cardId })}
+            onSkip={() => dispatch({ type: "SKIP_DRAFT" })}
+            pullHoverProps={(cardId) => withHover(hover, { type: "DRAFT_CARD", cardId })}
+          />
         )}
 
-        {/* Win/Loss Modal */}
+        {/* Phase 5d.11 — EndCard replaces the old Win/Loss modal. */}
         {state.isGameOver && (
-          <div className="sim-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-            <div className="sim-modal">
-              {state.gameResult === "win" ? (
-                <>
-                  <h2 className="sim-modal__title sim-modal__title--win" id="modal-title">🏆 Victory!</h2>
-                  <p className="sim-modal__text">
-                    You have successfully navigated the exponential AI upgrade timeline! Under your guidance,
-                    the company optimized documentation, structured build-plan PDPs, and leveraged agentic version updates
-                    to scale performance to the moon without breaking the org&apos;s structural limits.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <h2 className="sim-modal__title sim-modal__title--lose" id="modal-title">💀 Bankruptcy / Failure</h2>
-                  <p className="sim-modal__text">
-                    {state.cash < -1000000 ? (
-                      "Your cash fell below -$1,000,000. In trying to build wrappers and OKR loops, you neglected documentation hygiene. The token compliance audit fines have forced the business into receivership."
-                    ) : (
-                      `The 30-turn sprint has expired, and you fell short of the ${state.difficulty === "boardroom" ? "$1.1 Billion" : state.difficulty === "reality" ? "$25 Billion" : "$140 Billion"} valuation target. Your organization could not adapt fast enough to the exponential rate of AI upgrades.`
-                    )}
-                  </p>
-                </>
-              )}
-
-              <div className="sim-modal__stats">
-                <div className="sim-modal__stat-item">
-                  <span className="sim-stat__label">Final Valuation</span>
-                  <span className="sim-stat__value" style={{ color: "goldenrod" }}>${state.valuation.toLocaleString()}</span>
-                </div>
-                <div className="sim-modal__stat-item">
-                  <span className="sim-stat__label">Final Cash</span>
-                  <span className="sim-stat__value">${state.cash.toLocaleString()}</span>
-                </div>
-                <div className="sim-modal__stat-item">
-                  <span className="sim-stat__label">AI Version</span>
-                  <span className="sim-stat__value">v{state.agentVersion}</span>
-                </div>
-                <div className="sim-modal__stat-item">
-                  <span className="sim-stat__label">Turns Survived</span>
-                  <span className="sim-stat__value">{state.turn - 1} / 30</span>
-                </div>
-              </div>
-
-              {/* Sub-step 11: Post-mortem run summary */}
-              <div className="sim-postmortem">
-                <h4>Run summary</h4>
-                <dl>
-                  <dt>Final cash</dt>
-                  <dd>{formatCash(state.cash)}</dd>
-                  <dt>Final valuation</dt>
-                  <dd>{formatCash(state.valuation)}</dd>
-                  <dt>Turns played</dt>
-                  <dd>{state.turn - 1} / 30</dd>
-                  <dt>AI version</dt>
-                  <dd>v{state.agentVersion}</dd>
-                  <dt>Docs active</dt>
-                  <dd>{state.hasDocumentation ? "Yes" : "No"}</dd>
-                  <dt>Team size</dt>
-                  <dd>{state.employees.length}</dd>
-                </dl>
-              </div>
-
-              {/* Share Card Block */}
-              <div style={{ background: "var(--color-bg-sunken)", border: "var(--border-hairline)", padding: "var(--space-3)", display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
-                <span className="sim-stat__label" style={{ textAlign: "left" }}>Scorecard</span>
-                <textarea
-                  readOnly
-                  value={getShareableText()}
-                  style={{
-                    width: "100%",
-                    height: "80px",
-                    background: "transparent",
-                    border: "0",
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "11px",
-                    color: "var(--color-fg-2)",
-                    resize: "none",
-                    outline: "none"
-                  }}
-                />
-                <button
-                  onClick={handleCopyToClipboard}
-                  className="button button--warm"
-                  style={{ width: "100%", padding: "6px 0", fontSize: "11px", justifyContent: "center" }}
-                >
-                  {copiedText ? "✓ Copied Scorecard" : "Copy Scorecard"}
-                </button>
-              </div>
-
-              <button
-                onClick={() => setShowDifficultySelector(true)}
-                className="sim-btn-primary"
-                style={{ width: "100%" }}
-              >
-                Restart Simulation
-              </button>
-            </div>
-          </div>
+          <EndCard
+            state={state}
+            onReset={() => {
+              dispatch({ type: "RESET_GAME", difficulty: state.difficulty });
+              setSelectedCardId(null);
+            }}
+          />
         )}
 
         {/* Difficulty Selector Modal */}
         {showDifficultySelector && (
-          <div className="sim-overlay" role="dialog" aria-modal="true" aria-labelledby="diff-title">
-            <div className="sim-modal" style={{ maxWidth: "600px" }}>
-              <h2 className="sim-modal__title" id="diff-title" style={{ fontFamily: "var(--font-display)", color: "var(--color-fg-1)" }}>
-                Choose Your Cognitive Reality
-              </h2>
-              <p className="sim-modal__text">
-                Select your starting difficulty parameters for the Agent Inclusive sprint.
-              </p>
-
-              {/* Sub-step 1: 3-column mode grid via .sim-mode__grid */}
+          <div className="sim-mode" role="dialog" aria-modal="true" aria-labelledby="mode-title">
+            <div>
+              <h1 id="mode-title" className="sim-mode__heading">Choose your cognitive reality</h1>
               <div className="sim-mode__grid">
-                {/* Boardroom */}
-                <button
-                  onClick={() => handleDifficultySelect("boardroom")}
-                  className="mtg-card"
-                  style={{ width: "100%", height: "auto", padding: "var(--space-4)", aspectRatio: "auto" }}
-                  aria-label="Boardroom Difficulty: $500,000 cash, AI upgrade every 7 turns"
-                >
-                  <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", textAlign: "left" }}>
-                    <span className="sim-stat__value" style={{ color: "#a3be8c" }}>Boardroom</span>
-                    <span className="sim-stat__label">Easy Mode</span>
-                    <div className="sim-mode__target">Target <strong>$1.1B</strong></div>
-                    <div className="sim-mode__detail">~10 min · ≈80% win rate</div>
-                    <p style={{ fontSize: "11px", color: "var(--color-fg-2)", margin: "0" }}>
-                      Start with <strong>$500,000</strong> cash.<br />
-                      AI upgrades slowly (every <strong>7 turns</strong>).<br />
-                      Comfortable room to build clean Markdown documentation before the compliance audits drop.
-                    </p>
-                  </div>
-                </button>
-
-                {/* Reality */}
-                <button
-                  onClick={() => handleDifficultySelect("reality")}
-                  className="mtg-card mtg-card--selected"
-                  style={{ width: "100%", height: "auto", padding: "var(--space-4)", aspectRatio: "auto" }}
-                  aria-label="Reality Difficulty: $250,000 cash, AI upgrade every 5 turns"
-                >
-                  <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", textAlign: "left" }}>
-                    <span className="sim-stat__value" style={{ color: "goldenrod" }}>Reality</span>
-                    <span className="sim-stat__label">Standard Mode</span>
-                    <div className="sim-mode__target">Target <strong>$25B</strong></div>
-                    <div className="sim-mode__detail">~10 min · ≈45% win rate</div>
-                    <p style={{ fontSize: "11px", color: "var(--color-fg-2)", margin: "0" }}>
-                      Start with <strong>$250,000</strong> cash.<br />
-                      AI upgrades every <strong>5 turns</strong>.<br />
-                      The authentic consulting experience. Balance employee loyalty and AI version upgrades.
-                    </p>
-                  </div>
-                </button>
-
-                {/* ZIRP Nightmare */}
-                <button
-                  onClick={() => handleDifficultySelect("zirp")}
-                  className="mtg-card"
-                  style={{ width: "100%", height: "auto", padding: "var(--space-4)", aspectRatio: "auto", borderColor: "var(--color-accent-warm)" }}
-                  aria-label="ZIRP Nightmare Difficulty: $30,000 cash, AI upgrade every 4 turns"
-                >
-                  <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", textAlign: "left" }}>
-                    <span className="sim-stat__value" style={{ color: "var(--color-accent-warm-strong)" }}>ZIRP Nightmare</span>
-                    <span className="sim-stat__label">Hard Mode</span>
-                    <div className="sim-mode__target">Target <strong>$140B</strong></div>
-                    <div className="sim-mode__detail">~12 min · ≈10% win rate</div>
-                    <p style={{ fontSize: "11px", color: "var(--color-fg-2)", margin: "0" }}>
-                      Start with <strong>$30,000</strong> cash (only enough to hire exactly 1 worker).<br />
-                      AI upgrades at neck-breaking speeds (every <strong>4 turns</strong>).<br />
-                      No room for error. One bad OKR redefinition will bankrupt you.
-                    </p>
-                  </div>
-                </button>
+                {(
+                  [
+                    {
+                      id: "boardroom" as const,
+                      title: "Boardroom",
+                      subtitle: "Easy · 15 min",
+                      target: "$1.1B",
+                      cash: "$500k",
+                      body: "Comfortable room. AI upgrades every 7 turns.",
+                      icon: <Building size={48} />,
+                    },
+                    {
+                      id: "reality" as const,
+                      title: "Reality",
+                      subtitle: "Standard · 10 min",
+                      target: "$25B",
+                      cash: "$250k",
+                      body: "The authentic consulting experience.",
+                      icon: <BuildingOffice size={48} />,
+                    },
+                    {
+                      id: "zirp" as const,
+                      title: "ZIRP Nightmare",
+                      subtitle: "Hard · 8 min",
+                      target: "$140B",
+                      cash: "$30k",
+                      body: "1 worker. Rent-free t1-2. No room for error.",
+                      icon: <Warning size={48} />,
+                    },
+                  ]
+                ).map((m) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    className={`sim-mode__card sim-mode__card--${m.id}`}
+                    onClick={() => handleDifficultySelect(m.id)}
+                    aria-label={`${m.title}: start with ${m.cash} cash, reach ${m.target}`}
+                  >
+                    <div className="sim-mode__icon" aria-hidden>{m.icon}</div>
+                    <h2 className="sim-mode__title">{m.title}</h2>
+                    <p className="sim-mode__sub">{m.subtitle}</p>
+                    <div className="sim-mode__target">Reach <strong>{m.target}</strong></div>
+                    <div className="sim-mode__cash">Start: {m.cash}</div>
+                    <p className="sim-mode__body">{m.body}</p>
+                  </button>
+                ))}
               </div>
             </div>
           </div>
@@ -2658,6 +1505,8 @@ export default function AgentGameClient() {
           </div>
         )}
       </section>
+      )}</ProjectionConsumer>
+      </ProjectionProvider>
     </div>
   );
 }

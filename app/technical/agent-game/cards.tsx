@@ -1,3 +1,5 @@
+import type { OfficeTier } from "./office";
+
 export interface Employee {
   id: string;
   name: string;
@@ -137,12 +139,28 @@ export interface Card {
   flavor: string;
   cost: number;
   requiresTarget: boolean;
-  class: "documentation" | "pdp" | "perk" | "synergy";
+  class: "documentation" | "pdp" | "perk" | "synergy" | "compliance";
   rulesText: string;
+  /** Phase 5b.4: gates which era's draft pool includes the card.
+   *  - "pre-ai" — only available turns 1-5
+   *  - "ai"     — only available turns 6+
+   *  - "shared" — always available */
+  era: "pre-ai" | "ai" | "shared";
 }
 
 export interface GameState {
   version: 1; // schema version guard
+  /** Stable seed for this run. Used to deterministically reconstruct the RNG
+   *  on every reducer call. Picked once via Math.random in createInitialState
+   *  (or passed in from a headless sim runner). */
+  seed: number;
+  /** Monotonic tick number — increments on every reducer call. Mixed with
+   *  `seed` to derive the per-action RNG seed: createRng(seed + rngTick * 31). */
+  rngTick: number;
+  /** Monotonic ID counter for newly-created entities (employees, agents).
+   *  Replaces Date.now()-based IDs which depended on wall-clock and broke
+   *  cross-sim log comparisons. Initialised to 1 in createInitialState. */
+  nextEntityId: number;
   difficulty: "boardroom" | "reality" | "zirp";
   turn: number;
   cash: number;
@@ -186,6 +204,26 @@ export interface GameState {
   // GG.2: Snapshot of state before last player action — cleared on END_TURN.
   // Used by the Undo button. Never recurses (lastSnapshot within snapshot is null).
   lastSnapshot?: GameState | null;
+  // Phase 5b.2 / 5b.3: office tier model.
+  officeTier: OfficeTier;
+  /** Phase 5b.9: true once the player has confirmed their starting office.
+   *  Defaults to false on a fresh run. Headless sim runner auto-flips to true
+   *  via CHOOSE_OFFICE on first reducer call. */
+  officeChosen: boolean;
+  /** Tracks consecutive turns the office has been over capacity. >5 = overcapacity_collapse loss. */
+  overcapacityCollapseTurns: number;
+  /** True after UPGRADE_OFFICE this turn; reset in END_TURN. Prevents double-upgrades. */
+  upgradedOfficeThisTurn: boolean;
+  // Phase 5b.5: pre-AI era card effect counters.
+  /** Vrijdagmiddagborrel: -15% productivity for next turn after play. */
+  hangoverTurnsLeft: number;
+  /** Brainstorm in een Sauna: +30% productivity AND +25% loyalty-decay for 3 turns. */
+  saunaActiveTurnsLeft: number;
+  /** ISO 9001: raises OKR cap from 5 to 6. */
+  hasIso9001: boolean;
+  /** Phase 5b.7: era-handoff bonus on turn 5→6 boundary. */
+  seedFunded?: boolean;
+  seedDeclined?: boolean;
 }
 
 // ============================================================
@@ -200,6 +238,7 @@ export const CARD_DATABASE: Record<string, Card> = {
     requiresTarget: false,
     class: "documentation",
     rulesText: "Enables Documentation. Halves employee onboarding time (from 6 turns to 3). Mitigates future AI compliance audits.",
+    era: "ai",
   },
   pdp: {
     id: "pdp",
@@ -209,6 +248,7 @@ export const CARD_DATABASE: Record<string, Card> = {
     requiresTarget: true,
     class: "pdp",
     rulesText: "Grants Build-Plan PDP to a worker, allowing them to be promoted safely without productivity and loyalty penalties.",
+    era: "shared",
   },
   kroket_lunch: {
     id: "kroket_lunch",
@@ -218,6 +258,7 @@ export const CARD_DATABASE: Record<string, Card> = {
     requiresTarget: true,
     class: "perk",
     rulesText: "Restores +35 Loyalty to a worker, but they fall asleep ('tapped') for 1 turn (0% productivity).",
+    era: "shared",
   },
   hei_sessie: {
     id: "hei_sessie",
@@ -227,6 +268,7 @@ export const CARD_DATABASE: Record<string, Card> = {
     requiresTarget: true,
     class: "synergy",
     rulesText: "Inspires a worker for 5 turns (+50% productivity), who then inspires everyone at a lower promotion level. Grants them +20 Loyalty.",
+    era: "shared",
   },
   kantoortuin: {
     id: "kantoortuin",
@@ -236,6 +278,7 @@ export const CARD_DATABASE: Record<string, Card> = {
     requiresTarget: false,
     class: "perk",
     rulesText: "Restores +15 Loyalty to all active workers, but causes distraction: -10% global productivity for 2 turns.",
+    era: "shared",
   },
   gpt5_wrapper: {
     id: "gpt5_wrapper",
@@ -245,6 +288,7 @@ export const CARD_DATABASE: Record<string, Card> = {
     requiresTarget: false,
     class: "synergy",
     rulesText: "Instantly upgrades AI Agent version by 1. If Documentation is active, increases P/E multiplier by +5x. If not, triggers immediate Token Leakage.",
+    era: "ai",
   },
   kroket_lobby: {
     id: "kroket_lobby",
@@ -254,6 +298,7 @@ export const CARD_DATABASE: Record<string, Card> = {
     requiresTarget: false,
     class: "perk",
     rulesText: "Permanent asset. Automatically restores +2 Loyalty to all workers at the end of each turn.",
+    era: "shared",
   },
   vage_okr: {
     id: "vage_okr",
@@ -263,6 +308,7 @@ export const CARD_DATABASE: Record<string, Card> = {
     requiresTarget: false,
     class: "synergy",
     rulesText: "Increases OKR Level by 1 (max 5). Triggers immediate alignment meeting: -40% productivity this turn.",
+    era: "shared",
   },
   auditor: {
     id: "auditor",
@@ -272,6 +318,7 @@ export const CARD_DATABASE: Record<string, Card> = {
     requiresTarget: false,
     class: "documentation",
     rulesText: "Clears any active Token Leakage cash penalties. Requires Documentation to play.",
+    era: "ai",
   },
   powerpoint_clinic: {
     id: "powerpoint_clinic",
@@ -281,6 +328,7 @@ export const CARD_DATABASE: Record<string, Card> = {
     requiresTarget: true,
     class: "perk",
     rulesText: "Grants +40 Loyalty to target, but inflicts PowerPoint poisoning: -20% productivity for 3 turns.",
+    era: "shared",
   },
   koffie_apparaat: {
     id: "koffie_apparaat",
@@ -290,6 +338,67 @@ export const CARD_DATABASE: Record<string, Card> = {
     requiresTarget: false,
     class: "perk",
     rulesText: "Permanent asset. Increases employee base productivity by +10% permanently. Maintenance costs $1,000/turn.",
+    era: "shared",
+  },
+  ordner_archief: {
+    id: "ordner_archief",
+    name: "Het Ordner-archief",
+    flavor: "Lous, alles op tabblad. Roze ordner = klanten, blauw = uren, geel = HR. Niet kwijtraken.",
+    cost: 5000,
+    requiresTarget: false,
+    class: "documentation",
+    rulesText: "Enables Documentation (paper version). Halves human onboarding (6→3 turns).",
+    era: "pre-ai",
+  },
+  vrijdagmiddagborrel: {
+    id: "vrijdagmiddagborrel",
+    name: "Vrijdagmiddagborrel",
+    flavor: "Bitterballen op de zaak, Edgar trakteert. Jochem regelt de muziek. Maandagochtend is een ander gesprek.",
+    cost: 8000,
+    requiresTarget: false,
+    class: "perk",
+    rulesText: "Restores +25 Loyalty to all humans. −15% productivity next turn (hangover).",
+    era: "pre-ai",
+  },
+  iso_9001: {
+    id: "iso_9001",
+    name: "ISO 9001 Voorbereiding",
+    flavor: "Drie maanden voorbereiding op een audit van een halve dag. Maar dat certificaat hang je wel in de hal.",
+    cost: 15000,
+    requiresTarget: false,
+    class: "compliance",
+    rulesText: "Requires Documentation. Raises OKR Level cap from 5 to 6.",
+    era: "pre-ai",
+  },
+  senior_partner: {
+    id: "senior_partner",
+    name: "Senior Partner van Kralingen",
+    flavor: "Hij heeft het nog gedaan in de tijd van de gulden. 'Jongen, je moet je toegevoegde waarde verkopen, niet je uren.'",
+    cost: 20000,
+    requiresTarget: true,
+    class: "pdp",
+    rulesText: "One-time mentor pull: promote target to Level 2 without a Build-Plan PDP.",
+    era: "pre-ai",
+  },
+  brainstorm_in_sauna: {
+    id: "brainstorm_in_sauna",
+    name: "Brainstorm in een Sauna",
+    flavor: "Niemand droeg een das. Conclusies werden op het beslagen raam geschreven en daarna vergeten.",
+    cost: 10000,
+    requiresTarget: false,
+    class: "synergy",
+    rulesText: "All humans: +30% productivity AND +25% loyalty-decay for 3 turns. +20 Loyalty to all humans.",
+    era: "pre-ai",
+  },
+  faxmodernisering: {
+    id: "faxmodernisering",
+    name: "Fax-Modernisering",
+    flavor: "Brother MFC-7860. Sneller offertes versturen dan Bouwfonds en Bouwcombinatie samen.",
+    cost: 12000,
+    requiresTarget: false,
+    class: "perk",
+    rulesText: "+$10,000 revenue this turn. Cannot be played after turn 5 — Bouwfonds gebruikt nu DocuSign.",
+    era: "pre-ai",
   },
 };
 
@@ -393,6 +502,42 @@ export function renderCardArt(cardId: string): React.ReactNode {
         <svg {...props}>
           <path d="M18 8h2a2 2 0 012 2v2a2 2 0 01-2 2h-2M2 14h16v6a2 2 0 01-2 2H4a2 2 0 01-2-2v-6z" />
           <path d="M6 2v3M10 2v3" />
+        </svg>
+      );
+    case "ordner_archief":
+      return (
+        <svg {...props}>
+          <text x="12" y="17" textAnchor="middle" fontSize="14" stroke="none" fill="currentColor">📋</text>
+        </svg>
+      );
+    case "vrijdagmiddagborrel":
+      return (
+        <svg {...props}>
+          <text x="12" y="17" textAnchor="middle" fontSize="14" stroke="none" fill="currentColor">🍻</text>
+        </svg>
+      );
+    case "iso_9001":
+      return (
+        <svg {...props}>
+          <text x="12" y="17" textAnchor="middle" fontSize="14" stroke="none" fill="currentColor">🏅</text>
+        </svg>
+      );
+    case "senior_partner":
+      return (
+        <svg {...props}>
+          <text x="12" y="17" textAnchor="middle" fontSize="14" stroke="none" fill="currentColor">🎩</text>
+        </svg>
+      );
+    case "brainstorm_in_sauna":
+      return (
+        <svg {...props}>
+          <text x="12" y="17" textAnchor="middle" fontSize="14" stroke="none" fill="currentColor">🧖</text>
+        </svg>
+      );
+    case "faxmodernisering":
+      return (
+        <svg {...props}>
+          <text x="12" y="17" textAnchor="middle" fontSize="14" stroke="none" fill="currentColor">📠</text>
         </svg>
       );
     default:

@@ -461,3 +461,34 @@ hr {
   border-color: var(--color-accent-warm-strong);
   background: rgba(200, 85, 61, 0.06);
 }
+
+/* ============================================================
+   Agent Game — Industrial Casual overrides (Phase 5d)
+   Scoped behind .sim-* selectors so they don't bleed into the rest
+   of the site. The agent-game module composes its visual layer
+   exclusively from these tokens.
+   ============================================================ */
+:root {
+  --sim-radius-card:  8px;
+  --sim-radius-tile:  6px;
+  --sim-shadow-lift:  0 4px 16px rgba(0, 0, 0, 0.4);
+  --sim-tile-min-h:   96px;
+  --sim-btn-min-h:    56px;
+  --sim-avatar-size:  64px;
+
+  /* Per-archetype accent colors (employee avatar circle backgrounds) */
+  --sim-color-rump:       #b85c2b;
+  --sim-color-husk:       #4a78a8;
+  --sim-color-zweistein:  #5e8c5a;
+  --sim-color-patcher:    #9c4a4a;
+  --sim-color-shift:      #b58a3c;
+  --sim-color-furie:      #8d5fa3;
+  --sim-color-perkel:     #4d6c75;
+
+  /* Card class tints (subtle background washes on card tiles) */
+  --sim-card-tint-perk:        rgba(184, 138, 60, 0.06);
+  --sim-card-tint-doc:         rgba(184, 138, 60, 0.04);
+  --sim-card-tint-pdp:         rgba(200, 85, 61, 0.06);
+  --sim-card-tint-synergy:     rgba(74, 111, 165, 0.06);
+  --sim-card-tint-compliance:  rgba(110, 106, 96, 0.10);
+}

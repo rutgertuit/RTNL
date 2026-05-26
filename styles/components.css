@@ -4162,3 +4162,623 @@ body { padding-top: 0; }
   margin-right: var(--space-2);
   font-feature-settings: "tnum";
 }
+
+/* ============================================================ */
+/* Phase 5c.3 — Projection ghost overlays                       */
+/* ============================================================ */
+/* Inline ghosts that appear next to HUD tiles, desks, and at the
+   top-right of the game canvas while an action surface is hovered or
+   focused. Rendered only when projected state differs from current —
+   the live UI is untouched at rest. */
+.sim-hud__projected {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--color-accent-warm);
+  opacity: 0.85;
+  font-size: var(--fs-50);
+  margin-left: 0.5rem;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+}
+.sim-hud__delta-mono {
+  font-family: var(--font-mono);
+  margin-left: 0.25rem;
+  font-size: var(--fs-50);
+}
+.sim-desk__projected {
+  color: var(--color-accent-warm);
+  opacity: 0.85;
+  font-size: var(--fs-50);
+  margin-left: 0.25rem;
+  font-family: var(--font-mono);
+}
+.sim-projection__watermark {
+  position: fixed;
+  top: 90px;
+  right: 16px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  color: var(--color-accent-warm);
+  opacity: 0.6;
+  letter-spacing: var(--tracking-eyebrow);
+  pointer-events: none;
+  z-index: 10;
+  transition: opacity 0.15s ease-out;
+  text-transform: uppercase;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sim-projection__watermark,
+  .sim-hud__projected,
+  .sim-desk__projected {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* ============================================================
+   Phase 5d — HudTile + SimButton
+   ============================================================ */
+.sim-hud-tile {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  gap: 0 var(--space-3);
+  align-items: center;
+  background: var(--color-bg-raised);
+  border: var(--border-hairline);
+  border-radius: var(--sim-radius-tile);
+  padding: var(--space-4) var(--space-5);
+  min-height: var(--sim-tile-min-h);
+}
+.sim-hud-tile__icon {
+  grid-row: span 2;
+  color: var(--color-accent-warm);
+  display: flex;
+  align-items: center;
+}
+.sim-hud-tile__value {
+  font-family: var(--font-display);
+  font-size: var(--fs-600);
+  font-weight: var(--fw-semibold);
+  line-height: 1;
+  color: var(--color-fg-1);
+}
+.sim-hud-tile__subtitle {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  color: var(--color-fg-3);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+}
+.sim-hud-tile__projected {
+  grid-column: 1 / -1;
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  color: var(--color-accent-warm);
+  opacity: 0.85;
+  margin-top: var(--space-2);
+}
+
+.sim-btn {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--sim-btn-min-h);
+  padding: 0 var(--space-5);
+  background: var(--color-bg-raised);
+  border: var(--border-hairline);
+  border-radius: var(--sim-radius-tile);
+  color: var(--color-fg-1);
+  font-family: var(--font-body, var(--font-sans));
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-200);
+  cursor: pointer;
+  transition:
+    transform var(--duration-ui, 150ms) var(--ease-swing, ease-out),
+    background var(--duration-ui, 150ms) var(--ease-swing, ease-out),
+    box-shadow var(--duration-ui, 150ms) var(--ease-swing, ease-out);
+}
+.sim-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: color-mix(in srgb, var(--color-bg-raised) 85%, var(--color-fg-1) 15%);
+  box-shadow: var(--sim-shadow-lift);
+}
+.sim-btn:active:not(:disabled) { transform: scale(0.97); }
+.sim-btn:disabled,
+.sim-btn.is-locked {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.sim-btn__icon {
+  color: var(--color-accent-warm);
+  display: flex;
+  align-items: center;
+}
+.sim-btn__cost {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  color: var(--color-fg-3);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+}
+.sim-btn--office { background: var(--color-bg-surface); }
+.sim-btn--next {
+  min-height: 72px;
+  font-size: var(--fs-400);
+  background: var(--color-accent-warm);
+  color: var(--color-bg-base);
+  border-color: var(--color-accent-warm);
+}
+.sim-btn--next:hover:not(:disabled) {
+  background: var(--color-accent-warm-strong);
+  box-shadow: 0 6px 24px rgba(232, 98, 62, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sim-btn { transition: none; }
+  .sim-btn:hover:not(:disabled) { transform: none; }
+}
+
+/* Phase 5d.5 — EmployeeAvatar */
+.sim-avatar {
+  display: grid;
+  grid-template-columns: var(--sim-avatar-size) 1fr;
+  grid-template-rows: auto auto auto;
+  gap: var(--space-2) var(--space-3);
+  background: var(--color-bg-surface);
+  border: var(--border-hairline);
+  border-radius: var(--sim-radius-tile);
+  padding: var(--space-3);
+  align-items: center;
+}
+.sim-avatar__circle {
+  width: var(--sim-avatar-size);
+  height: var(--sim-avatar-size);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  grid-row: span 3;
+}
+.sim-avatar__initial {
+  color: var(--color-fg-1);
+  font-family: var(--font-display);
+  font-size: var(--fs-500);
+  font-weight: var(--fw-bold);
+}
+.sim-avatar__name { font-weight: var(--fw-semibold); color: var(--color-fg-1); }
+.sim-avatar__level {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  color: var(--color-fg-3);
+  letter-spacing: var(--tracking-eyebrow);
+}
+.sim-avatar__hearts { display: flex; gap: 2px; color: var(--color-fg-4); font-size: var(--fs-100); }
+.sim-avatar__hearts .is-filled { color: var(--color-accent-warm); }
+.sim-avatar__projected {
+  grid-column: 1 / -1;
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  color: var(--color-accent-warm);
+}
+
+/* Phase 5d.6 — CardTile */
+.sim-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-3);
+}
+.sim-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  background: var(--color-bg-surface);
+  border: var(--border-hairline);
+  border-radius: var(--sim-radius-card);
+  padding: var(--space-4);
+  aspect-ratio: 3 / 4;
+  cursor: pointer;
+  transition:
+    transform var(--duration-ui, 150ms) var(--ease-swing, ease-out),
+    box-shadow var(--duration-ui, 150ms) var(--ease-swing, ease-out),
+    border-color var(--duration-ui, 150ms) var(--ease-swing, ease-out);
+}
+.sim-card:hover:not(.is-disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--sim-shadow-lift);
+}
+.sim-card:focus-visible { outline: 2px solid var(--color-accent-warm); outline-offset: 2px; }
+.sim-card.is-selected { border-color: var(--color-accent-warm); }
+.sim-card.is-disabled { opacity: 0.45; cursor: not-allowed; }
+.sim-card--perk          { background: color-mix(in srgb, var(--color-bg-surface) 90%, var(--sim-card-tint-perk)); }
+.sim-card--documentation { background: color-mix(in srgb, var(--color-bg-surface) 90%, var(--sim-card-tint-doc)); }
+.sim-card--pdp           { background: color-mix(in srgb, var(--color-bg-surface) 90%, var(--sim-card-tint-pdp)); }
+.sim-card--synergy       { background: color-mix(in srgb, var(--color-bg-surface) 90%, var(--sim-card-tint-synergy)); }
+.sim-card--compliance    { background: color-mix(in srgb, var(--color-bg-surface) 90%, var(--sim-card-tint-compliance)); }
+.sim-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-2); }
+.sim-card__name { font-family: var(--font-display); font-weight: var(--fw-semibold); margin: 0; font-size: var(--fs-200); }
+.sim-card__cost { font-family: var(--font-mono); font-size: var(--fs-50); color: var(--color-fg-3); letter-spacing: var(--tracking-eyebrow); }
+.sim-card__rules { font-family: var(--font-body, var(--font-sans)); font-size: var(--fs-100); color: var(--color-fg-1); margin: 0; }
+.sim-card__flavor { font-family: var(--font-display); font-style: italic; font-size: var(--fs-50); color: var(--color-fg-2); margin: 0; margin-top: auto; }
+.sim-card__play {
+  background: var(--color-accent-warm);
+  color: var(--color-bg-base);
+  border: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--sim-radius-tile);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  font-size: var(--fs-100);
+}
+@media (prefers-reduced-motion: reduce) {
+  .sim-card { transition: none; }
+  .sim-card:hover:not(.is-disabled) { transform: none; }
+}
+
+/* Phase 5d.7 — OfficePlate */
+.sim-office {
+  width: 100%;
+  height: 120px;
+  border-bottom: var(--border-hairline);
+  color: var(--color-fg-3);
+  position: relative;
+  overflow: hidden;
+}
+.sim-office svg { width: 100%; height: 100%; display: block; }
+.sim-office--home        { background: linear-gradient(180deg, #1a1411 0%, var(--color-bg-base) 100%); }
+.sim-office--coworking   { background: linear-gradient(180deg, #14181d 0%, var(--color-bg-base) 100%); }
+.sim-office--kantoorpand { background: linear-gradient(180deg, #161512 0%, var(--color-bg-base) 100%); }
+
+/* Phase 5d.8 — FeboVendingMachine */
+.sim-febo {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: grid;
+  place-items: center;
+  z-index: 50;
+  padding: var(--space-4);
+}
+.sim-febo__machine {
+  background: var(--color-bg-raised);
+  border: 2px solid var(--color-accent-warm);
+  border-radius: var(--sim-radius-card);
+  padding: var(--space-6);
+  max-width: min(960px, 92vw);
+  max-height: 92vh;
+  overflow-y: auto;
+}
+.sim-febo__header { text-align: center; }
+.sim-febo__burger {
+  font-size: 3rem;
+  display: block;
+}
+.sim-febo__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-600);
+  color: var(--color-accent-warm);
+  margin: var(--space-3) 0 var(--space-2);
+}
+.sim-febo__sub { color: var(--color-fg-2); margin: 0; }
+.sim-febo__compartments {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+}
+.sim-febo__compartment { display: flex; flex-direction: column; gap: var(--space-3); }
+.sim-febo__glass {
+  border: 1px solid var(--color-accent-warm);
+  border-radius: var(--sim-radius-card);
+  padding: var(--space-2);
+  background: linear-gradient(180deg, rgba(232, 98, 62, 0.06) 0%, transparent 100%);
+}
+.sim-febo__handle {
+  background: var(--color-accent-warm);
+  color: var(--color-bg-base);
+  border: 0;
+  border-radius: var(--sim-radius-tile);
+  padding: var(--space-3);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  font-size: var(--fs-200);
+}
+.sim-febo__handle:hover { background: var(--color-accent-warm-strong); }
+.sim-febo__skip {
+  display: block;
+  margin: var(--space-5) auto 0;
+  background: transparent;
+  border: var(--border-hairline);
+  color: var(--color-fg-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--sim-radius-tile);
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-eyebrow);
+  cursor: pointer;
+}
+@media (max-width: 720px) {
+  .sim-febo__compartments { grid-template-columns: 1fr; }
+}
+
+/* Phase 5d.9 — Edgar narrator */
+.sim-edgar {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: var(--space-4);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-accent-warm);
+  border-radius: var(--sim-radius-card);
+  padding: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+.sim-edgar__avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--color-accent-warm);
+  color: var(--color-bg-base);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: var(--fs-500);
+  font-weight: var(--fw-bold);
+  align-self: start;
+}
+.sim-edgar__bubble { display: grid; gap: var(--space-2); }
+.sim-edgar__eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  color: var(--color-accent-warm);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-eyebrow);
+}
+.sim-edgar__name {
+  font-family: var(--font-display);
+  font-size: var(--fs-300);
+  margin: 0;
+  color: var(--color-fg-1);
+}
+.sim-edgar__body { color: var(--color-fg-2); }
+.sim-edgar__body p { margin: 0 0 var(--space-2); }
+.sim-edgar__body p:last-child { margin-bottom: 0; }
+.sim-edgar__actions { display: flex; gap: var(--space-2); align-items: center; }
+.sim-edgar__cta {
+  background: var(--color-accent-warm);
+  color: var(--color-bg-base);
+  border: 0;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--sim-radius-tile);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  font-family: var(--font-body, var(--font-sans));
+}
+.sim-edgar__cta:hover { background: var(--color-accent-warm-strong); }
+.sim-edgar__dismiss {
+  background: transparent;
+  border: 0;
+  color: var(--color-fg-3);
+  cursor: pointer;
+  font-size: var(--fs-400);
+  line-height: 1;
+  padding: 0 var(--space-2);
+}
+
+/* Phase 5d.10 — Mode-select tiles */
+.sim-mode {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.92);
+  display: grid;
+  place-items: center;
+  padding: var(--space-6);
+  overflow-y: auto;
+}
+.sim-mode__heading {
+  font-family: var(--font-display);
+  font-size: var(--fs-700);
+  text-align: center;
+  margin: 0 0 var(--space-6);
+  color: var(--color-fg-1);
+}
+.sim-mode__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  max-width: 1100px;
+  width: 100%;
+}
+.sim-mode__card {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  background: var(--color-bg-raised);
+  border: var(--border-hairline);
+  border-radius: var(--sim-radius-card);
+  text-align: left;
+  cursor: pointer;
+  color: var(--color-fg-1);
+  font-family: var(--font-body, var(--font-sans));
+  transition:
+    transform var(--duration-ui, 150ms) var(--ease-swing, ease-out),
+    border-color var(--duration-ui, 150ms) var(--ease-swing, ease-out);
+}
+.sim-mode__card:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-accent-warm);
+}
+.sim-mode__card--boardroom { border-top: 4px solid #5e8c5a; }
+.sim-mode__card--reality   { border-top: 4px solid var(--color-accent-warm); }
+.sim-mode__card--zirp      { border-top: 4px solid #c83a3a; }
+.sim-mode__icon { color: var(--color-accent-warm); }
+.sim-mode__title { font-family: var(--font-display); font-size: var(--fs-500); margin: 0; }
+.sim-mode__sub { font-family: var(--font-mono); font-size: var(--fs-50); color: var(--color-fg-3); text-transform: uppercase; letter-spacing: var(--tracking-eyebrow); margin: 0; }
+.sim-mode__target { font-family: var(--font-display); font-size: var(--fs-300); color: var(--color-fg-1); }
+.sim-mode__target strong { color: var(--color-accent-warm); }
+.sim-mode__cash { font-family: var(--font-mono); font-size: var(--fs-50); color: var(--color-fg-3); }
+.sim-mode__body { color: var(--color-fg-2); margin: 0; font-size: var(--fs-100); }
+@media (max-width: 720px) {
+  .sim-mode__grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sim-mode__card { transition: none; }
+  .sim-mode__card:hover { transform: none; }
+}
+
+/* Phase 5d.11 — EndCard */
+.sim-endcard {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: var(--color-bg-base);
+  display: grid;
+  place-items: center;
+  padding: var(--space-6);
+  text-align: center;
+}
+.sim-endcard__inner {
+  display: grid;
+  gap: var(--space-5);
+  max-width: 720px;
+  width: 100%;
+  justify-items: center;
+}
+.sim-endcard__verdict {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 10vw, 6rem);
+  margin: 0;
+  letter-spacing: var(--tracking-display);
+  line-height: 1;
+}
+.sim-endcard__verdict.is-win { color: var(--color-accent-warm); }
+.sim-endcard__verdict.is-loss { color: var(--color-fg-1); }
+.sim-endcard__cause { color: var(--color-fg-2); margin: 0; max-width: 540px; }
+.sim-endcard__stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-5);
+  width: 100%;
+}
+.sim-endcard__stat { display: grid; gap: var(--space-2); }
+.sim-endcard__stat strong { font-family: var(--font-display); font-size: var(--fs-600); color: var(--color-fg-1); }
+.sim-endcard__stat span {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  color: var(--color-fg-3);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-eyebrow);
+}
+.sim-endcard__again { min-width: 220px; justify-self: center; }
+
+.sim-endcard__scorecard-toggle {
+  background: transparent;
+  border: var(--border-hairline);
+  color: var(--color-fg-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--sim-radius-tile);
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.sim-endcard__scorecard-toggle:hover { color: var(--color-fg-1); border-color: var(--color-fg-3); }
+.sim-endcard__chevron { font-size: 10px; }
+.sim-endcard__scorecard {
+  text-align: left;
+  width: 100%;
+  max-width: 520px;
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--color-bg-surface);
+  border: var(--border-hairline);
+  border-radius: var(--sim-radius-card);
+}
+.sim-endcard__scorecard-heading {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  color: var(--color-accent-warm);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-eyebrow);
+  margin: 0;
+}
+.sim-endcard__dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+}
+.sim-endcard__dl dt {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  color: var(--color-fg-3);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-eyebrow);
+}
+.sim-endcard__dl dd {
+  margin: 0;
+  font-family: var(--font-body, var(--font-sans));
+  color: var(--color-fg-1);
+}
+.sim-endcard__share {
+  display: grid;
+  gap: var(--space-2);
+  background: var(--color-bg-sunken);
+  border: var(--border-hairline);
+  padding: var(--space-3);
+  border-radius: var(--sim-radius-tile);
+}
+.sim-endcard__share-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  color: var(--color-fg-3);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-eyebrow);
+}
+.sim-endcard__share-text {
+  width: 100%;
+  min-height: 84px;
+  background: transparent;
+  border: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-fg-2);
+  resize: none;
+  outline: none;
+  line-height: 1.5;
+}
+.sim-endcard__share-copy {
+  background: var(--color-accent-warm);
+  color: var(--color-bg-base);
+  border: 0;
+  border-radius: var(--sim-radius-tile);
+  padding: var(--space-2);
+  font-family: var(--font-body, var(--font-sans));
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-100);
+  cursor: pointer;
+}
+.sim-endcard__share-copy:hover { background: var(--color-accent-warm-strong); }
+
+@media (max-width: 720px) {
+  .sim-endcard__stats { grid-template-columns: repeat(2, 1fr); }
+  .sim-endcard__dl { grid-template-columns: 1fr; }
+  .sim-endcard__dl dd { margin-bottom: var(--space-2); }
+}
+
+/* Phase 5d.12 — motion polish */
+@keyframes sim-card-play-out {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-40px) scale(0.85); opacity: 0; }
+}
+.sim-card.is-playing { animation: sim-card-play-out 280ms ease-out forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .sim-card.is-playing { animation: none; opacity: 0; }
+}
