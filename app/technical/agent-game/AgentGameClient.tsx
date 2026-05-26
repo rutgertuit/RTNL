@@ -125,6 +125,9 @@ export default function AgentGameClient() {
       officeTier: "home" as OfficeTier,
       overcapacityCollapseTurns: 0,
       upgradedOfficeThisTurn: false,
+      hangoverTurnsLeft: 0,
+      saunaActiveTurnsLeft: 0,
+      hasIso9001: false,
     };
   });
 
@@ -170,6 +173,13 @@ export default function AgentGameClient() {
               typeof parsed.overcapacityCollapseTurns === "number" ? parsed.overcapacityCollapseTurns : 0,
             upgradedOfficeThisTurn:
               typeof parsed.upgradedOfficeThisTurn === "boolean" ? parsed.upgradedOfficeThisTurn : false,
+            // Phase 5b.5 backfill for saves predating the pre-AI era counters.
+            hangoverTurnsLeft:
+              typeof parsed.hangoverTurnsLeft === "number" ? parsed.hangoverTurnsLeft : 0,
+            saunaActiveTurnsLeft:
+              typeof parsed.saunaActiveTurnsLeft === "number" ? parsed.saunaActiveTurnsLeft : 0,
+            hasIso9001:
+              typeof parsed.hasIso9001 === "boolean" ? parsed.hasIso9001 : false,
           };
           dispatch({ type: "LOAD_STATE", state: hydrated });
         } else {

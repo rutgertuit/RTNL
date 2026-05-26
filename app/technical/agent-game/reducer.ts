@@ -221,6 +221,9 @@ export const createInitialState = (
     officeTier: "home" as OfficeTier,
     overcapacityCollapseTurns: 0,
     upgradedOfficeThisTurn: false,
+    hangoverTurnsLeft: 0,
+    saunaActiveTurnsLeft: 0,
+    hasIso9001: false,
   };
 };
 
@@ -634,10 +637,12 @@ export function gameReducer(state: GameState, action: Action): GameState {
           eventLog: [...state.eventLog, "Cannot redefine OKRs: insufficient cash (requires $10,000)."],
         };
       }
-      if (state.okrLevel >= 5) {
+      // Phase 5b.5: ISO 9001 raises the cap from 5 to 6.
+      const okrCap = state.hasIso9001 ? 6 : 5;
+      if (state.okrLevel >= okrCap) {
         return {
           ...state,
-          eventLog: [...state.eventLog, "Cannot redefine OKRs: already at max level 5."],
+          eventLog: [...state.eventLog, `Cannot redefine OKRs: already at max level ${okrCap}.`],
         };
       }
 
@@ -698,6 +703,48 @@ export function gameReducer(state: GameState, action: Action): GameState {
         };
       }
 
+      // Phase 5b.5: faxmodernisering after turn 5 is a futile no-op — handle as
+      // an early return so we don't deduct the $12,000 cost (the player gets
+      // the card "back" in discard pile, and the turn-action counter does not
+      // fire). The card is removed from hand and pushed to discard.
+      if (card.id === "faxmodernisering" && state.turn > 5) {
+        const handIndex0 = state.cardsHand.indexOf(action.cardId);
+        const nextHand0 = [...state.cardsHand];
+        if (handIndex0 > -1) nextHand0.splice(handIndex0, 1);
+        return {
+          ...state,
+          eventLog: [...state.eventLog, `📠 Helaas. Bouwfonds gebruikt nu DocuSign. Faxmodernisering doet niets meer.`],
+          cardsDiscard: [action.cardId, ...state.cardsDiscard],
+          cardsHand: nextHand0,
+          lastSnapshot: { ...state, lastSnapshot: null },
+        };
+      }
+
+      // Phase 5b.5: iso_9001 requires Documentation. Reject before charging.
+      if (card.id === "iso_9001" && !state.hasDocumentation) {
+        return {
+          ...state,
+          eventLog: [...state.eventLog, `Cannot play ${card.name}: requires Documentation (Markdown Wiki or Het Ordner-archief).`],
+        };
+      }
+
+      // Phase 5b.5: senior_partner needs a target human < L2.
+      if (card.id === "senior_partner") {
+        const target = state.employees.find((e) => e.id === action.targetEmployeeId);
+        if (!target || target.type !== "human") {
+          return {
+            ...state,
+            eventLog: [...state.eventLog, `Cannot play ${card.name}: target must be a human employee.`],
+          };
+        }
+        if (target.promotionLevel >= 2) {
+          return {
+            ...state,
+            eventLog: [...state.eventLog, `Cannot play ${card.name}: ${getDisplayName(target)} is already at Level ${target.promotionLevel}.`],
+          };
+        }
+      }
+
       let updatedEmployees = [...state.employees];
       let nextCash = state.cash - card.cost;
       let hasDocumentation = state.hasDocumentation;
@@ -708,6 +755,9 @@ export function gameReducer(state: GameState, action: Action): GameState {
       let okrLevel = state.okrLevel;
       let redefinedOkrsThisTurn = state.redefinedOkrsThisTurn;
       let hypeTurnsLeft = state.hypeTurnsLeft;
+      let hangoverTurnsLeft = state.hangoverTurnsLeft;
+      let saunaActiveTurnsLeft = state.saunaActiveTurnsLeft;
+      let hasIso9001 = state.hasIso9001;
 
       const logs = [`🎴 Card Played: ${card.name} (-$${card.cost.toLocaleString()}).`];
 
@@ -772,12 +822,14 @@ export function gameReducer(state: GameState, action: Action): GameState {
           `🏪 Febo Kroket-automatiek installed in the lobby. Employees will gain passive loyalty at the end of each turn.`
         );
       } else if (card.id === "vage_okr") {
-        if (okrLevel < 5) {
+        // Phase 5b.5: ISO 9001 raises the cap from 5 to 6.
+        const vageOkrCap = state.hasIso9001 ? 6 : 5;
+        if (okrLevel < vageOkrCap) {
           okrLevel += 1;
           redefinedOkrsThisTurn = true;
           logs.push(`🔄 OKR Level increased to ${okrLevel}. Immediate -40% alignment penalty applied this turn.`);
         } else {
-          logs.push(`OKR Level already at max (5).`);
+          logs.push(`OKR Level already at max (${vageOkrCap}).`);
         }
       } else if (card.id === "auditor") {
         if (hasDocumentation) {
@@ -804,6 +856,57 @@ export function gameReducer(state: GameState, action: Action): GameState {
         logs.push(
           `☕ Jochem's Koffie-apparaat installed. All workers gain +10% productivity permanently, maintenance costs $1,000/turn.`
         );
+      } else if (card.id === "ordner_archief") {
+        // Phase 5b.5: pre-AI documentation (paper version of markdown_wiki).
+        hasDocumentation = true;
+        logs.push(`📋 Het Ordner-archief geactiveerd. Onboarding gehalveerd.`);
+      } else if (card.id === "vrijdagmiddagborrel") {
+        // +25 loyalty to all humans. Hangover counter set to 2 so it
+        // decrements to 1 at the end of this turn (still active next turn) and
+        // 0 at the end of next turn (penalty applied during next turn's
+        // productivity calc).
+        updatedEmployees = updatedEmployees.map((e) =>
+          e.type === "human"
+            ? { ...e, loyalty: Math.min(100, e.loyalty + 25) }
+            : e
+        );
+        hangoverTurnsLeft = 2;
+        logs.push(`🍻 Vrijdagmiddagborrel: +25 loyalty all-around. Maandag is een ander gesprek.`);
+      } else if (card.id === "iso_9001") {
+        // Documentation requirement already checked above.
+        hasIso9001 = true;
+        logs.push(`🏅 ISO 9001 certificering ingericht. OKR-plafond nu op 6.`);
+      } else if (card.id === "senior_partner") {
+        // One-time mentor pull: promote target to L2 without a PDP penalty.
+        // Target validity already checked above.
+        updatedEmployees = updatedEmployees.map((e) => {
+          if (e.id === action.targetEmployeeId) {
+            logs.push(
+              `🎩 Senior Partner van Kralingen mentors ${getDisplayName(e)} into Level 2. Toegevoegde waarde, geen uurtje-factuurtje.`
+            );
+            return {
+              ...e,
+              promotionLevel: 2 as 1 | 2 | 3,
+              loyalty: 100,
+              hasPDP: true,
+            };
+          }
+          return e;
+        });
+      } else if (card.id === "brainstorm_in_sauna") {
+        updatedEmployees = updatedEmployees.map((e) =>
+          e.type === "human"
+            ? { ...e, loyalty: Math.min(100, e.loyalty + 20) }
+            : e
+        );
+        saunaActiveTurnsLeft = 3;
+        logs.push(`🧖 Brainstorm in de sauna: +20 loyalty, +30% productiviteit, sneller loyaliteitsverlies — 3 beurten.`);
+      } else if (card.id === "faxmodernisering") {
+        // Turn ≤ 5 (the post-turn-5 case returned early above). Pay-out is
+        // +$10,000 NET of card cost. The cost has already been subtracted
+        // from nextCash in the common setup; bump revenue by $10k.
+        nextCash += 10000;
+        logs.push(`📠 Fax-Modernisering: +$10,000 omzet uit Bouwfonds-offertes.`);
       }
 
       const handIndex = state.cardsHand.indexOf(action.cardId);
@@ -824,6 +927,9 @@ export function gameReducer(state: GameState, action: Action): GameState {
         okrLevel,
         redefinedOkrsThisTurn,
         hypeTurnsLeft,
+        hangoverTurnsLeft,
+        saunaActiveTurnsLeft,
+        hasIso9001,
         employees: updatedEmployees,
         cardsHand: nextHand,
         cardsDiscard: nextDiscard,
@@ -865,6 +971,9 @@ export function gameReducer(state: GameState, action: Action): GameState {
       const nextRtoActiveTurns = state.rtoActiveTurns && state.rtoActiveTurns > 0 ? state.rtoActiveTurns - 1 : 0;
       const nextSurgeTurnsLeft = state.surgeTurnsLeft && state.surgeTurnsLeft > 0 ? state.surgeTurnsLeft - 1 : 0;
       const nextSurgeThrottledTurnsLeft = state.surgeThrottledTurnsLeft && state.surgeThrottledTurnsLeft > 0 ? state.surgeThrottledTurnsLeft - 1 : 0;
+      // Phase 5b.5: pre-AI era effect counters.
+      const nextHangoverTurnsLeft = Math.max(0, state.hangoverTurnsLeft - 1);
+      const nextSaunaActiveTurnsLeft = Math.max(0, state.saunaActiveTurnsLeft - 1);
 
       // 1. Onboarding Progression
       let updatedEmployees = state.employees.map((e) => {
@@ -994,6 +1103,9 @@ export function gameReducer(state: GameState, action: Action): GameState {
         const kantoortuinMult = state.kantoortuinPenaltyTurns > 0 ? 0.9 : 1.0;
         const okrMeetingMult = state.redefinedOkrsThisTurn ? 0.6 : 1.0;
         const koffieMult = state.hasKoffieApparaat ? 1.1 : 1.0;
+        // Phase 5b.5: pre-AI card effect productivity mults.
+        const hangoverMult = state.hangoverTurnsLeft > 0 ? 0.85 : 1.0;
+        const saunaMult = state.saunaActiveTurnsLeft > 0 ? 1.3 : 1.0;
         const pptMult = e.pptPoisoningTurns > 0 ? 0.8 : 1.0;
 
         // Corporate Event RTO Mandate: +25% productivity to humans if active
@@ -1029,7 +1141,9 @@ export function gameReducer(state: GameState, action: Action): GameState {
           rtoMult *
           traitProdMult *
           agentSynergyMult *
-          overcapMultClamped;
+          overcapMultClamped *
+          hangoverMult *
+          saunaMult;
         totalTurnRevenue += finalProductivity;
 
         const pdpDecayMultiplier = e.promotionLevel > 1 && !e.hasPDP ? 2 : 1;
@@ -1037,7 +1151,10 @@ export function gameReducer(state: GameState, action: Action): GameState {
         // Melon Husk passive: suffers 2x base loyalty decay
         const huskDecayMultiplier = e.traitId === "husk" ? 2 : 1;
 
-        const decay = baseLoyaltyDecay * pdpDecayMultiplier * huskDecayMultiplier;
+        // Phase 5b.5: sauna brainstorm accelerates loyalty decay by +25%.
+        const saunaDecayMultiplier = state.saunaActiveTurnsLeft > 0 ? 1.25 : 1.0;
+
+        const decay = baseLoyaltyDecay * pdpDecayMultiplier * huskDecayMultiplier * saunaDecayMultiplier;
 
         let nextLoyalty = e.loyalty;
 
@@ -1269,6 +1386,8 @@ export function gameReducer(state: GameState, action: Action): GameState {
         rtoActiveTurns: nextRtoActiveTurns,
         surgeTurnsLeft: nextSurgeTurnsLeft,
         surgeThrottledTurnsLeft: nextSurgeThrottledTurnsLeft,
+        hangoverTurnsLeft: nextHangoverTurnsLeft,
+        saunaActiveTurnsLeft: nextSaunaActiveTurnsLeft,
         freezeHiringNextTurn: false, // Decays at the end of the turn
         lastSnapshot: null, // GG.2: clear undo snapshot at turn boundary
         // Phase 5b.2 / 5b.3: office tier carries; only UPGRADE_OFFICE mutates

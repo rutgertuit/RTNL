@@ -27,8 +27,15 @@ describe("eras", () => {
     expect(cards).not.toContain("auditor");
   });
 
-  // Lands as a real assertion in 5b.5 once the cards exist.
-  it.todo("cardsForEra(pre-ai) includes the 6 new pre-AI cards");
+  it("cardsForEra(pre-ai) includes the 6 new pre-AI cards", () => {
+    const cards = cardsForEra("pre-ai");
+    expect(cards).toContain("ordner_archief");
+    expect(cards).toContain("vrijdagmiddagborrel");
+    expect(cards).toContain("iso_9001");
+    expect(cards).toContain("senior_partner");
+    expect(cards).toContain("brainstorm_in_sauna");
+    expect(cards).toContain("faxmodernisering");
+  });
 
   it("cardsForEra(ai) includes all AI cards + shared cards", () => {
     const cards = cardsForEra("ai");
