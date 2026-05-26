@@ -1056,13 +1056,30 @@
 
 .rt-bi-cost__calc {
   display: grid;
-  grid-template-columns: 5fr 7fr;
+  /* minmax(0, ...) prevents the inner fr-shares from being driven past their
+     share by child min-content (same root cause we hit on the homepage). */
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
   gap: var(--space-5);
   margin: var(--space-8) 0;
   padding: var(--space-5);
   background: var(--color-bg-surface);
   border: var(--border-hairline);
 }
+.rt-bi-cost__calc > * { min-width: 0; }
+
+/* Long mono numeric cells (USD column, etc.) can blow tables past viewport on
+   narrow widths even with width:100%. Allow horizontal scroll on the table
+   block itself rather than the page. */
+.rt-bi-brief__table,
+.rt-bi-cost__table {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.rt-bi-brief__table tbody,
+.rt-bi-cost__table tbody { display: table; width: 100%; }
+.rt-bi-brief__table thead,
+.rt-bi-cost__table thead { display: table; width: 100%; }
 
 .rt-bi-cost__controls {
   display: flex;
