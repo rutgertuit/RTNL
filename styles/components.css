@@ -804,7 +804,8 @@ body { padding-top: 0; }
 .rt-editorial__article-photo {
   position: relative;
   margin: 0 0 var(--space-6);
-  aspect-ratio: 21 / 9;
+  /* matches /assets/events/*.png — 633×356, 16:9. See docs/visual-style.md. */
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   background: var(--color-bg-sunken);
 }
@@ -3429,7 +3430,10 @@ body { padding-top: 0; }
 /* === Stats strip === */
 .sim-fs__stats {
   display: grid;
-  grid-template-columns: 1fr 1.5fr 1fr 1fr;
+  /* minmax(0, ...) so the HUD tiles can compress below their min-content
+     (the numeric values are mono-fixed-width). Without it the columns push
+     past their fr-share and the HUD overflows on narrow viewports. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--space-3);
   padding: var(--space-4);
   background: linear-gradient(180deg, #1c1a18 0%, #14110d 100%);
@@ -3741,7 +3745,7 @@ body { padding-top: 0; }
   .sim-fs__game-name { font-size: 10px; }
   .sim-fs__head-meta { font-size: 9px; }
   .sim-fs__stats {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: var(--space-2);
     padding: var(--space-3);
   }
