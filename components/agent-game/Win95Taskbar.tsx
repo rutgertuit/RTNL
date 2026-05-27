@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 
 interface Win95TaskbarProps {
   turn: number;
@@ -75,20 +76,20 @@ export function Win95Taskbar({ turn, cashLabel, difficulty, chaosActive, onHelp 
             >
               📖 Help / Tutorial
             </button>
-            <a
+            <Link
               className="win95-button"
               href="/business/agent-inclusive"
               style={{ width: "100%", textAlign: "center", textDecoration: "none" }}
             >
               📄 Read source article
-            </a>
-            <a
+            </Link>
+            <Link
               className="win95-button"
               href="/"
               style={{ width: "100%", textAlign: "center", textDecoration: "none", marginTop: 4 }}
             >
               ⏻ Exit to rutgertuit.nl
-            </a>
+            </Link>
           </div>
         </div>
       )}

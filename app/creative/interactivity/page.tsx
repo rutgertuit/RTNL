@@ -100,7 +100,8 @@ export default function InteractivityPage() {
                   <strong>Luminary</strong> — the deep-research agent class that runs
                   open-ended discovery on your behalf, surfaces the receipts, and lets you
                   steer mid-flight. Used well, it is less a search engine and more a
-                  research apprentice who keeps asking <em>"and what about this?"</em>{" "}
+                  research apprentice who keeps asking{" "}
+                  <em>&ldquo;and what about this?&rdquo;</em>{" "}
                   until you stop them. The interactivity is the steering. You explain the
                   concept of agentic research by handing someone the steering wheel for
                   thirty seconds, not by drawing the architecture diagram.
