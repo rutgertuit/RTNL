@@ -673,6 +673,21 @@ html:has(.win95-scope) {
   color: var(--w95-text) !important;
   text-shadow: none !important;
 }
+/* Reserve room for the projection ghost row so the tile doesn't grow
+   on hover. The ghost is rendered as a 3rd grid row only when an action
+   would change the tile's value; without this min-height + row reservation
+   the tile expands by ~24px and shoves everything below it down. */
+.win95-scope .sim-hud-tile,
+.win95-scope .sim-fs__stats > * {
+  min-height: 128px !important;
+  grid-template-rows: 1fr auto 24px !important;
+  align-content: start !important;
+}
+.win95-scope .sim-hud-tile__projected {
+  grid-row: 3 !important;
+  margin-top: 0 !important;
+  align-self: center !important;
+}
 
 /* Office floor + move sections → Win95 windows */
 .win95-scope .sim-fs__office,
