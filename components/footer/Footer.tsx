@@ -28,6 +28,9 @@ export function Footer() {
             <span>Instrument Serif · IBM Plex</span>
             <span>Next.js 15 · plain CSS · Cloud Run</span>
             <span>Hosted in NL · responds in EN / NL</span>
+            <Link href="/credits" className="rt-footer__contact-link">
+              Full credits →
+            </Link>
           </div>
           <div className="rt-footer__meta-col">
             <div className="eyebrow">RUTGER TUIT · 2026</div>
