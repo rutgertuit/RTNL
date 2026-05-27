@@ -45,7 +45,35 @@ const INFRASTRUCTURE: CreditItem[] = [
   { name: "Google Secret Manager", note: "Holds the Gemini API key, bound cross-project from rutger-dml." },
 ];
 
-const REPOS: CreditItem[] = [
+const EXTERNAL_REPOS: CreditItem[] = [
+  {
+    name: "google-gemini/cookbook",
+    href: "https://github.com/google-gemini/cookbook",
+    note: "Reference examples for the Veo + Nano Banana render scripts. The polling-and-download pattern in render-clip.py came straight from here.",
+  },
+  {
+    name: "googleapis/python-genai",
+    href: "https://github.com/googleapis/python-genai",
+    note: "The Python Gemini SDK used in render-clip.py and the Win95 portrait generator.",
+  },
+  {
+    name: "google-gemini/generative-ai-js",
+    href: "https://github.com/google-gemini/generative-ai-js",
+    note: "JS SDK conventions for the /api/gemini server route powering the Prompt Scribe exhibit.",
+  },
+  {
+    name: "vercel/next.js",
+    href: "https://github.com/vercel/next.js",
+    note: "The framework. Everything from app-router conventions to next/image lives downstream of this repo.",
+  },
+  {
+    name: "vitejs/vite",
+    href: "https://github.com/vitejs/vite",
+    note: "Build tool for both sibling apps (Snoek & Partners, AI-ftershow). The base-URL trick that makes the iframe game resolve under /boardroom-game/ is a Vite feature.",
+  },
+];
+
+const SIBLING_REPOS: CreditItem[] = [
   { name: "github.com/rutgertuit/RTNL", href: "https://github.com/rutgertuit/RTNL", note: "This site." },
   { name: "Snoek & Partners (Boardroom_Game)", note: "Sibling repo. The Dutch ad-agency roguelite, embedded via iframe at /creative/boardroom-game." },
   { name: "AI-ftershow (DML)", href: "https://rutger-dml.web.app", note: "Sibling app. The Prompt Scribe live exhibit was ported from here." },
@@ -147,13 +175,24 @@ export default function CreditsPage() {
           </section>
 
           <section className="rt-credits__section">
-            <div className="eyebrow">04 &middot; REPOS</div>
-            <h2>The code itself.</h2>
-            <CreditList items={REPOS} />
+            <div className="eyebrow">04 &middot; OPEN-SOURCE REPOS USED</div>
+            <h2>Code I pulled from.</h2>
+            <p className="rt-credits__note rt-credits__note--block">
+              The external GitHub repos this site was built on top of. The
+              examples in <em>google-gemini/cookbook</em> in particular saved
+              hours on the render scripts.
+            </p>
+            <CreditList items={EXTERNAL_REPOS} />
           </section>
 
           <section className="rt-credits__section">
-            <div className="eyebrow">05 &middot; PEOPLE I LEARN FROM</div>
+            <div className="eyebrow">05 &middot; SIBLING REPOS</div>
+            <h2>Mine.</h2>
+            <CreditList items={SIBLING_REPOS} />
+          </section>
+
+          <section className="rt-credits__section">
+            <div className="eyebrow">06 &middot; PEOPLE I LEARN FROM</div>
             <h2>Permanent open tabs.</h2>
             <p className="rt-credits__note rt-credits__note--block">
               Four channels I keep coming back to. None of them sponsored
