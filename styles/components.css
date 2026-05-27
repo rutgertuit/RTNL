@@ -1544,9 +1544,8 @@ body { padding-top: 0; }
 .rt-mk__photos {
   grid-template-columns: repeat(3, 1fr);
 }
-.rt-mk__photo img {
-  aspect-ratio: 4 / 5;
-}
+/* Aspect ratio is set to 1/1 in base.css to render the press-kit
+   tiles as squares. Don't override it here. */
 
 /* Fix J (H-3): Logo preview contrast — each variant gets a surface that
    contrasts with the mark colour so the logo is always visible.
