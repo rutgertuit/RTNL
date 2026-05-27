@@ -758,10 +758,12 @@ export default function AgentGameClient() {
                           !isOnboarded ? "is-onboarding" : "",
                           isAgent ? "is-agent" : "",
                           isAgent && !state.hasDocumentation ? "is-malfunctioning" : "",
+                          traitPopoverOpen[emp.id] ? "is-flipped" : "",
                         ].filter(Boolean).join(" ")}
                         role={isTargetable ? "button" : undefined}
                         aria-label={`${displayName}, ${isAgent ? "Cognitive Agent" : `Level ${emp.promotionLevel}`}, productivity ${productivity}%, loyalty ${emp.loyalty}%`}
                       >
+                        <div className="sim-desk__face sim-desk__face--front">
                         <div className="sim-desk__badges">
                           {emp.isAsleep && <span className="sim-desk__badge" title="Asleep this turn">💤</span>}
                           {emp.inspirationTurnsLeft > 0 && (
@@ -865,25 +867,6 @@ export default function AgentGameClient() {
                             })()}
                           </div>
                         </div>
-                        {traitPopoverOpen[emp.id] && traitInfo && (
-                          <div
-                            role="dialog"
-                            aria-label={`${displayName} trait detail`}
-                            className="sim-desk__popover"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <strong>{traitInfo.passiveName}</strong>
-                            <p>{traitInfo.description}</p>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setTraitPopoverOpen((prev) => ({ ...prev, [emp.id]: false }));
-                              }}
-                              className="sim-desk__popover-close"
-                            >Close</button>
-                          </div>
-                        )}
                         {!isAgent && isOnboarded && emp.promotionLevel < 3 && state.turn >= TURN_PROMOTION_UNLOCKED && (
                           <button
                             onClick={(e) => { e.stopPropagation(); handlePromoteWorker(emp.id); }}
@@ -903,6 +886,29 @@ export default function AgentGameClient() {
                             ▴ Promote
                             <span className="sim-desk__promote-cost">${emp.promotionLevel === 1 ? "15k" : "40k"}</span>
                           </button>
+                        )}
+                        </div>{/* end .sim-desk__face--front */}
+                        {traitInfo && (
+                          <div
+                            role={traitPopoverOpen[emp.id] ? "dialog" : "presentation"}
+                            aria-hidden={!traitPopoverOpen[emp.id]}
+                            aria-label={`${displayName} trait detail`}
+                            className="sim-desk__face sim-desk__face--back"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className="sim-desk__face-back-eyebrow">TRAIT</div>
+                            <strong>{traitInfo.passiveName}</strong>
+                            <p>{traitInfo.description}</p>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setTraitPopoverOpen((prev) => ({ ...prev, [emp.id]: false }));
+                              }}
+                              className="sim-desk__popover-close"
+                              tabIndex={traitPopoverOpen[emp.id] ? 0 : -1}
+                            >Close</button>
+                          </div>
                         )}
                       </div>
                     );
