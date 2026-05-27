@@ -1226,10 +1226,13 @@ html:has(.win95-scope) {
 .win95-scope .sim-mode__body {
   background: transparent !important;
 }
-.win95-scope .sim-mode__title,
-.win95-scope .sim-mode__heading,
-.win95-scope .sim-mode__sub,
-.win95-scope .sim-mode__detail {
+.win95-scope .sim-fs .sim-mode__title,
+.win95-scope .sim-fs .sim-mode__heading,
+.win95-scope .sim-fs .sim-mode__sub,
+.win95-scope .sim-fs .sim-mode__detail,
+.win95-scope .sim-mode .sim-mode__heading,
+.win95-scope .sim-mode h1,
+.win95-scope .sim-mode h2 {
   color: var(--w95-white) !important;
 }
 .win95-scope .sim-mode__card,
