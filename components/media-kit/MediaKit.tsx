@@ -167,9 +167,10 @@ export function MediaKit() {
                   <Image
                     src={`/assets/portraits/${id}.png`}
                     alt={alt}
-                    width={1440}
-                    height={1920}
-                    sizes="(max-width: 720px) 50vw, 25vw"
+                    width={1248}
+                    height={1664}
+                    sizes="(max-width: 720px) 50vw, 33vw"
+                    quality={85}
                   />
                   <figcaption>
                     {id.replace(/^\d+-/, "").toUpperCase().replace("-", " ")}

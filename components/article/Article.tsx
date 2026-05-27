@@ -48,6 +48,12 @@ export interface ArticleProps {
    * read-time and filed-under spans.
    */
   game?: { href: string; label: string };
+  /**
+   * Section label rendered in the top eyebrow. Defaults to
+   * "BUSINESS & LEADERSHIP" to match the three original vision pieces.
+   * Pass e.g. "CREATIVE" for articles that live under /creative/.
+   */
+  section?: string;
 }
 
 export function Article({
@@ -60,13 +66,14 @@ export function Article({
   intro,
   podcast,
   game,
+  section = "BUSINESS & LEADERSHIP",
 }: ArticleProps) {
   return (
     <article className="rt-tuit section section--surface">
       <div className="container">
         <div className="rt-tuit__head">
           <div className="eyebrow eyebrow--warm">
-            ARTICLE · {number} · BUSINESS &amp; LEADERSHIP
+            ARTICLE · {number} · {section}
           </div>
           <h1 className="rt-tuit__title">{title}</h1>
           <div className="rt-tuit__meta">

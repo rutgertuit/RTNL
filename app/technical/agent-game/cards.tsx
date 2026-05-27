@@ -224,6 +224,25 @@ export interface GameState {
   /** Phase 5b.7: era-handoff bonus on turn 5→6 boundary. */
   seedFunded?: boolean;
   seedDeclined?: boolean;
+  /** Last-rolled chaos event (Win95 modal). Null when no event is active. */
+  activeChaosEvent?: ChaosLog | null;
+  /** Productivity multiplier from the last chaos event, applied for the next
+   *  turn only. 1 = no effect. Decremented to 1 at END_TURN after use. */
+  chaosProductivityNextTurn?: number;
+}
+
+/** Persisted shape of a rolled chaos event — narrowed slice of ChaosRollResult
+ *  so cards.tsx can import it without pulling in chaos.ts's whole module
+ *  (and the headless sim stays light). */
+export interface ChaosLog {
+  title: string;
+  body: string;
+  cat: "CRIMINAL" | "SUBSTANCE" | "IDEOLOGICAL" | "INCOMPETENCE";
+  pts: number;
+  cashDelta: number;
+  loyaltyDelta: number;
+  productivityNextTurn: number;
+  isNamed: boolean;
 }
 
 // ============================================================

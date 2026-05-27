@@ -92,7 +92,7 @@ export function CreativeAtelier() {
         <header className="rt-creative__head">
           <div className="eyebrow eyebrow--warm">02 · CREATIVE PLAYGROUND</div>
           <h2 className="rt-creative__title">
-            Three experiments — image, motion, music.
+            Four experiments — image, motion, music, interaction.
           </h2>
           <p className="rt-creative__lead">
             I run these to find out what the tools can actually do. Each one is half-finished on
@@ -103,28 +103,24 @@ export function CreativeAtelier() {
         <div className="rt-creative__grid">
           {/* Image */}
           <article className="rt-creative__panel">
-            <div className="rt-creative__panel-art">
-              <Image
-                src="/assets/portraits/02-warehouse.png"
-                alt=""
-                width={1440}
-                height={1920}
-                sizes="(max-width: 720px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
-              <Image
-                src="/assets/portraits/03-cinematic.png"
-                alt=""
-                width={1440}
-                height={1920}
-                sizes="(max-width: 720px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
-              <Image
-                src="/assets/portraits/04-profile.png"
-                alt=""
-                width={1440}
-                height={1920}
-                sizes="(max-width: 720px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
+            <div className="rt-creative__panel-art rt-creative__panel-art--grid">
+              {[
+                "01-studio",
+                "02-warehouse",
+                "03-cinematic",
+                "04-profile",
+                "05-mid-shot",
+                "06-stage",
+              ].map((id) => (
+                <Image
+                  key={id}
+                  src={`/assets/portraits/${id}.png`}
+                  alt=""
+                  width={1248}
+                  height={1248}
+                  sizes="(max-width: 720px) 33vw, (max-width: 1200px) 16vw, 11vw"
+                />
+              ))}
             </div>
             <div className="rt-creative__panel-meta">
               <div className="eyebrow">IMAGE · NANO BANANA</div>
@@ -315,6 +311,40 @@ export function CreativeAtelier() {
                   ))}
                 </ul>
               </div>
+            </div>
+          </article>
+
+          {/* Interaction — fourth experiment: interactive artefacts as explanation */}
+          <article className="rt-creative__panel rt-creative__panel--interaction">
+            <div className="rt-creative__panel-art rt-creative__panel-art--illustration">
+              <img
+                src="/assets/creative/interactivity/desk-tinkering.jpeg"
+                alt="Workshop desk in warm rim light — soldering iron, half-disassembled keyboard, a monitor in the corner showing a prototype mid-build."
+                loading="lazy"
+                onError={(e) => {
+                  // Placeholder until the desk illustration is dropped in.
+                  (e.currentTarget as HTMLImageElement).style.display = "none";
+                  const ph = e.currentTarget.nextElementSibling as HTMLElement | null;
+                  if (ph) ph.style.display = "flex";
+                }}
+              />
+              <div className="rt-creative__panel-art-placeholder" aria-hidden>
+                <span className="eyebrow">ILLUSTRATION PENDING</span>
+                <span>desk · tinkering · prototype</span>
+              </div>
+            </div>
+            <div className="rt-creative__panel-meta">
+              <div className="eyebrow">METHOD · INTERACTION</div>
+              <h3>Interactivity is the new explanation.</h3>
+              <p>
+                The fastest path from &quot;I don&apos;t get it&quot; to &quot;oh, like
+                that&quot; is to let someone press the idea. Three modes — investigation,
+                structuring, creation — with the tools and the two mini-games on this
+                site as proof.
+              </p>
+              <a className="button" href="/creative/interactivity">
+                Read the method <span aria-hidden>→</span>
+              </a>
             </div>
           </article>
         </div>

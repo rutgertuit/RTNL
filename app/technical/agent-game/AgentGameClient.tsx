@@ -33,6 +33,8 @@ import { OfficePlate } from "@/components/agent-game/OfficePlate";
 import { FeboVendingMachine } from "@/components/agent-game/FeboVendingMachine";
 import { Edgar } from "@/components/agent-game/Edgar";
 import { EndCard } from "@/components/agent-game/EndCard";
+import { ChaosDialog } from "@/components/agent-game/ChaosDialog";
+import { Win95Taskbar } from "@/components/agent-game/Win95Taskbar";
 import {
   Cash,
   Building,
@@ -491,12 +493,36 @@ export default function AgentGameClient() {
   const peBoardPenalty = (state.boardAngerTurns ?? 0) > 0 ? -10 : 0;
   const peTotal = Math.max(1, peBase + peDocBonus + peHypeBonus + peBoardPenalty);
 
+  // Compact $ format for the taskbar tray
+  const taskbarCash = (() => {
+    const n = state.cash;
+    const abs = Math.abs(n);
+    const sign = n < 0 ? "-" : "";
+    if (abs >= 1_000_000_000) return `${sign}$${(abs / 1_000_000_000).toFixed(2)}B`;
+    if (abs >= 1_000_000) return `${sign}$${(abs / 1_000_000).toFixed(2)}M`;
+    if (abs >= 1_000) return `${sign}$${Math.round(abs / 1000)}k`;
+    return `${sign}$${abs}`;
+  })();
+
   return (
-    <div className="sim-fs-root">
-      {/* Full-screen game canvas — no site Nav/Footer/AppChrome on this route.
-          The website chrome was colliding with the dashboard at the top of the
-          viewport and competing with the game for attention. This page now
-          renders as its own application. */}
+    <div className="sim-fs-root win95-desktop">
+      {/* CRT scanline overlay sits above the desktop, below the game */}
+      <div className="crt-overlay" aria-hidden />
+
+      {/* Win95 title bar — labels the running "application" */}
+      <div className="win95-window" style={{ marginBottom: 8 }}>
+        <div className="win95-title-bar">
+          <span className="win95-title-bar__label">
+            <span aria-hidden>🖥️</span>
+            <span>AgentInclusiveSim.exe — Turn {state.turn} / 30 · {taskbarCash}</span>
+          </span>
+          <span style={{ display: "inline-flex", gap: 2 }}>
+            <button type="button" className="win95-title-btn" aria-label="Minimize" tabIndex={-1}>_</button>
+            <button type="button" className="win95-title-btn" aria-label="Maximize" tabIndex={-1}>▢</button>
+            <button type="button" className="win95-title-btn" aria-label="Close" onClick={() => { window.location.href = "/"; }}>X</button>
+          </span>
+        </div>
+      </div>
 
       {/* Phase 5c.2: ProjectionProvider wraps every projection-consuming
           surface (HUD tiles, action buttons, desks, card hand, modal options).
@@ -1507,6 +1533,23 @@ export default function AgentGameClient() {
       </section>
       )}</ProjectionConsumer>
       </ProjectionProvider>
+
+      {/* Win95 bottom taskbar */}
+      <Win95Taskbar
+        turn={state.turn}
+        cashLabel={taskbarCash}
+        difficulty={state.difficulty.toUpperCase()}
+        chaosActive={!!state.activeChaosEvent}
+        onHelp={() => setHelpOpen(true)}
+      />
+
+      {/* Win95 chaos modal — fires when the engine rolled an event this turn */}
+      {state.activeChaosEvent && (
+        <ChaosDialog
+          event={state.activeChaosEvent}
+          onDismiss={() => dispatch({ type: "DISMISS_CHAOS_EVENT" })}
+        />
+      )}
     </div>
   );
 }
