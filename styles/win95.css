@@ -1235,6 +1235,76 @@ html:has(.win95-scope) {
   border-radius: 0 !important;
   cursor: pointer !important;
 }
+
+/* ============================================================
+   Audit fixes — three real bugs reported after first ship
+   ============================================================ */
+
+/* (1) Back face paragraph was inheriting 18px from the dark-theme prose
+   base. Pin it explicitly so a 161px-wide card doesn't wrap every
+   three words. */
+.win95-scope .sim-desk__face--back p,
+.win95-scope .sim-desk__face--back .sim-desk__face-back-eyebrow {
+  font-size: 11px !important;
+  line-height: 1.4 !important;
+  margin: 0 0 6px !important;
+}
+.win95-scope .sim-desk__face--back strong {
+  font-size: 13px !important;
+  line-height: 1.2 !important;
+}
+
+/* (2) Click on the Close button (back face, when flipped) was hitting
+   the front face's "i" button instead, because both faces sit at the
+   same grid cell and CSS 3D hit-testing doesn't suppress pointer events
+   for backface-visibility:hidden elements in all browsers. Explicit
+   pointer-events toggling — the face facing away is non-interactive. */
+.win95-scope .sim-desk .sim-desk__face--back {
+  pointer-events: none;
+}
+.win95-scope .sim-desk.is-flipped .sim-desk__face--front {
+  pointer-events: none !important;
+}
+.win95-scope .sim-desk.is-flipped .sim-desk__face--back {
+  pointer-events: auto !important;
+}
+
+/* (3) FEBO card text was barely visible — light gray on light gray.
+   The cards inside the FEBO machine are mtg-card / sim-fs structures
+   that render with the dark-theme color palette. Force readable
+   contrast on a Win95 white background. */
+.win95-scope .sim-febo__glass .mtg-card,
+.win95-scope .sim-febo__glass .mtg-card * {
+  color: var(--w95-text) !important;
+  text-shadow: none !important;
+}
+.win95-scope .sim-febo__glass .mtg-card {
+  background: var(--w95-white) !important;
+  background-image: none !important;
+}
+/* CardTile uses a few token classnames for the body text + cost. Make
+   them all readable. */
+.win95-scope .sim-febo__glass .mtg-card__name,
+.win95-scope .sim-febo__glass .mtg-card__rules,
+.win95-scope .sim-febo__glass .mtg-card__cost,
+.win95-scope .sim-febo__glass .mtg-card__flavor {
+  color: var(--w95-text) !important;
+}
+.win95-scope .sim-febo__glass .mtg-card__cost {
+  color: var(--w95-navy) !important;
+}
+
+/* (4) The FEBO modal had no visible teal because the bulk override
+   listed .sim-febo as a gray-surface element. .sim-febo is the modal
+   *backdrop* — it has its own intended styling further up in this
+   file (semi-transparent dark wrapper). Restored. */
+.win95-scope .sim-febo {
+  background-color: rgba(0, 0, 0, 0.55) !important;
+  background-image: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 16px !important;
+}
 /* Promote button at bottom of desk card */
 .win95-scope .sim-desk__promote {
   margin-top: auto;
@@ -1424,6 +1494,9 @@ html:has(.win95-scope) {
    after the first pass. Edgar narrator, difficulty overlay, help
    modal, end card, post-mortem, FEBO vendor, board events.
    ============================================================ */
+/* NOTE: .sim-febo is intentionally NOT in this bulk list — it's the
+   modal *backdrop*, must be semi-transparent dark, not a gray surface.
+   The Win95 styling for it lives in the dedicated FEBO block below. */
 .win95-scope .sim-edgar,
 .win95-scope .sim-edgar-banner,
 .win95-scope .sim-tut,
@@ -1432,7 +1505,6 @@ html:has(.win95-scope) {
 .win95-scope .sim-help__panel,
 .win95-scope .sim-postmortem,
 .win95-scope .sim-end-card,
-.win95-scope .sim-febo,
 .win95-scope [class*="sim-event-"],
 .win95-scope [class*="sim-overlay__"],
 .win95-scope [class*="sim-modal__"] {
