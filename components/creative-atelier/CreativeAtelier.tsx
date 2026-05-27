@@ -18,13 +18,20 @@ interface Track {
   n: string;
   title: string;
   duration: number; // seconds
+  src: string;
 }
 
+// Five tracks from the two AI-assisted albums released on Spotify. Lyrics
+// co-written with AI, music partly AI-generated; some melody and drum
+// performances by hand; arrangement / editing by hand. No real
+// instruments and no real vocalists. Durations measured via ffprobe at
+// commit time so the boombox progress bar matches the audio exactly.
 const TRACKS: Track[] = [
-  { id: "t1", n: "01", title: "Briefing the harbour", duration: 192 },
-  { id: "t2", n: "02", title: "Slow port at 4 a.m.", duration: 268 },
-  { id: "t3", n: "03", title: "Codewoord", duration: 166 },
-  { id: "t4", n: "04", title: "Tuesday at 4 (reprise)", duration: 314 },
+  { id: "t1", n: "01", title: "Big Television",  duration: 261, src: "/audio/music/big-television.mp3" },
+  { id: "t2", n: "02", title: "Flicker",         duration: 212, src: "/audio/music/flicker.mp3" },
+  { id: "t3", n: "03", title: "Mansplainer",     duration: 206, src: "/audio/music/mansplainer.mp3" },
+  { id: "t4", n: "04", title: "Oxymorons",       duration: 158, src: "/audio/music/oxymorons.mp3" },
+  { id: "t5", n: "05", title: "TPU",             duration: 116, src: "/audio/music/tpu.mp3" },
 ];
 
 function formatTime(seconds: number): string {
@@ -34,29 +41,46 @@ function formatTime(seconds: number): string {
 }
 
 export function CreativeAtelier() {
-  const [activeId, setActiveId] = useState<string>("t2");
+  const [activeId, setActiveId] = useState<string>("t1");
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [currentTime, setCurrentTime] = useState<number>(102); // "01:42" starting point
+  const [currentTime, setCurrentTime] = useState<number>(0);
   const [videoPlaying, setVideoPlaying] = useState<boolean>(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const activeTrack = useMemo(
     () => TRACKS.find((t) => t.id === activeId) ?? TRACKS[0]!,
     [activeId]
   );
 
-  // Advance the timer when playing. Tick at 250 ms to feel responsive but
-  // stay cheap. Loops back to 0 at the end of the track.
+  // When the active track changes, point the audio element at the new src
+  // and (if currently playing) resume playback. Without this the element
+  // would keep playing the previous track's bytes.
   useEffect(() => {
-    if (!isPlaying) return;
-    const id = window.setInterval(() => {
-      setCurrentTime((t) => {
-        const next = t + 0.25;
-        return next >= activeTrack.duration ? 0 : next;
-      });
-    }, 250);
-    return () => window.clearInterval(id);
-  }, [isPlaying, activeTrack.duration]);
+    const el = audioRef.current;
+    if (!el) return;
+    setCurrentTime(0);
+    el.currentTime = 0;
+    if (isPlaying) {
+      el.play().catch(() => setIsPlaying(false));
+    }
+    // We intentionally exclude isPlaying so toggling pause/play below
+    // doesn't trigger a reseek.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeId]);
+
+  // Sync the React isPlaying state to the audio element. The element is
+  // the source of truth — play() is async + can reject (autoplay policy),
+  // so we ask it to play and roll the UI back if it refuses.
+  useEffect(() => {
+    const el = audioRef.current;
+    if (!el) return;
+    if (isPlaying) {
+      el.play().catch(() => setIsPlaying(false));
+    } else {
+      el.pause();
+    }
+  }, [isPlaying]);
 
   const handleSelectTrack = (id: string) => {
     if (id === activeId) {
@@ -64,7 +88,6 @@ export function CreativeAtelier() {
       return;
     }
     setActiveId(id);
-    setCurrentTime(0);
     setIsPlaying(true);
   };
 
@@ -87,14 +110,12 @@ export function CreativeAtelier() {
     const idx = TRACKS.findIndex((t) => t.id === activeId);
     const prevIdx = idx <= 0 ? TRACKS.length - 1 : idx - 1;
     setActiveId(TRACKS[prevIdx]!.id);
-    setCurrentTime(0);
   };
 
   const handleNext = () => {
     const idx = TRACKS.findIndex((t) => t.id === activeId);
     const nextIdx = idx >= TRACKS.length - 1 ? 0 : idx + 1;
     setActiveId(TRACKS[nextIdx]!.id);
-    setCurrentTime(0);
   };
 
   const fillPct = (currentTime / activeTrack.duration) * 100;
@@ -205,22 +226,47 @@ export function CreativeAtelier() {
             </div>
           </article>
 
-          {/* Music — Codewoord, rendered as a 90s boombox */}
+          {/* Music — five tracks from the two AI-assisted albums I released
+              on Spotify. Boombox UI for fun; real audio underneath. */}
           <article className="rt-creative__panel">
             <div className="rt-creative__panel-meta">
-              <div className="eyebrow">MUSIC · CODEWOORD</div>
-              <h3>Prompt &amp; Codes I &amp; II.</h3>
+              <div className="eyebrow">MUSIC · TWO AI-ASSISTED ALBUMS</div>
+              <h3>Five from the Spotify drops.</h3>
               <p>
-                Two short albums I made with Lyria. The track titles look like a project plan;
-                the music doesn&apos;t sound anything like one.
+                Lyrics co-written with AI; music partly AI-generated. I
+                played some of the melody and drums, did most of the
+                arrangement and editing. No real instruments and no real
+                vocalists were used. Hit play.
+              </p>
+              <p className="rt-creative__music-plea">
+                A request: if you like music, <strong>pay for it</strong>.
+                Buy albums. Use streaming services that pay artists
+                fairly. Visit concerts. Buy merch. AI tools should make
+                more humans able to make music &mdash; not fewer humans
+                able to live off it.
               </p>
             </div>
+            {/* Hidden audio element — single source of truth for playback.
+                The boombox UI below is controlled by the React state, which
+                in turn drives this element via the useEffect hooks. */}
+            <audio
+              ref={audioRef}
+              src={activeTrack.src}
+              preload="metadata"
+              onTimeUpdate={(e) => setCurrentTime((e.target as HTMLAudioElement).currentTime)}
+              onEnded={() => {
+                // Auto-advance to next track on end.
+                const idx = TRACKS.findIndex((t) => t.id === activeId);
+                const nextIdx = idx >= TRACKS.length - 1 ? 0 : idx + 1;
+                setActiveId(TRACKS[nextIdx]!.id);
+              }}
+            />
             <div className="rt-creative__panel-player">
               <div className={`rt-boombox ${isPlaying ? "is-playing" : ""}`}>
                 <div className="rt-boombox__top">
                   <span className="rt-boombox__handle" aria-hidden />
                   <span className="rt-boombox__brand">
-                    CODEWOORD · PROMPT &amp; CODES II
+                    RT · TWO AI-ASSISTED ALBUMS · NOW PLAYING
                   </span>
                   <span className="rt-boombox__handle" aria-hidden />
                 </div>

@@ -1409,7 +1409,10 @@
 
 .rt-bi-subnav {
   position: sticky;
-  top: 0;
+  /* Clears the main fixed nav (h=79px). Previously this was top:0 which
+     made the article's section-nav (LINEAGES · ARCHITECTURE · SIMULATOR
+     · CONS · INVITATION) run through the site nav on scroll. */
+  top: 79px;
   z-index: 40;
   background: rgba(11, 11, 12, 0.92);
   backdrop-filter: blur(8px);

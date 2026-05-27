@@ -731,6 +731,18 @@ html {
   color: var(--color-fg-2);
   margin: 0 0 var(--space-5);
 }
+/* Pay-for-music plea on the music panel — slightly highlighted so it
+   doesn't read as just more body copy. Borrowed from the article
+   pro-tip pattern. */
+.rt-creative__music-plea {
+  border-left: 2px solid var(--color-accent-warm) !important;
+  padding-left: var(--space-3) !important;
+  font-size: var(--fs-100) !important;
+  color: var(--color-fg-1) !important;
+}
+.rt-creative__music-plea strong {
+  color: var(--color-accent-warm);
+}
 .rt-creative__panel--motion .rt-creative__panel-art {
   grid-template-columns: 1fr;
 }
