@@ -5,6 +5,7 @@ import { Footer } from "@/components/footer/Footer";
 import { AppChrome } from "@/components/chrome/AppChrome";
 import { Article, buildArticleLd } from "@/components/article/Article";
 import { Breadcrumb } from "@/components/breadcrumb/Breadcrumb";
+import { PromptImprover } from "@/components/dml/PromptImprover";
 
 const TITLE = "Interactivity is the new explanation.";
 const DESCRIPTION =
@@ -240,6 +241,36 @@ export default function InteractivityPage() {
           },
           {
             num: "05",
+            label: "Press the idea — Prompt Scribe",
+            children: (
+              <>
+                <p>
+                  Below is the smallest, most honest version of the whole
+                  argument: a live coach that turns a vague prompt into a
+                  polished one in 2–3 rounds. It is not a screenshot. It is
+                  the thing itself, server-proxied to Gemini, running in your
+                  browser. Press it.
+                </p>
+                <PromptImprover />
+                <p>
+                  This exhibit was lifted from{" "}
+                  <a
+                    href="https://rutger-dml.web.app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    AI-ftershow
+                  </a>{" "}
+                  — a separate site I built earlier as a hosted playground
+                  for AI workflows. The original had a wizard for building
+                  custom Gems and a NotebookLM walk-through alongside this
+                  coach. The Scribe is the one that aged best.
+                </p>
+              </>
+            ),
+          },
+          {
+            num: "06",
             label: "Invitation to growth",
             children: (
               <>
