@@ -49,15 +49,15 @@ body:has(.win95-scope) {
   color: var(--w95-navy-2);
 }
 
-/* CRT scanline overlay covering the desktop */
+/* CRT scanline overlay covering the desktop.
+   `mix-blend-mode: multiply` here was flickering on every hover-induced
+   repaint (Intel iGPU + full-viewport blended layer = visible blink).
+   Dropping the overlay entirely — Win95 itself never had scanlines on
+   non-CRT monitors, and the chrome holds up fine without it.
+   Keep the class as a no-op so AgentGameClient.tsx's render path doesn't
+   need to change. */
 .win95-scope .crt-overlay {
-  pointer-events: none;
-  position: fixed;
-  inset: 0;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.08) 50%);
-  background-size: 100% 3px;
-  z-index: 1;
-  mix-blend-mode: multiply;
+  display: none;
 }
 
 /* ============================================================
@@ -765,6 +765,21 @@ body:has(.win95-scope) {
   border-right-color: var(--w95-white) !important;
   border-bottom-color: var(--w95-white) !important;
   box-shadow: inset 0.5px 0.5px 0 var(--w95-black) !important;
+}
+/* Win95 buttons don't lift on hover — they only press in on :active.
+   Override the dark-theme :hover transforms/gradients to keep the
+   bevels flat and prevent the page from "jittering" on hover. */
+.win95-scope .sim-fs__move-btn:hover:not(:disabled),
+.win95-scope .sim-btn:hover:not(:disabled),
+.win95-scope .button:hover:not(:disabled),
+.win95-scope .sim-btn-primary:hover:not(:disabled),
+.win95-scope .sim-fs__next:hover:not(:disabled),
+.win95-scope .sim-fs__head-btn:hover {
+  transform: none !important;
+  background: var(--w95-gray) !important;
+  background-image: none !important;
+  border-color: var(--w95-white) var(--w95-shadow) var(--w95-shadow) var(--w95-white) !important;
+  box-shadow: inset 0.5px 0.5px 0 var(--w95-white), inset -0.5px -0.5px 0 var(--w95-black) !important;
 }
 .win95-scope .sim-fs__move-btn-cost {
   font-family: "Lucida Console", "Consolas", monospace !important;
