@@ -485,13 +485,25 @@ def list_portraits() -> int:
 # Rendering
 # ===========================================================================
 
-def _save_first_image(response, output_path: Path) -> bool:
+def _save_first_image(response, output_path: Path) -> tuple[bool, str]:
     """Walk the SDK response, write the first inline image part to disk.
 
-    Returns True if a file was written.
+    Returns (saved, debug_info). debug_info is a short string with
+    finish_reason / any text returned by the model / safety ratings,
+    surfaced to the caller when the model returned IMAGE_OTHER or a
+    text-only response instead of an image.
     """
     candidates = getattr(response, "candidates", None) or []
+    debug_bits: list[str] = []
     for cand in candidates:
+        finish = getattr(cand, "finish_reason", None)
+        if finish is not None:
+            debug_bits.append(f"finish={finish}")
+        sr = getattr(cand, "safety_ratings", None)
+        if sr:
+            blocked = [str(r) for r in sr if getattr(r, "blocked", False)]
+            if blocked:
+                debug_bits.append(f"safety_blocked={blocked[:2]}")
         content = getattr(cand, "content", None)
         if not content:
             continue
@@ -508,8 +520,15 @@ def _save_first_image(response, output_path: Path) -> bool:
                     img.save(str(output_path))
                 except (AttributeError, TypeError):
                     output_path.write_bytes(inline.data)
-                return True
-    return False
+                return True, ""
+            # If the model returned text instead of an image (refusal /
+            # policy guard / hallucination), capture the first 200 chars so
+            # we can see what it actually said.
+            text = getattr(part, "text", None)
+            if text:
+                snippet = text.strip().replace("\n", " ")[:200]
+                debug_bits.append(f'text_response="{snippet}"')
+    return False, " ".join(debug_bits) or "no candidates / no parts"
 
 
 def render_one(
@@ -563,12 +582,14 @@ def render_one(
                 contents=prompt,
                 config=config,
             )
-            saved = _save_first_image(response, output_path)
+            saved, debug = _save_first_image(response, output_path)
             if not saved:
                 # Surface prompt-feedback safety blocks distinctly when possible.
                 feedback = getattr(response, "prompt_feedback", None)
-                print(f"    ERROR:   response had no inline image (feedback={feedback})")
-                last_error = RuntimeError("no inline image in response")
+                print(f"    ERROR:   response had no inline image")
+                print(f"             feedback={feedback}")
+                print(f"             debug={debug}")
+                last_error = RuntimeError(f"no inline image in response ({debug})")
             else:
                 size_kb = output_path.stat().st_size // 1024
                 print(f"    status:  rendered ({size_kb} KB)")
