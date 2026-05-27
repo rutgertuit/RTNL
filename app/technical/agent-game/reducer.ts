@@ -15,6 +15,7 @@ import {
   TRAIT_DATABASE,
   EVENT_DATABASE,
 } from "./cards";
+import { chaosChance, rollChaos } from "./chaos";
 import {
   capacityOf,
   rentOf,
@@ -46,7 +47,8 @@ export type Action =
   | { type: "DRAFT_CARD"; cardId: string }
   | { type: "SKIP_DRAFT" }
   | { type: "UNDO" }
-  | { type: "DISMISS_TUTORIAL"; turn: number };
+  | { type: "DISMISS_TUTORIAL"; turn: number }
+  | { type: "DISMISS_CHAOS_EVENT" };
 
 // Tutorial gating — mechanics unlock by turn so new players see one
 // concept at a time instead of all of them on turn 1.
@@ -233,6 +235,8 @@ export const createInitialState = (
     hangoverTurnsLeft: 0,
     saunaActiveTurnsLeft: 0,
     hasIso9001: false,
+    activeChaosEvent: null,
+    chaosProductivityNextTurn: 1,
   };
 };
 
@@ -273,6 +277,11 @@ export function gameReducer(state: GameState, action: Action): GameState {
       const dismissed = state.tutorialDismissed ?? [];
       if (dismissed.includes(action.turn)) return state;
       return { ...state, tutorialDismissed: [...dismissed, action.turn] };
+    }
+
+    case "DISMISS_CHAOS_EVENT": {
+      if (!state.activeChaosEvent) return state;
+      return { ...state, activeChaosEvent: null };
     }
 
     case "CHOOSE_EVENT_OPTION": {
@@ -1170,7 +1179,8 @@ export function gameReducer(state: GameState, action: Action): GameState {
           agentSynergyMult *
           overcapMultClamped *
           hangoverMult *
-          saunaMult;
+          saunaMult *
+          (state.chaosProductivityNextTurn ?? 1);
         totalTurnRevenue += finalProductivity;
 
         const pdpDecayMultiplier = e.promotionLevel > 1 && !e.hasPDP ? 2 : 1;
@@ -1369,6 +1379,45 @@ export function gameReducer(state: GameState, action: Action): GameState {
         logs.push(`⚠️ ALERT: Corporate Event Triggered! ${EVENT_DATABASE[nextActiveEventId]?.title}`);
       }
 
+      // Chaos engine — AI-scene flavored. Rolls at end of turn. Skipped on
+      // the same turn a strategic Corporate Event triggers (avoid two modals
+      // stacking) and never on the final game-ending turn.
+      let nextActiveChaosEvent = state.activeChaosEvent ?? null;
+      let chaosCashDelta = 0;
+      let chaosLoyaltyDelta = 0;
+      let chaosNextTurnProdMod = 1;
+      if (!nextActiveEventId && currentTurn < 30 && rng.next() < chaosChance(currentTurn)) {
+        const roll = rollChaos(rng.next.bind(rng));
+        nextActiveChaosEvent = {
+          title: roll.title,
+          body: roll.body,
+          cat: roll.cat,
+          pts: roll.pts,
+          cashDelta: roll.cashDelta,
+          loyaltyDelta: roll.loyaltyDelta,
+          productivityNextTurn: roll.productivityNextTurn,
+          isNamed: roll.isNamed,
+        };
+        chaosCashDelta = roll.cashDelta;
+        chaosLoyaltyDelta = roll.loyaltyDelta;
+        chaosNextTurnProdMod = roll.productivityNextTurn;
+        logs.push(
+          `⚡ CHAOS [${roll.cat}, ${roll.pts}pt]: ${roll.body} (cash ${roll.cashDelta < 0 ? "" : "+"}$${roll.cashDelta.toLocaleString()}, loyalty ${roll.loyaltyDelta >= 0 ? "+" : ""}${roll.loyaltyDelta}).`,
+        );
+
+        // Apply chaos effects to this turn's resolved state — cash + every
+        // active employee's loyalty. Productivity multiplier is carried
+        // forward to be consumed on the next turn.
+        nextCash = Math.max(-1000000, nextCash + chaosCashDelta);
+        for (let i = 0; i < activeEmployeesAfterTurn.length; i++) {
+          const e = activeEmployeesAfterTurn[i]!;
+          activeEmployeesAfterTurn[i] = {
+            ...e,
+            loyalty: Math.max(0, Math.min(100, e.loyalty + chaosLoyaltyDelta)),
+          };
+        }
+      }
+
       let isGameOver = false;
       let gameResult: "win" | "lose" | null = null;
 
@@ -1454,6 +1503,8 @@ export function gameReducer(state: GameState, action: Action): GameState {
         upgradedOfficeThisTurn: false,
         seedFunded: seedFundedNow,
         seedDeclined: seedDeclinedNow,
+        activeChaosEvent: nextActiveChaosEvent,
+        chaosProductivityNextTurn: chaosNextTurnProdMod,
         eventLog: [...state.eventLog, ...logs],
       };
     }
