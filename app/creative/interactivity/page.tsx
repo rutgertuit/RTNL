@@ -309,10 +309,29 @@ export default function InteractivityPage() {
         ]}
         sources={[
           {
-            claim: "NotebookLM Plus + Gemini Advanced are bundled together under Google AI Pro / Ultra subscriptions.",
+            marker: "1",
+            claim: "Investigation tools cited (Luminary, Perplexity Pro, Gemini Deep Research, ChatGPT Deep Research, You.com) are real public products.",
             citation: (
               <>
-                Current Google subscription plan structure &mdash; see{" "}
+                Luminary &mdash;{" "}
+                <a
+                  href="https://github.com/rutgertuit/Luminary"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  github.com/rutgertuit/Luminary
+                </a>{" "}
+                (the author&apos;s own deep-research agent). Other deep-research
+                tools are publicly available from their respective vendors.
+              </>
+            ),
+          },
+          {
+            marker: "2",
+            claim: "NotebookLM Plus is bundled with Google AI Pro / Ultra; the same subscription that unlocks Gemini Advanced.",
+            citation: (
+              <>
+                Current Google AI plan structure &mdash;{" "}
                 <a
                   href="https://one.google.com/about/google-ai-plans"
                   target="_blank"
@@ -325,11 +344,12 @@ export default function InteractivityPage() {
             ),
           },
           {
+            marker: "3",
             claim: "NotebookLM does not train on user-uploaded sources.",
             citation: (
               <>
                 Confirmed in Google&apos;s public NotebookLM privacy
-                documentation &mdash; see{" "}
+                documentation &mdash;{" "}
                 <a
                   href="https://support.google.com/notebooklm/answer/15724963"
                   target="_blank"
@@ -342,8 +362,9 @@ export default function InteractivityPage() {
             ),
           },
           {
-            claim: "Prompt Scribe exhibit is server-proxied to Gemini 3.5 Flash; no API key in the page.",
-            note: "Architecture: client posts to /api/gemini, server route holds the key. Inspect the source at github.com/rutgertuit/RTNL.",
+            marker: "4",
+            claim: "The Prompt Scribe exhibit is server-proxied to Gemini 3.5 Flash; no API key in the page.",
+            note: "Architecture: client posts to /api/gemini, server route holds the key. Source open at github.com/rutgertuit/RTNL.",
           },
         ]}
       />

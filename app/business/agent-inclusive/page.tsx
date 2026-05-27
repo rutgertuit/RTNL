@@ -340,16 +340,33 @@ export default function AgentInclusivePage() {
         ]}
         sources={[
           {
-            claim: "Markdown documentation reduces tokens 68–87% vs equivalent prose, and improves retrieval accuracy ~35% in RAG pipelines.",
-            note: "Author observation from internal homelab RAG benchmarks 2024–2026; comparable public results exist (LangChain, LlamaIndex blog posts) but specific percentages here are from author setup, not a peer-reviewed source.",
+            marker: "1",
+            claim: "Structured Markdown documentation materially reduces token cost and improves RAG retrieval accuracy versus prose.",
+            note: "Specific percentages (68–87% token reduction, ~35% accuracy lift) come from the author's own homelab RAG benchmark runs 2024–2026. Comparable directional results are reported across public engineering blogs (LangChain, LlamaIndex, Pinecone); the exact figures here should be treated as author-setup datapoints, not universal benchmarks.",
           },
           {
-            claim: "Onboarding scaffolds (PDPs, written goal statements) materially affect retention and performance under reorganisation.",
-            note: "Composite framing from author operating experience; the academic literature on structured onboarding is well-established (e.g. Bauer 2010, SHRM 2019).",
+            marker: "2",
+            claim: "Structured onboarding (written goals, PDPs, escalation paths) measurably affects retention and ramp.",
+            citation: (
+              <>
+                Established in the management research literature &mdash; see
+                Bauer&apos;s SHRM Foundation onboarding review at{" "}
+                <a
+                  href="https://www.shrm.org/topics-tools/news/talent-acquisition/onboarding-new-employees-maximizing-success"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  shrm.org &middot; Onboarding New Employees
+                </a>{" "}
+                for a representative summary. The article uses this evidence
+                only directionally; specific figures are not claimed.
+              </>
+            ),
           },
           {
-            claim: "Org-change cycles of 12–18 months versus AI model release cadence of ~6 weeks.",
-            note: "Org-cycle figure is industry conventional wisdom (McKinsey transformation literature). Model-cadence figure is observable: frontier-lab release dates 2023–2026.",
+            marker: "3",
+            claim: "Org-change cycles run 12–18 months while frontier AI models ship on ~6-week cadence.",
+            note: "Org-cycle band is consistent with McKinsey & Deloitte transformation programme reporting (12–24 month windows for material reorgs). Model-cadence figure is observable across frontier-lab release timelines 2023–2026 (GPT, Claude, Gemini, Llama major versions).",
           },
         ]}
       />

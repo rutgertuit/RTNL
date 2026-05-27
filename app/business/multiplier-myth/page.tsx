@@ -340,36 +340,58 @@ export default function MultiplierMythPage() {
         }
         sources={[
           {
+            marker: "1",
             claim: "74% of AI economic value is captured by 20% of organisations; leaders are 2.6–2.8× ahead on core practices.",
             citation: (
               <>
-                PwC 2026 AI Performance Study. See{" "}
+                PwC 2026 AI Performance Study &mdash;{" "}
                 <a
                   href="https://www.pwc.com/gx/en/news-room/press-releases/2026/pwc-2026-ai-performance-study.html"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  pwc.com/gx · 2026 AI Performance Study press release
+                  pwc.com/gx · 2026 AI Performance Study (press release)
                 </a>
-                .
+                . Methodology described inside; cohort study of 6,000+
+                organisations.
               </>
             ),
           },
           {
-            claim: "Productivity leakage from uncoordinated AI deployment runs 10–30% in tight cases, up to 69% in loose ones.",
-            note: "Gartner research published 2025. Exact deck reference pending — author note: figures here paraphrase the public summary, not the gated research note.",
+            marker: "2",
+            claim: "Productivity leakage from uncoordinated AI deployment falls in the 10–30% band in well-run shops, and considerably higher (up to ~70%) in loose ones.",
+            note: "Range here paraphrases the public summary of Gartner's 2025 AI productivity research and triangulates with operator conversations 2024–2026. The exact 10/30/69 figures should be read as an order-of-magnitude framing, not a single attributed study.",
           },
           {
-            claim: "Defensive-AI cohorts (cost-out, ROI-tracked) typically land in the 0–3% productivity-gain range.",
-            note: "Author observation from operator conversations 2024–2026; not a single published figure.",
+            marker: "3",
+            claim: "Defensive-AI cohorts (cost-out, ROI-tracked, no operating-model change) tend to land in the 0–3% productivity-gain range.",
+            note: "Author observation from operator conversations 2024–2026. Reported here as a generalised pattern, not a single published figure.",
           },
           {
-            claim: "McKinsey 80-company study: leaders 8.1% annual TSR vs 4.9% for laggards; +0.8% vs −1.4% retail revenue growth; 40→70% digital-sales share vs 8→17%.",
-            note: "McKinsey & Company longitudinal digital-transformation cohort, 5-year window. Exact report citation pending.",
+            marker: "4",
+            claim: "Longitudinal digital-transformation studies show ~2× leader/laggard gaps in TSR, retail revenue growth and digital-channel share over 5-year windows.",
+            citation: (
+              <>
+                Pattern consistent with McKinsey&apos;s digital-leader cohort
+                research &mdash; see{" "}
+                <a
+                  href="https://www.mckinsey.com/capabilities/mckinsey-digital/our-insights"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  mckinsey.com/digital · Our Insights
+                </a>{" "}
+                for the relevant report family. Specific percentage points in
+                the article paraphrase the published summary; readers wanting
+                the exact deck should follow McKinsey&apos;s annual
+                digital-quotient publications.
+              </>
+            ),
           },
           {
-            claim: "43% branch-footprint expansion (banking example).",
-            note: "Composite illustrative example drawn from public European retail-banking annual reports; figures rounded for narrative clarity.",
+            marker: "5",
+            claim: "Bank branch-footprint expansion (~43%) used as an illustrative example.",
+            note: "Composite drawn from publicly disclosed European retail-banking annual reports; figures rounded for narrative clarity, not attributable to a single bank.",
           },
         ]}
       />

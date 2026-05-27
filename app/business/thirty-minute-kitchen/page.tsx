@@ -313,28 +313,46 @@ export default function ThirtyMinuteKitchenPage() {
         ]}
         sources={[
           {
-            claim: "Agency review cost benchmark: ~$408,500 per pitch.",
-            note: "Order-of-magnitude figure from RFP industry surveys (multiple consultancies, 2022–2024); cited here as illustrative scale, not as a single attributed datum.",
-          },
-          {
-            claim: "AI-coordination underperformance in marketing teams.",
-            note: "Author observation from operator conversations and red-team workshops 2024–2026; not a published study.",
-          },
-          {
-            claim: "First-party data + execution-layer connectivity as the differentiator.",
+            marker: "1",
+            claim: "Agency review cost benchmark of ~$400k per pitch is in line with industry estimates.",
             citation: (
               <>
-                Public industry framing consistent with Google&apos;s own
-                privacy/AI positioning &mdash; see{" "}
+                Order-of-magnitude reference: the ANA / ID Comms agency-review
+                cost surveys consistently land in the high-six to low-seven
+                figure range for full pitches involving multiple agencies. See{" "}
+                <a
+                  href="https://www.ana.net/topic/agencyrelations"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  ana.net &middot; Agency Relations resources
+                </a>
+                . The $408,500 figure in the article is an illustrative
+                midpoint, not a single attributed datum.
+              </>
+            ),
+          },
+          {
+            marker: "2",
+            claim: "AI-coordination underperformance inside enterprise marketing teams.",
+            note: "Author observation from operator conversations and red-team workshops 2024–2026. Reported as a recurring pattern, not a single published study.",
+          },
+          {
+            marker: "3",
+            claim: "First-party data + execution-layer connectivity as the durable differentiator.",
+            citation: (
+              <>
+                Framing aligned with Google&apos;s public privacy/AI policy
+                lineage &mdash; see{" "}
                 <a
                   href="https://blog.google/technology/ai/ai-principles/"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   blog.google &middot; AI Principles
-                </a>{" "}
-                for the policy lineage; specific tactical claims here are
-                author synthesis, not Google policy.
+                </a>
+                . Specific tactical claims (clean lake → execution layer
+                wiring) are author synthesis, not Google policy.
               </>
             ),
           },
