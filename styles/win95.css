@@ -12,6 +12,12 @@ body:has(.win95-scope) .rt-grain {
 body:has(.win95-scope) {
   background-color: #008080;
 }
+/* The Next.js root <html> defaults to color-bg-base (near-black). On Win95
+   routes it shows around the edges if the page is shorter than viewport,
+   so paint it teal to match. */
+html:has(.win95-scope) {
+  background-color: #008080;
+}
 
 .win95-scope {
   --w95-gray: #c0c0c0;
@@ -1170,6 +1176,132 @@ body:has(.win95-scope) {
 .win95-scope .sim-fs,
 .win95-scope .sim-fs *[class*="sim-"] {
   background-image: none !important;
+}
+
+/* ============================================================
+   Round-2 Win95 overrides — surfaces that still leaked dark RTNL
+   after the first pass. Edgar narrator, difficulty overlay, help
+   modal, end card, post-mortem, FEBO vendor, board events.
+   ============================================================ */
+.win95-scope .sim-edgar,
+.win95-scope .sim-edgar-banner,
+.win95-scope .sim-tut,
+.win95-scope .sim-tut__banner,
+.win95-scope .sim-help,
+.win95-scope .sim-help__panel,
+.win95-scope .sim-postmortem,
+.win95-scope .sim-end-card,
+.win95-scope .sim-febo,
+.win95-scope [class*="sim-event-"],
+.win95-scope [class*="sim-overlay__"],
+.win95-scope [class*="sim-modal__"] {
+  background-color: var(--w95-gray) !important;
+  background-image: none !important;
+  color: var(--w95-text) !important;
+  border-top: 1.5px solid var(--w95-white) !important;
+  border-left: 1.5px solid var(--w95-white) !important;
+  border-right: 1.5px solid var(--w95-shadow) !important;
+  border-bottom: 1.5px solid var(--w95-shadow) !important;
+  border-radius: 0 !important;
+  box-shadow: inset 0.5px 0.5px 0 var(--w95-white), inset -0.5px -0.5px 0 var(--w95-black) !important;
+}
+.win95-scope .sim-edgar *,
+.win95-scope .sim-tut *,
+.win95-scope .sim-help * {
+  color: var(--w95-text) !important;
+  background-image: none !important;
+}
+.win95-scope .sim-edgar a,
+.win95-scope .sim-tut a,
+.win95-scope .sim-help a {
+  color: var(--w95-navy) !important;
+}
+
+/* Difficulty selector + mode-target chooser */
+.win95-scope .sim-mode {
+  background-color: rgba(0, 0, 0, 0.65) !important; /* slightly less opaque so teal shows through */
+  background-image: none !important;
+}
+.win95-scope .sim-mode__grid,
+.win95-scope .sim-mode__body {
+  background: transparent !important;
+}
+.win95-scope .sim-mode__title,
+.win95-scope .sim-mode__heading,
+.win95-scope .sim-mode__sub,
+.win95-scope .sim-mode__detail {
+  color: var(--w95-white) !important;
+}
+.win95-scope .sim-mode__card,
+.win95-scope [class*="sim-mode__card--"] {
+  background-color: var(--w95-gray) !important;
+  background-image: none !important;
+  color: var(--w95-text) !important;
+  border-top: 1.5px solid var(--w95-white) !important;
+  border-left: 1.5px solid var(--w95-white) !important;
+  border-right: 1.5px solid var(--w95-shadow) !important;
+  border-bottom: 1.5px solid var(--w95-shadow) !important;
+  border-radius: 0 !important;
+  box-shadow: inset 0.5px 0.5px 0 var(--w95-white), inset -0.5px -0.5px 0 var(--w95-black), 2px 2px 0 rgba(0, 0, 0, 0.45) !important;
+}
+.win95-scope .sim-mode__card * {
+  color: var(--w95-text) !important;
+  text-shadow: none !important;
+}
+.win95-scope .sim-mode__cash,
+.win95-scope .sim-mode__target {
+  color: var(--w95-navy) !important;
+  font-family: "Lucida Console", "Consolas", monospace !important;
+}
+
+/* ============================================================
+   Kill all hover transforms / layout shifts inside .win95-scope.
+   The dark-theme components.css applies translateY(-1..-2px) and
+   :hover gradient swaps on many sim-* elements. Both cause the
+   user-reported "screen moves on hover" jitter. Flatten across
+   the board — Win95 buttons just bevel-press on :active, no lift. */
+.win95-scope .sim-fs *:hover,
+.win95-scope .sim-fs *:hover:not(:disabled),
+.win95-scope .mtg-card:hover,
+.win95-scope [class*="sim-"]:hover {
+  transform: none !important;
+}
+.win95-scope .sim-fs__head-btn:hover,
+.win95-scope .sim-fs__home:hover,
+.win95-scope .sim-fs__born-from:hover,
+.win95-scope .sim-fs__drawer-tab:hover:not(:disabled),
+.win95-scope .sim-undo:hover,
+.win95-scope .sim-mode__card:hover,
+.win95-scope .sim-desk__promote:hover:not(:disabled),
+.win95-scope .sim-desk__trait-btn:hover,
+.win95-scope .sim-desk__popover-close:hover,
+.win95-scope .sim-desk.is-targetable:hover,
+.win95-scope .mtg-card--targetable:hover,
+.win95-scope .sim-hand-shelf .mtg-card:hover,
+.win95-scope .sim-fs__next:hover:not(:disabled),
+.win95-scope .sim-btn-next-turn:hover:not(:disabled) {
+  background-image: none !important;
+  filter: none !important;
+}
+
+/* Eliminate any filter:blur on hover from dark theme */
+.win95-scope *:hover {
+  filter: none !important;
+}
+
+/* The trait popover used to push the desk's bounding box, causing the
+   row beneath it to jump on click. Detach from layout flow by floating
+   it above the next row. */
+.win95-scope .sim-desk__popover {
+  position: absolute !important;
+  /* Higher z-index to clear the next row of desks if it sits below. */
+  z-index: 80 !important;
+  /* Prevent the popover from being clipped or repositioning the desks. */
+  contain: layout !important;
+}
+.win95-scope .sim-office-desks {
+  /* Keep grid rows from shifting when popover renders below a card. */
+  align-items: start !important;
 }
 .win95-scope .sim-desk,
 .win95-scope .sim-fs__move-btn,
