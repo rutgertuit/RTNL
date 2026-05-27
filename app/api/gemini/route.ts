@@ -10,7 +10,7 @@ import { NextRequest, NextResponse } from "next/server";
  * fallback so the rest of the article still ships.
  */
 
-const MODEL = process.env.GEMINI_MODEL ?? "gemini-3-flash-preview";
+const MODEL = process.env.GEMINI_MODEL ?? "gemini-3.5-flash";
 const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
 
 interface ApiMessagePart {

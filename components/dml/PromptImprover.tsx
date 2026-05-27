@@ -193,7 +193,7 @@ export function PromptImprover() {
         <p className="rt-prompt__lead">
           A live coach that takes a rough idea and walks you to a finished
           prompt in 2–3 rounds of questions. Powered by{" "}
-          <strong>Gemini 3 Flash</strong>, server-proxied — no keys in the
+          <strong>Gemini 3.5 Flash</strong>, server-proxied — no keys in the
           page.
         </p>
         <p className="rt-prompt__tip">
