@@ -6,6 +6,7 @@ import { AppChrome } from "@/components/chrome/AppChrome";
 import { Article, buildArticleLd } from "@/components/article/Article";
 import { Breadcrumb } from "@/components/breadcrumb/Breadcrumb";
 import { PromptImprover } from "@/components/dml/PromptImprover";
+import { NotebookSpotlight } from "@/components/dml/NotebookSpotlight";
 
 const TITLE = "Interactivity is the new explanation.";
 const DESCRIPTION =
@@ -158,6 +159,7 @@ export default function InteractivityPage() {
                   <em>structuring partner</em> than as an oracle, I open NotebookLM and we
                   load it with the customer&apos;s own deck.
                 </p>
+                <NotebookSpotlight />
               </>
             ),
           },
