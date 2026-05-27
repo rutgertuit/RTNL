@@ -1,7 +1,7 @@
 {
   "_note": "Episode 06 — Panel. Rutger + Dino (craft defender) + Marie (scientific-rigor questioner). Dino carries the longer pushback; Marie lands precision questions in short bursts so her voice stays easy to follow.",
   "RUTGER": {
-    "voiceId": "REPLACE_WITH_HOST_VOICE_ID",
+    "voiceId": "3UDL95XpjDt8BT7uFojh",
     "model": "eleven_v3",
     "stability": 0.55,
     "similarity": 0.85
