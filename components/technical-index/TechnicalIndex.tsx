@@ -30,7 +30,7 @@ const PROJECTS = [
     id: "D · 04",
     name: "Bedtime Stories",
     desc:
-      "Family narrator with a curated character library. Lives behind the [redacted family] VLAN at [redacted].",
+      "A local narrator with a curated character library. Lives on the homelab and is not exposed to the public internet.",
     tags: ["VEO", "LOCAL TTS"],
     status: "private",
   },

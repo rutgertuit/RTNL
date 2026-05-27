@@ -1307,6 +1307,49 @@ html {
 .rt-mk__bio--short  { font-size: var(--fs-300); color: var(--color-fg-1); line-height: var(--lh-lead); }
 .rt-mk__bio--medium { font-size: var(--fs-200); }
 .rt-mk__bio--long   { font-size: var(--fs-200); }
+/* Disclaimer banner at top of Media Kit — surfaced above the fold so
+   the AI-assisted / personal-site framing isn't only in the footer. */
+.rt-mk__disclaimer {
+  margin: var(--space-4) 0 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-accent-warm);
+  background: rgba(229, 162, 78, 0.06);
+  font-size: var(--fs-100);
+  line-height: var(--lh-body);
+  color: var(--color-fg-1);
+  max-width: 880px;
+}
+.rt-mk__disclaimer strong {
+  color: var(--color-accent-warm);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-eyebrow);
+  font-size: var(--fs-50);
+  margin-right: 4px;
+}
+/* AI-generated badge on each portrait tile + caption tag */
+.rt-mk__photo {
+  position: relative;
+}
+.rt-mk__photo-aibadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 5;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-eyebrow);
+  background: rgba(5, 5, 7, 0.78);
+  color: var(--color-accent-warm);
+  border: 1px solid var(--color-accent-warm);
+  padding: 1px 5px;
+  text-transform: uppercase;
+}
+.rt-mk__photo-aitag {
+  font-size: 9px;
+  color: var(--color-fg-3);
+  letter-spacing: var(--tracking-eyebrow);
+}
 
 .rt-mk__photos {
   display: grid;

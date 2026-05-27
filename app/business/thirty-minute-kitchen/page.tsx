@@ -217,10 +217,11 @@ export default function ThirtyMinuteKitchenPage() {
                 </p>
                 <p>So what are the three knives?</p>
                 <p>
-                  <strong>Data Practice.</strong> Stop trying to harvest every byte of ambient
-                  behavioural signal you can get your hands on. The competitive edge is no longer
-                  the size of your data lake. It is whether your clean, consented first-party
-                  data connects to your execution layers without a human in the middle. Most of
+                  <strong>Data Practice.</strong> Stop trying to collect every byte of unnecessary
+                  behavioural data just because it is technically available. The competitive edge
+                  is no longer the size of your data lake. It is whether your clean, consented
+                  first-party data connects responsibly to your execution layers without a human
+                  in the middle. Most of
                   the AI underperformance I see inside enterprise marketing teams traces back to
                   this: the agent is being asked to make decisions on data it cannot actually
                   see, because that data is stuck three platforms upstream behind a manual CSV
@@ -306,6 +307,34 @@ export default function ThirtyMinuteKitchenPage() {
                   a transformation programme you suspect is the wrong move — drop me a line. I
                   would rather hear how you are avoiding the rebuild than help you run one.
                 </p>
+              </>
+            ),
+          },
+        ]}
+        sources={[
+          {
+            claim: "Agency review cost benchmark: ~$408,500 per pitch.",
+            note: "Order-of-magnitude figure from RFP industry surveys (multiple consultancies, 2022–2024); cited here as illustrative scale, not as a single attributed datum.",
+          },
+          {
+            claim: "AI-coordination underperformance in marketing teams.",
+            note: "Author observation from operator conversations and red-team workshops 2024–2026; not a published study.",
+          },
+          {
+            claim: "First-party data + execution-layer connectivity as the differentiator.",
+            citation: (
+              <>
+                Public industry framing consistent with Google&apos;s own
+                privacy/AI positioning &mdash; see{" "}
+                <a
+                  href="https://blog.google/technology/ai/ai-principles/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  blog.google &middot; AI Principles
+                </a>{" "}
+                for the policy lineage; specific tactical claims here are
+                author synthesis, not Google policy.
               </>
             ),
           },

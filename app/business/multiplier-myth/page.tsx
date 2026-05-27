@@ -39,8 +39,8 @@ export default function MultiplierMythPage() {
       <PodcastTab
         src="/audio/multiplier-myth-ep02.mp3"
         title="The Multiplier Myth — a conversation."
-        eyebrow="EP 02 · 5:30 LISTEN"
-        subtitle="With Maya, who is allergic to corporate spirituality."
+        eyebrow="EP 02 · 5:30 LISTEN · SYNTHETIC AI VOICES"
+        subtitle="With Maya, who is allergic to corporate spirituality. Voices are synthetic; no real person was cloned."
         duration="5:30"
         tabLabel="LISTEN · 5:30"
       >
@@ -56,9 +56,11 @@ export default function MultiplierMythPage() {
           four-thousand-word sociolinguistic analysis of West-Frisian humour
           (<em>relativeren</em>, antonymic deadpan, the regional aversion
           to <em>verbeelding</em>) and told it her job was to deflate me
-          whenever I drift toward manifesto. The voices are ElevenLabs
-          clones — fixed random seed per speaker so consecutive lines
-          don&apos;t drift accent.
+          whenever I drift toward manifesto. The voices are synthetic
+          ElevenLabs voices &mdash; fixed random seed per speaker so
+          consecutive lines don&apos;t drift accent. Both Maya and the
+          narrator are fictional characters; no real person&apos;s voice
+          was cloned, with or without consent.
         </p>
         <p>
           The pipeline (parse the script, call the ElevenLabs REST API
@@ -326,6 +328,48 @@ export default function MultiplierMythPage() {
                 </p>
               </>
             ),
+          },
+        ]}
+        sourcesIntro={
+          <>
+            Every numerical claim above came from public research or first-hand
+            operator experience. Where the public source is precise I quote it;
+            where the framing is my own interpretation of multiple data points
+            I say so. If anything looks off, mail me &mdash; corrections welcome.
+          </>
+        }
+        sources={[
+          {
+            claim: "74% of AI economic value is captured by 20% of organisations; leaders are 2.6–2.8× ahead on core practices.",
+            citation: (
+              <>
+                PwC 2026 AI Performance Study. See{" "}
+                <a
+                  href="https://www.pwc.com/gx/en/news-room/press-releases/2026/pwc-2026-ai-performance-study.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  pwc.com/gx · 2026 AI Performance Study press release
+                </a>
+                .
+              </>
+            ),
+          },
+          {
+            claim: "Productivity leakage from uncoordinated AI deployment runs 10–30% in tight cases, up to 69% in loose ones.",
+            note: "Gartner research published 2025. Exact deck reference pending — author note: figures here paraphrase the public summary, not the gated research note.",
+          },
+          {
+            claim: "Defensive-AI cohorts (cost-out, ROI-tracked) typically land in the 0–3% productivity-gain range.",
+            note: "Author observation from operator conversations 2024–2026; not a single published figure.",
+          },
+          {
+            claim: "McKinsey 80-company study: leaders 8.1% annual TSR vs 4.9% for laggards; +0.8% vs −1.4% retail revenue growth; 40→70% digital-sales share vs 8→17%.",
+            note: "McKinsey & Company longitudinal digital-transformation cohort, 5-year window. Exact report citation pending.",
+          },
+          {
+            claim: "43% branch-footprint expansion (banking example).",
+            note: "Composite illustrative example drawn from public European retail-banking annual reports; figures rounded for narrative clarity.",
           },
         ]}
       />

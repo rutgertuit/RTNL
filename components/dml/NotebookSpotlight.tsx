@@ -78,7 +78,7 @@ const STAKEHOLDERS: Stakeholder[] = [
   {
     id: "child",
     label: "The 6-year-old test",
-    shortLabel: "6-yo test",
+    shortLabel: "6-yo",
     prompt: `Explain the main idea in these documents like you're talking to a 6-year-old.
 1. Use a simple story or analogy (e.g., 'This is like building with LEGOs, and we found a new, super-strong piece...').
 2. Don't use any words with more than 3 syllables.`,
@@ -86,7 +86,7 @@ const STAKEHOLDERS: Stakeholder[] = [
   {
     id: "engineer",
     label: "The skeptical engineer",
-    shortLabel: "Engineer",
+    shortLabel: "Eng",
     prompt: `Act as a principal engineer reviewing this data for flaws.
 1. Identify the 3 weakest or most poorly supported assumptions.
 2. Find any direct contradictions between data in different sources.
@@ -189,23 +189,23 @@ export function NotebookSpotlight() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Get Google AI (NotebookLM Plus + Gemini){" "}
-          <span aria-hidden>→</span>
+          Subscribe to Google AI <span aria-hidden>→</span>
         </a>
       </div>
       <p className="rt-notebook__cta-note">
         NotebookLM Plus is bundled with the <em>Google AI Pro</em> and{" "}
-        <em>Google AI Ultra</em> plans — the same subscription that unlocks
-        Gemini Advanced in the regular consumer app. One subscription, both
-        products.
+        <em>Google AI Ultra</em> plans &mdash; the same subscription that
+        unlocks Gemini Advanced in the regular consumer app. One
+        subscription, both products.
       </p>
 
       <div className="rt-notebook__exhibit">
         <div className="rt-notebook__exhibit-head">
-          <div className="eyebrow">TRY IT · 7 STAKEHOLDER PROMPTS</div>
-          <h4>One notebook, seven points of view.</h4>
+          <div className="eyebrow">
+            TRY IT &middot; ONE NOTEBOOK, SEVEN POINTS OF VIEW
+          </div>
           <p>
-            Load your sources once. Then ask the same notebook the same
+            Load your sources once, then ask the same notebook the same
             question through seven different lenses. Copy any of these prompts
             and paste into your own NotebookLM session.
           </p>

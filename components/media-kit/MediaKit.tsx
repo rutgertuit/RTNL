@@ -8,11 +8,11 @@ type BioKey = "short" | "medium" | "long";
 
 const BIOS: Record<BioKey, string> = {
   short:
-    'Rutger Tuit is a senior brand and AI leader at Google, working at the seam between high-performance enterprise technology and human creativity. He works with Dutch-market CMOs and agency CEOs on translating macro AI shifts into actionable, organisationally honest strategy. Architect of the "Tuit Doctrine" (YouTube is tv, social, search and shopping) and the "Jazz Swing" metaphor for human creativity in an AI-accelerated ecosystem.',
+    'Rutger Tuit is a senior brand and AI leader at Google, working at the seam between high-performance enterprise technology and human creativity. He works with Dutch-market CMOs and agency CEOs on translating macro AI shifts into actionable, organisationally honest strategy. Known for framing YouTube as a multi-format platform across viewing, discovery, community, and commerce, and for the "Jazz Swing" metaphor on human creativity in an AI-accelerated ecosystem.',
   medium:
-    'Rutger Tuit is a senior brand and AI leader at Google, standing at the intersection of technology, media, and human creativity. As a key member of Google\'s Benelux management team, he holds a dual mandate: commercial growth of YouTube (which he helped build into the leading streaming service in the Benelux) and chief evangelism for Google\'s AI transformation. His effectiveness comes from a 360-degree foundation across brand (KPN), agency (GroupM), ad-tech (Bannerconnect), and platform (Google) — translating fast-moving technical shifts into frameworks that survive contact with a real CFO meeting. He is the architect of the "Tuit Doctrine" (YouTube is tv, social, zoeken en shoppen) and addresses the creative industry\'s anxiety with his "Jazz Swing" metaphor: AI provides the rigid beat, humans provide the creative swing. Outside the executive day-job he is a musician, a homelab tinkerer, and an unapologetically nerdy practitioner of his own subject. The combination is the point.',
+    'Rutger Tuit is a senior brand and AI leader at Google, standing at the intersection of technology, media, and human creativity. As a key member of Google\'s Benelux management team, he holds a dual mandate: commercial growth of YouTube (which he helped build into the leading streaming service in the Benelux) and chief evangelism for Google\'s AI transformation. His effectiveness comes from a 360-degree foundation across brand (KPN), agency (GroupM), ad-tech (Bannerconnect), and platform (Google) — translating fast-moving technical shifts into frameworks that survive contact with a real CFO meeting. He is known for framing YouTube as a multi-format platform spanning viewing, discovery, community and commerce, and addresses the creative industry\'s anxiety with his "Jazz Swing" metaphor: AI provides the rigid beat, humans provide the creative swing. Outside the executive day-job he is a musician, a homelab tinkerer, and an unapologetically nerdy practitioner of his own subject. The combination is the point.',
   long:
-    'Rutger Tuit ("The Conductor of Change") is a Senior Leader, Board Member, and strategic executive at Google, standing at the intersection of technology, media, and human creativity. As a prominent voice in Northern Europe\'s marketing-AI conversation, he shapes the future of digital marketing by guiding Google\'s partners and clients toward an "AI-first" world. His narrative does not begin in a traditional boardroom — it begins at the convergence of a musician\'s soul and a gamer\'s strategic mind. Born to two teachers, education and curiosity were the family trade, but he found his early fluency in the binary world of IT. Introduced to the Commodore 64 and 128 at a young age, he didn\'t just consume technology; he mastered its competitive edge — top-ranking Quake 2 player by 1998, and World of Warcraft guild leader for five years until 2010 — an experience that served as his first lesson in digital community management, remote leadership, and large-scale strategy. While this digital intensity built his technical foundation, his heart initially lay in music. A career in marketing was originally "Plan B" — a pragmatic way to finance his artistic aspirations — until he realised that the mix of technology, creativity and continuous change in marketing mirrored both the improvisation of music and the strategic rigour of competitive gaming. That realisation turned Plan B into the work. The duality forged his core identity as a "trusted translator," bridging the gaps between art and commerce, human creativity and machine intelligence; it lets him de-risk complex technology for the creative industry by framing disruption as a strategic advantage rather than a threat. As a key member of Google\'s Benelux management team, he holds a dual mandate: commercial growth of YouTube (which he helped build into the leading streaming service in the Benelux over his nearly decade-long tenure) and chief evangelism for Google\'s AI transformation as Head of Strategic Partnerships. He is the architect of the "Tuit Doctrine" — the strategic framework built on the mantra "YouTube is tv, social, zoeken en shoppen" — and addresses the creative industry\'s core anxiety with his "Jazz Swing" metaphor: AI provides the rigid beat (data, efficiency, scale), which liberates humans to provide the creative swing (judgement, artistry, and the human factor that makes the difference). His authority on the partner side comes from a 360-degree foundation built deliberately: brand-side at KPN, agency / media-buying at GroupM, ad-tech at Bannerconnect, then Google — guided by his personal rule "in elke rol-switch wil ik circa 20% vernieuwing" (in every role-switch, I want about 20% innovation). He is sought after at major cultural and creative conferences (Amsterdam Dance Event, ESNS) as well as business summits (Marketing Effie Live), is an author for Google\'s "Think with Google" platform, and is an active ecosystem cultivator shaping the next generation of AI-driven marketing tools.',
+    'Rutger Tuit ("The Conductor of Change") is a Senior Leader, Board Member, and strategic executive at Google, standing at the intersection of technology, media, and human creativity. As a prominent voice in Northern Europe\'s marketing-AI conversation, he shapes the future of digital marketing by guiding Google\'s partners and clients toward an "AI-first" world. His narrative does not begin in a traditional boardroom — it begins at the convergence of a musician\'s soul and a gamer\'s strategic mind. Born to two teachers, education and curiosity were the family trade, but he found his early fluency in the binary world of IT. Introduced to the Commodore 64 and 128 at a young age, he didn\'t just consume technology; he mastered its competitive edge — top-ranking Quake 2 player by 1998, and World of Warcraft guild leader for five years until 2010 — an experience that served as his first lesson in digital community management, remote leadership, and large-scale strategy. While this digital intensity built his technical foundation, his heart initially lay in music. A career in marketing was originally "Plan B" — a pragmatic way to finance his artistic aspirations — until he realised that the mix of technology, creativity and continuous change in marketing mirrored both the improvisation of music and the strategic rigour of competitive gaming. That realisation turned Plan B into the work. The duality forged his core identity as a "trusted translator," bridging the gaps between art and commerce, human creativity and machine intelligence; it lets him de-risk complex technology for the creative industry by framing disruption as a strategic advantage rather than a threat. As a key member of Google\'s Benelux management team, he holds a dual mandate: commercial growth of YouTube (which he helped build into the leading streaming service in the Benelux over his nearly decade-long tenure) and chief evangelism for Google\'s AI transformation as Head of Strategic Partnerships. He is known for framing YouTube as a multi-format platform — viewing, discovery, community, and commerce in one — and addresses the creative industry\'s core anxiety with his "Jazz Swing" metaphor: AI provides the rigid beat (data, efficiency, scale), which liberates humans to provide the creative swing (judgement, artistry, and the human factor that makes the difference). His authority on the partner side comes from a 360-degree foundation built deliberately: brand-side at KPN, agency / media-buying at GroupM, ad-tech at Bannerconnect, then Google — guided by his personal rule "in elke rol-switch wil ik circa 20% vernieuwing" (in every role-switch, I want about 20% innovation). He is sought after at major cultural and creative conferences (Amsterdam Dance Event, ESNS) as well as business summits (Marketing Effie Live), is an author for Google\'s "Think with Google" platform, and is an active ecosystem cultivator shaping the next generation of AI-driven marketing tools.',
 };
 
 // Two topics — both anchored to Rutger's authorised lanes as a Google representative.
@@ -101,6 +101,12 @@ export function MediaKit() {
             Bios, photos, topics — all on one page. Print as a PDF straight from here if
             that&apos;s what your workflow needs.
           </p>
+          <p className="rt-mk__disclaimer">
+            <strong>Note —</strong> this is a personal site and the kit below is for media
+            convenience. All assets and copy are <em>AI-assisted, human-directed</em>.
+            Personal views, not affiliated with my employer. Portraits below are
+            AI-generated; label them appropriately when used in print or press.
+          </p>
         </header>
 
         <nav className="rt-mk__nav" aria-label="Media kit sections">
@@ -150,7 +156,9 @@ export function MediaKit() {
             </a>
           </div>
           <p className="rt-mk__photos-note">
-            Six portraits (1440&times;1920 PNG) plus the three bios above, bundled as one zip.
+            Six <strong>AI-generated portraits</strong> (1440&times;1920 PNG) plus the
+            three bios above, bundled as one zip. Each image is synthetic &mdash; not a
+            photograph. Label as such if used in print or editorial.
           </p>
           <div className="rt-mk__photos">
             {(
@@ -166,14 +174,16 @@ export function MediaKit() {
                 <figure key={id} className="rt-mk__photo">
                   <Image
                     src={`/assets/portraits/${id}.png`}
-                    alt={alt}
+                    alt={`${alt} (AI-generated, not a photograph)`}
                     width={1248}
                     height={1664}
                     sizes="(max-width: 720px) 50vw, 33vw"
                     quality={85}
                   />
+                  <span className="rt-mk__photo-aibadge" aria-hidden>AI</span>
                   <figcaption>
                     {id.replace(/^\d+-/, "").toUpperCase().replace("-", " ")}
+                    <span className="rt-mk__photo-aitag"> · AI-GENERATED</span>
                   </figcaption>
                 </figure>
               ))}
@@ -244,8 +254,10 @@ export function MediaKit() {
             <div className="rt-mk__row-label">05 · SPEAKING</div>
           </div>
           <p className="rt-mk__book">
-            I speak only as a Google representative, on Google &amp; YouTube topics. <strong>Not
-            available for outside engagements.</strong>
+            For public speaking I only participate in approved professional contexts
+            related to my role &mdash; topics anchored to Google products and the YouTube
+            platform. <strong>This site itself is personal</strong>; outside-the-day-job
+            engagements run through that approval process, not through this kit.
           </p>
         </div>
       </div>

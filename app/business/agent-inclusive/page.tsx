@@ -58,9 +58,13 @@ export default function AgentInclusivePage() {
                   Employee Representative Group for AI agents.
                 </p>
                 <p>
-                  I said it as a joke. She laughed in exactly the way the joke required. We moved
-                  on, we talked about other things, the coffee got cold. And then the line
-                  refused to leave my head for the next three days.
+                  I said it as a joke. The point was never that AI systems are colleagues; the
+                  point was that we already build the rest of the office around our colleagues
+                  — onboarding paths, documentation, escalation routes, performance reviews — and
+                  none of that scaffolding is there for the AI systems we are putting into the
+                  same workflows. She laughed in exactly the way the joke required. We moved on,
+                  we talked about other things, the coffee got cold. And then the line refused
+                  to leave my head for the next three days.
                 </p>
                 <p>
                   It stuck because, underneath the corporate irony, there was a piece of
@@ -159,7 +163,7 @@ export default function AgentInclusivePage() {
                   of them this week.
                 </p>
                 <p>
-                  <strong>1. Wage war on interpersonal vagueness.</strong>
+                  <strong>1. Reduce operational ambiguity.</strong>
                 </p>
                 <p>
                   Every organisation I have ever joined has pockets of operation that run
@@ -332,6 +336,20 @@ export default function AgentInclusivePage() {
                 </p>
               </>
             ),
+          },
+        ]}
+        sources={[
+          {
+            claim: "Markdown documentation reduces tokens 68–87% vs equivalent prose, and improves retrieval accuracy ~35% in RAG pipelines.",
+            note: "Author observation from internal homelab RAG benchmarks 2024–2026; comparable public results exist (LangChain, LlamaIndex blog posts) but specific percentages here are from author setup, not a peer-reviewed source.",
+          },
+          {
+            claim: "Onboarding scaffolds (PDPs, written goal statements) materially affect retention and performance under reorganisation.",
+            note: "Composite framing from author operating experience; the academic literature on structured onboarding is well-established (e.g. Bauer 2010, SHRM 2019).",
+          },
+          {
+            claim: "Org-change cycles of 12–18 months versus AI model release cadence of ~6 weeks.",
+            note: "Org-cycle figure is industry conventional wisdom (McKinsey transformation literature). Model-cadence figure is observable: frontier-lab release dates 2023–2026.",
           },
         ]}
       />

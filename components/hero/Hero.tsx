@@ -210,13 +210,14 @@ export function Hero() {
             </p>
             <p className="rt-hero__lead">
               This site is old hobbies and new hobbies, revisited with AI on the bench. Some of
-              what comes out translates into business. Director at Google by day. Homelab of
-              agents I visit again at night.
+              what comes out translates into business. I work in tech and media by day. Homelab
+              of agents I tinker with at night.
             </p>
             <p className="rt-hero__lead rt-hero__lead--stamp">
               <strong>
-                Nothing on this site was hand-touched. Every image, every line, every clip &mdash;
-                prompted, then chosen.
+                This site is AI-assisted and human-directed. Every image, line, and clip was
+                AI-generated, then selected, edited, and approved by me. Personal views, not
+                affiliated with my employer.
               </strong>
             </p>
           </div>

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { PodcastInlineButton } from "./PodcastInlineButton";
+import { ArticleSources, type ArticleSource } from "./ArticleSources";
 
 /**
  * Reusable Article layout — renders the Tuit Post 4-stage structure
@@ -54,6 +55,14 @@ export interface ArticleProps {
    * Pass e.g. "CREATIVE" for articles that live under /creative/.
    */
   section?: string;
+  /**
+   * Numbered list of sources / methodology notes rendered below the
+   * last stage. Encourages every numerical or research-attributed claim
+   * in the article to have a visible audit trail.
+   */
+  sources?: ArticleSource[];
+  /** Optional intro line above the sources list. */
+  sourcesIntro?: ReactNode;
 }
 
 export function Article({
@@ -67,6 +76,8 @@ export function Article({
   podcast,
   game,
   section = "BUSINESS & LEADERSHIP",
+  sources,
+  sourcesIntro,
 }: ArticleProps) {
   return (
     <article className="rt-tuit section section--surface">
@@ -139,6 +150,10 @@ export function Article({
             </div>
           );
         })}
+
+        {sources && sources.length > 0 && (
+          <ArticleSources sources={sources} intro={sourcesIntro} />
+        )}
 
         <nav className="rt-tuit__nav" aria-label="Article navigation">
           <Link className="button" href="/business">

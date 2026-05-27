@@ -318,7 +318,7 @@ export function CreativeAtelier() {
           <article className="rt-creative__panel rt-creative__panel--interaction">
             <div className="rt-creative__panel-art rt-creative__panel-art--illustration">
               <img
-                src="/assets/creative/interactivity/desk-tinkering.jpeg"
+                src="/assets/creative/interactivity/desk-tinkering.png"
                 alt="Workshop desk in warm rim light — soldering iron, half-disassembled keyboard, a monitor in the corner showing a prototype mid-build."
                 loading="lazy"
                 onError={(e) => {

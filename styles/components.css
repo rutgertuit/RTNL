@@ -1069,6 +1069,88 @@ body { padding-top: 0; }
 }
 
 /* ============================================================
+   Per-article sources & methodology block (ArticleSources).
+   Sits below the last stage. Numbered list with claim → citation
+   or methodology note. Boring on purpose.
+   ============================================================ */
+.rt-article-sources {
+  margin: var(--space-9) auto var(--space-7);
+  padding: var(--space-6);
+  background: var(--color-bg-sunken);
+  border: var(--border-hairline);
+  border-top: 2px solid var(--color-accent-warm);
+  max-width: var(--reading-column, 760px);
+}
+.rt-article-sources h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-500);
+  font-weight: var(--fw-semibold);
+  margin: var(--space-2) 0 var(--space-3);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-fg-0);
+}
+.rt-article-sources__intro {
+  margin: 0 0 var(--space-4);
+  color: var(--color-fg-1);
+  font-size: var(--fs-200);
+  line-height: var(--lh-body);
+}
+.rt-article-sources__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.rt-article-sources__item {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: var(--space-3);
+}
+.rt-article-sources__marker {
+  font-family: var(--font-mono);
+  font-size: var(--fs-100);
+  color: var(--color-accent-warm);
+  font-weight: bold;
+  padding-top: 1px;
+}
+.rt-article-sources__body p {
+  margin: 0 0 var(--space-2);
+  font-size: var(--fs-100);
+  line-height: var(--lh-body);
+}
+.rt-article-sources__body p:last-child {
+  margin-bottom: 0;
+}
+.rt-article-sources__claim {
+  color: var(--color-fg-1);
+}
+.rt-article-sources__cite {
+  color: var(--color-fg-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-50) !important;
+  letter-spacing: 0.02em;
+  word-break: break-word;
+}
+.rt-article-sources__cite a {
+  color: var(--color-accent-warm);
+}
+.rt-article-sources__note {
+  color: var(--color-fg-2);
+}
+.rt-article-sources__foot {
+  margin: var(--space-5) 0 0;
+  padding-top: var(--space-3);
+  border-top: var(--border-hairline);
+  font-size: var(--fs-50);
+  color: var(--color-fg-3);
+  font-family: var(--font-mono);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+}
+
+/* ============================================================
    NotebookLM spotlight — ported + slimmed from DML, restyled in
    RTNL tokens. Plug-style section with feature grid, CTAs, and
    the 7-stakeholder prompt generator.
@@ -1142,6 +1224,20 @@ body { padding-top: 0; }
   gap: var(--space-3);
   margin-top: var(--space-3);
 }
+.rt-notebook__ctas .button {
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+  justify-content: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 520px) {
+  .rt-notebook__ctas .button {
+    flex-basis: 100%;
+  }
+}
 .rt-notebook__cta-note {
   margin: 0;
   font-size: var(--fs-100);
@@ -1185,10 +1281,11 @@ body { padding-top: 0; }
   border: 0;
   border-bottom: 2px solid transparent;
   color: var(--color-fg-2);
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-2);
   margin-bottom: -1px;
   cursor: pointer;
   transition: color 120ms ease, border-color 120ms ease;
+  white-space: nowrap;
 }
 .rt-notebook__tab:hover {
   color: var(--color-fg-0);
@@ -1285,6 +1382,7 @@ body { padding-top: 0; }
   height: auto;
   aspect-ratio: 1 / 1;
   object-fit: cover;
+  object-position: center 20%;
 }
 .rt-creative__panel--motion .rt-creative__video {
   aspect-ratio: 21 / 11;

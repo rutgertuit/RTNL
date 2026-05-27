@@ -188,14 +188,9 @@ export function PromptImprover() {
   return (
     <section className="rt-prompt" id="prompt-improver" aria-labelledby="prompt-title">
       <div className="rt-prompt__head">
-        <div className="eyebrow eyebrow--warm">EXHIBIT · CREATION</div>
-        <h3 id="prompt-title">Prompt Scribe.</h3>
-        <p className="rt-prompt__lead">
-          A live coach that takes a rough idea and walks you to a finished
-          prompt in 2–3 rounds of questions. Powered by{" "}
-          <strong>Gemini 3.5 Flash</strong>, server-proxied — no keys in the
-          page.
-        </p>
+        <div className="eyebrow eyebrow--warm" id="prompt-title">
+          PROMPT SCRIBE &middot; LIVE EXHIBIT &middot; GEMINI 3.5 FLASH
+        </div>
         <p className="rt-prompt__tip">
           <strong>Pro tip.</strong> Iterative, dialogue-based refinement
           consistently outperforms one-shot prompts. The questions are the

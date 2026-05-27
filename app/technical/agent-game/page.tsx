@@ -3,7 +3,7 @@ import AgentGameClient from "./AgentGameClient";
 
 const TITLE = "Agent Inclusive Sim";
 const DESCRIPTION =
-  "Interactive turn-based corporate resource simulator. Survive 30 turns of exponential AI updates and reach a $100B valuation. Fulfill the thesis: structure your documentation and PDPs so your human employees survive.";
+  "Interactive turn-based corporate resource simulator. Survive 30 turns of exponential AI updates and reach a $100B valuation. Fulfill the thesis: structure your documentation and PDPs so your team thrives alongside their AI teammates.";
 
 export const metadata: Metadata = {
   title: TITLE,

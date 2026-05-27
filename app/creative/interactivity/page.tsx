@@ -52,7 +52,7 @@ export default function InteractivityPage() {
             num: "01",
             label: "Anecdotal hook",
             image: {
-              src: "/assets/creative/interactivity/01.jpeg",
+              src: "/assets/creative/interactivity/01.png",
               alt: "Desk-and-tinkering illustration — soldering iron, half-disassembled keyboard, a monitor in the corner with a half-finished prototype. Warm rim light, fading to black.",
             },
             children: (
@@ -86,7 +86,7 @@ export default function InteractivityPage() {
             num: "02",
             label: "Conceptual swing — Investigation",
             image: {
-              src: "/assets/creative/interactivity/02.jpeg",
+              src: "/assets/creative/interactivity/02.png",
               alt: "Magnifying glass over a graph of nodes and connections, half lit, with one node circled in warm light. Detective-vs-archive aesthetic.",
             },
             children: (
@@ -126,7 +126,7 @@ export default function InteractivityPage() {
             num: "03",
             label: "Conceptual swing — Structuring",
             image: {
-              src: "/assets/creative/interactivity/03.jpeg",
+              src: "/assets/creative/interactivity/03.png",
               alt: "A jumbled stack of paper documents being pulled into a clean tree of nodes by faint lines of warm light. Library-meets-mindmap aesthetic.",
             },
             children: (
@@ -167,7 +167,7 @@ export default function InteractivityPage() {
             num: "04",
             label: "Framework solution — Creation",
             image: {
-              src: "/assets/creative/interactivity/04.jpeg",
+              src: "/assets/creative/interactivity/04.png",
               alt: "A workbench scattered with prototypes — a paused video frame, a glowing radio dial, two CRT monitors showing pixel art. Maker's-studio aesthetic.",
             },
             children: (
@@ -305,6 +305,45 @@ export default function InteractivityPage() {
                 </p>
               </>
             ),
+          },
+        ]}
+        sources={[
+          {
+            claim: "NotebookLM Plus + Gemini Advanced are bundled together under Google AI Pro / Ultra subscriptions.",
+            citation: (
+              <>
+                Current Google subscription plan structure &mdash; see{" "}
+                <a
+                  href="https://one.google.com/about/google-ai-plans"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  one.google.com &middot; AI plans
+                </a>
+                .
+              </>
+            ),
+          },
+          {
+            claim: "NotebookLM does not train on user-uploaded sources.",
+            citation: (
+              <>
+                Confirmed in Google&apos;s public NotebookLM privacy
+                documentation &mdash; see{" "}
+                <a
+                  href="https://support.google.com/notebooklm/answer/15724963"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  support.google.com &middot; NotebookLM privacy
+                </a>
+                .
+              </>
+            ),
+          },
+          {
+            claim: "Prompt Scribe exhibit is server-proxied to Gemini 3.5 Flash; no API key in the page.",
+            note: "Architecture: client posts to /api/gemini, server route holds the key. Inspect the source at github.com/rutgertuit/RTNL.",
           },
         ]}
       />

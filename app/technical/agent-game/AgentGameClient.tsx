@@ -996,14 +996,14 @@ export default function AgentGameClient() {
                 !!state.hiredThisTurn
               }
               className={`sim-fs__move-btn ${state.hiredThisTurn ? "is-used" : ""}`}
-              title={state.hiredThisTurn ? "Already hired this turn — pacing matters." : "Hires a human employee ($30,000 upfront). Generates revenue at their level once fully onboarded (6 turns, or 3 with Markdown Wiki). Salary: $8k/turn at L1, $18k at L2, $45k at L3."}
-              aria-describedby="hire-human-help"
+              title={state.hiredThisTurn ? "Already hired this turn — pacing matters." : "Hire a person ($30,000 upfront). They generate revenue at their level once fully onboarded (6 turns, or 3 with Markdown Wiki). Salary: $8k/turn at L1, $18k at L2, $45k at L3."}
+              aria-describedby="hire-talent-help"
               icon={<UserPlus size={20} />}
-              label={state.hiredThisTurn ? "✓ Hired this turn" : "Hire Human"}
+              label={state.hiredThisTurn ? "✓ Hired this turn" : "Hire Talent"}
               cost="$30k"
             />
-            <div id="hire-human-help" className="sr-only">
-              Hires a human employee ($30,000 upfront). Generates revenue at their level once fully onboarded (6 turns, or 3 with Markdown Wiki). Salary: $8k/turn at L1, $18k at L2, $45k at L3.
+            <div id="hire-talent-help" className="sr-only">
+              Hire a person ($30,000 upfront). They generate revenue at their level once fully onboarded (6 turns, or 3 with Markdown Wiki). Salary: $8k/turn at L1, $18k at L2, $45k at L3.
             </div>
             {state.turn >= TURN_AGENT_UNLOCKED ? (
               <>
