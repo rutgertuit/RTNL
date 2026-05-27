@@ -7,6 +7,7 @@ import { Article, buildArticleLd } from "@/components/article/Article";
 import { Breadcrumb } from "@/components/breadcrumb/Breadcrumb";
 import { PromptImprover } from "@/components/dml/PromptImprover";
 import { NotebookSpotlight } from "@/components/dml/NotebookSpotlight";
+import { PodcastTab } from "@/components/podcast-player/PodcastTab";
 
 const TITLE = "Interactivity is the new explanation.";
 const DESCRIPTION =
@@ -40,6 +41,23 @@ export default function InteractivityPage() {
           { label: "Interactivity" },
         ]}
       />
+      <PodcastTab
+        src="/audio/podcasts/creative-interactivity/ep01.mp3"
+        title="Interactivity — a panel."
+        eyebrow="EP 05 · ~7 MIN · PANEL · SYNTHETIC AI VOICES"
+        subtitle="Strategy Oracle defends slides; Marie keeps everyone definitionally honest. Voices are synthetic; no real person was cloned."
+        duration="7:00"
+        tabLabel="LISTEN · 7:00"
+      >
+        <h3 className="rt-podcast-tab__essay-title">How this was made</h3>
+        <p>
+          A first try at the panel format on this show &mdash; two guests
+          instead of one. The longer guest is Strategy Oracle, who defends
+          the deck as the universal language of business. The shorter
+          contributor is Marie, who lands one-line definitional pushes that
+          make Oracle and Rutger both work harder.
+        </p>
+      </PodcastTab>
       <Article
         section="CREATIVE"
         number="04 / 04"
@@ -47,6 +65,7 @@ export default function InteractivityPage() {
         title="Interactivity is the new explanation."
         readTime="6 min read"
         publishedLabel="May 2026"
+        podcast={{ label: "Listen to panel version" }}
         stages={[
           {
             num: "01",

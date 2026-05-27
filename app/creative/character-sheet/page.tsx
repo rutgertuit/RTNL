@@ -4,6 +4,7 @@ import { Nav } from "@/components/nav/Nav";
 import { Footer } from "@/components/footer/Footer";
 import { AppChrome } from "@/components/chrome/AppChrome";
 import { Breadcrumb } from "@/components/breadcrumb/Breadcrumb";
+import { PodcastTab } from "@/components/podcast-player/PodcastTab";
 
 const TITLE = "How to build a character sheet";
 const DESCRIPTION =
@@ -67,6 +68,24 @@ export default function CharacterSheetPage() {
         { label: "Creative", href: "/#creative" },
         { label: "Character Sheet" },
       ]} />
+      <PodcastTab
+        src="/audio/podcasts/creative-character-sheet/ep01.mp3"
+        title="Character sheets — a panel."
+        eyebrow="EP 07 · ~7 MIN · PANEL · SYNTHETIC AI VOICES"
+        subtitle="Dino defends the soul of a character; Marie demands a metric. They end up agreeing twice, which surprises Dino. Voices are synthetic; no real person was cloned."
+        duration="7:00"
+        tabLabel="LISTEN · 7:00"
+      >
+        <h3 className="rt-podcast-tab__essay-title">How this was made</h3>
+        <p>
+          The second panel episode on this show. Dino &mdash; the irritable
+          Rotterdam art director from the Snoek &amp; Partners game &mdash;
+          defends what a character actually <em>is</em>. Marie &mdash; the
+          radical-energy scientist from the Agent Inclusive Sim &mdash;
+          insists on a measurable definition. Both end up shaping a
+          sentence the article should have written.
+        </p>
+      </PodcastTab>
       <article className="rt-tuit section section--surface">
         <div className="container">
           <div className="rt-tuit__head">

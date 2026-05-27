@@ -4,6 +4,7 @@ import { Footer } from "@/components/footer/Footer";
 import { AppChrome } from "@/components/chrome/AppChrome";
 import { Article, buildArticleLd } from "@/components/article/Article";
 import { Breadcrumb } from "@/components/breadcrumb/Breadcrumb";
+import { PodcastTab } from "@/components/podcast-player/PodcastTab";
 
 const TITLE = "The 30-Minute Kitchen";
 const DESCRIPTION =
@@ -35,12 +36,35 @@ export default function ThirtyMinuteKitchenPage() {
         { label: "Business & Leadership", href: "/business" },
         { label: "The 30-Minute Kitchen" },
       ]} />
+      <PodcastTab
+        src="/audio/podcasts/thirty-minute-kitchen/ep01.mp3"
+        title="The Thirty-Minute Kitchen — with Frits."
+        eyebrow="EP 03 · ~6 MIN · SYNTHETIC AI VOICES"
+        subtitle="Frits the Nestor, legendary creative director from the cigarette-ad era, is mildly insulted by the title. Voices are synthetic; no real person was cloned."
+        duration="6:00"
+        tabLabel="LISTEN · 6:00"
+      >
+        <h3 className="rt-podcast-tab__essay-title">How this was made</h3>
+        <p>
+          Same pipeline as the Multiplier Myth episode &mdash; article first,
+          then a language model drafted dialog from the piece, then a
+          synthetic ElevenLabs voice rendered each line. The character on
+          the other side of the table is Frits the Nestor, who also lives
+          inside the{" "}
+          <a href="/creative/boardroom-game" target="_blank" rel="noopener noreferrer">
+            Snoek &amp; Partners mini-game
+          </a>{" "}
+          on this site &mdash; here he gets the conversation he never got at
+          the agency.
+        </p>
+      </PodcastTab>
       <Article
         number="02 / 03"
         filedUnder="Marketing · Operations"
         title="The 30-Minute Kitchen."
         readTime="12 min read"
         publishedLabel="May 2026"
+        podcast={{ label: "Listen to podcast version" }}
         intro={
           <figure className="rt-tuit__video">
             <div className="rt-tuit__video-wrap">

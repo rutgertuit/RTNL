@@ -5,6 +5,7 @@ import { Footer } from "@/components/footer/Footer";
 import { AppChrome } from "@/components/chrome/AppChrome";
 import { Article, buildArticleLd } from "@/components/article/Article";
 import { Breadcrumb } from "@/components/breadcrumb/Breadcrumb";
+import { PodcastTab } from "@/components/podcast-player/PodcastTab";
 
 const TITLE = "Agent Inclusive";
 const DESCRIPTION =
@@ -36,6 +37,23 @@ export default function AgentInclusivePage() {
         { label: "Business & Leadership", href: "/business" },
         { label: "Agent Inclusive" },
       ]} />
+      <PodcastTab
+        src="/audio/podcasts/agent-inclusive/ep01.mp3"
+        title="Agent Inclusive — with Angela."
+        eyebrow="EP 04 · ~6 MIN · SYNTHETIC AI VOICES"
+        subtitle="Angela Perkel, German HR director, has four questions about the title. She does not love it. Voices are synthetic; no real person was cloned."
+        duration="6:00"
+        tabLabel="LISTEN · 6:00"
+      >
+        <h3 className="rt-podcast-tab__essay-title">How this was made</h3>
+        <p>
+          Angela also shows up inside the{" "}
+          <Link href="/technical/agent-game">Agent Inclusive Sim</Link> on
+          this site &mdash; in the game she runs the European office. Here
+          she gets the conversation she would have had if the org chart
+          actually included her.
+        </p>
+      </PodcastTab>
       <Article
         number="03 / 03"
         filedUnder="Leadership · Org Design"
@@ -43,6 +61,7 @@ export default function AgentInclusivePage() {
         readTime="13 min read"
         publishedLabel="May 2026"
         game={{ href: "/technical/agent-game", label: "Play the sim" }}
+        podcast={{ label: "Listen to podcast version" }}
         stages={[
           {
             num: "01",

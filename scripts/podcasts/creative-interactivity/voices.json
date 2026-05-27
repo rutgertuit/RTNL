@@ -1,0 +1,23 @@
+{
+  "_note": "Episode 04 — Panel. Rutger hosts; Oracle (strategy consultant, defends slides) is the primary guest; Marie (research scientist) appears for short precision interjections. Marie's voice is harder to parse on longer lines, so script keeps her contributions punchy.",
+  "RUTGER": {
+    "voiceId": "REPLACE_WITH_HOST_VOICE_ID",
+    "model": "eleven_v3",
+    "stability": 0.55,
+    "similarity": 0.85
+  },
+  "ORACLE": {
+    "voiceId": "I1aZXfdukqudcrBcjAWi",
+    "model": "eleven_v3",
+    "stability": 0.55,
+    "similarity": 0.85,
+    "style": 0.2
+  },
+  "MARIE": {
+    "voiceId": "ddUqaOAX9uaMFHJ1LLHg",
+    "model": "eleven_v3",
+    "stability": 0.65,
+    "similarity": 0.9,
+    "style": 0.1
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "_note": "Episode 03 — Rutger interviews Angela Perkel (Mutti, German pragmatic HR). 1:1 format.",
+  "RUTGER": {
+    "voiceId": "REPLACE_WITH_HOST_VOICE_ID",
+    "model": "eleven_v3",
+    "stability": 0.55,
+    "similarity": 0.85
+  },
+  "ANGELA": {
+    "voiceId": "gZWyS8DEXz4sJeL2FPEZ",
+    "model": "eleven_v3",
+    "stability": 0.6,
+    "similarity": 0.85,
+    "style": 0.1
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "_note": "Episode 02 — Rutger interviews Frits the Nestor (legendary Dutch creative director from the cigarette-ad era). 1:1 format. Rutger uses the same voice as the existing Multiplier Myth episode; replace voiceId below with the actual ID for the host voice.",
+  "RUTGER": {
+    "voiceId": "REPLACE_WITH_HOST_VOICE_ID",
+    "model": "eleven_v3",
+    "stability": 0.55,
+    "similarity": 0.85
+  },
+  "FRITS": {
+    "voiceId": "zoiHymAGyFOFuS51xKG1",
+    "model": "eleven_v3",
+    "stability": 0.6,
+    "similarity": 0.85,
+    "style": 0.15
+  }
+}
