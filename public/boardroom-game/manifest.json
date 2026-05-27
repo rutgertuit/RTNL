@@ -1,0 +1,17 @@
+{
+  "short_name": "Snoek & Partners",
+  "name": "Snoek & Partners - Dutch Ad Agency Roguelite",
+  "description": "Snoek & Partners is een absurde, satirische reclamestudio simulator op de Zuidas van 1989 tot 2027.",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#020617",
+  "theme_color": "#7c3aed",
+  "display": "standalone",
+  "orientation": "portrait"
+}

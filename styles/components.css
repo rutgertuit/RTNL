@@ -879,6 +879,44 @@ body { padding-top: 0; }
 .rt-creative__panel-art img {
   object-position: center 20%;
 }
+
+/* Interaction panel — single illustration with placeholder fallback.
+   .rt-creative__panel-art--illustration is a 3:4-ish single-tile art
+   block; if the source image is missing, the .panel-art-placeholder
+   div is revealed by the onError handler. */
+.rt-creative__panel-art--illustration {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: var(--color-bg-sunken);
+  overflow: hidden;
+}
+.rt-creative__panel-art--illustration img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.rt-creative__panel-art-placeholder {
+  display: none;
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-direction: column;
+  text-align: center;
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.03) 0 12px, rgba(255, 255, 255, 0.06) 12px 24px),
+    var(--color-bg-sunken);
+  color: var(--color-fg-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-100);
+  letter-spacing: var(--tracking-eyebrow);
+  padding: var(--space-4);
+}
+.rt-creative__panel-art-placeholder .eyebrow {
+  color: var(--color-fg-1);
+}
 .rt-creative__panel:first-of-type .rt-creative__panel-art--grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1px;
