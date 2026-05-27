@@ -1336,18 +1336,25 @@ body { padding-top: 0; }
 }
 
 /* Interaction panel — single illustration with placeholder fallback.
-   .rt-creative__panel-art--illustration is a 3:4-ish single-tile art
+   .rt-creative__panel-art--illustration is a 4:3 single-tile art
    block; if the source image is missing, the .panel-art-placeholder
-   div is revealed by the onError handler. */
+   div is revealed by the onError handler.
+   `display: block` + `!important` overrides the grid layout that the
+   base .rt-creative__panel-art class applies; the illustration is one
+   image, not a grid of portraits. Same for the img — base.css forces
+   `aspect-ratio: 1/1` on every panel-art img which would shrink this
+   one to its height, so we override here. */
 .rt-creative__panel-art--illustration {
   position: relative;
+  display: block !important;
   aspect-ratio: 4 / 3;
   background: var(--color-bg-sunken);
   overflow: hidden;
 }
 .rt-creative__panel-art--illustration img {
-  width: 100%;
-  height: 100%;
+  width: 100% !important;
+  height: 100% !important;
+  aspect-ratio: auto !important;
   object-fit: cover;
   display: block;
 }
