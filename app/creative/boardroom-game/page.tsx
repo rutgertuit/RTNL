@@ -48,11 +48,14 @@ export default function BoardroomGamePage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "12px 18px",
+            padding: "8px 16px",
             borderBottom: "1px solid rgba(255,255,255,0.08)",
             fontFamily: "var(--font-mono, ui-monospace, monospace)",
-            fontSize: 12,
+            fontSize: 11,
             letterSpacing: "0.08em",
+            flexShrink: 0,
+            height: 34,
+            boxSizing: "border-box",
           }}
         >
           <Link
@@ -81,14 +84,21 @@ export default function BoardroomGamePage() {
             About this experiment →
           </Link>
         </header>
+        {/* The iframe gets the full remaining viewport (100dvh - header), and
+            a min-height tall enough that the game's dashboard fits without
+            cropping on shorter screens. `scrolling="auto"` is the default in
+            modern browsers but set explicitly here so older clients also see
+            the in-frame scrollbar when content overflows. */}
         <iframe
           src="/boardroom-game/index.html"
           title="Snoek & Partners — Dutch ad-agency simulator"
+          scrolling="auto"
           style={{
             border: 0,
-            flex: 1,
+            display: "block",
             width: "100%",
-            minHeight: "calc(100vh - 41px)",
+            height: "calc(100dvh - 34px)",
+            minHeight: 760,
             background: "#008080",
           }}
           allow="fullscreen"
