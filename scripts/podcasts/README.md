@@ -50,7 +50,28 @@ node scripts/podcasts/_shared/render-podcast.mjs <slug> --force
 
 # Print the first few lines without calling the API (sanity check)
 node scripts/podcasts/_shared/render-podcast.mjs <slug> --dry-run
+
+# Re-run the ffmpeg mastering chain on already-rendered episodes (no API
+# calls — uses the cached per-line MP3s in .lines/). Useful after tweaking
+# the mastering chain in render-podcast.mjs.
+node scripts/podcasts/_shared/render-podcast.mjs <slug> --remaster
+node scripts/podcasts/_shared/render-podcast.mjs --all --remaster
 ```
+
+## Mastering chain
+
+Each rendered episode runs through this ffmpeg `-af` chain (mirrors the
+older Multiplier Myth pipeline):
+
+1. `highpass=f=80` &mdash; kill mic rumble + room hum below 80 Hz
+2. `acompressor` light (3:1, -18 dB threshold) &mdash; even voice dynamics
+3. `acompressor` tighter (6:1, -12 dB threshold) &mdash; podcast presence
+4. `deesser` &mdash; tame harsh sibilance around 6 kHz
+5. `alimiter` &mdash; true-peak ceiling -1.5 dB
+6. `loudnorm` &mdash; broadcast target -16 LUFS / TP -1.5 / LRA 11
+
+If a tweak is needed, edit `MASTERING_CHAIN` in `_shared/render-podcast.mjs`
+and re-run `--remaster --all` &mdash; remasters are free (no API).
 
 ## script.md format
 

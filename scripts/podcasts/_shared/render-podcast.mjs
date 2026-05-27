@@ -148,12 +148,36 @@ function runFfmpeg(args) {
   });
 }
 
+/**
+ * Full podcast mastering chain. The previous Multiplier Myth episode was
+ * processed with a multi-stage chain rather than a single loudnorm pass;
+ * matching that here so the new episodes sit at the same loudness, density
+ * and clarity.
+ *
+ *   1. highpass=f=80           — kill mic rumble + room hum below 80 Hz
+ *   2. acompressor (light)     — even out voice dynamics, gentle 3:1
+ *   3. acompressor (tighter)   — podcast-density 6:1 for presence
+ *   4. deesser (sibilance)     — tame harsh /s/ /sh/ artefacts at ~6 kHz
+ *   5. alimiter                — true-peak ceiling at -1.5 dB before loudnorm
+ *   6. loudnorm                — master to broadcast podcast target -16 LUFS
+ *
+ * `dualmono=true` on loudnorm so mono input is treated as stereo for the
+ * LUFS calculation (ElevenLabs outputs mono).
+ */
+const MASTERING_CHAIN = [
+  "highpass=f=80",
+  "acompressor=threshold=-18dB:ratio=3:attack=5:release=80:makeup=2",
+  "acompressor=threshold=-12dB:ratio=6:attack=8:release=200:makeup=2",
+  "deesser=i=0.4",
+  "alimiter=level_in=1:level_out=0.96:limit=0.85:attack=5:release=50",
+  "loudnorm=I=-16:TP=-1.5:LRA=11:dual_mono=true",
+].join(",");
+
 async function concatAndMaster(lineFiles, output) {
   // Build a temp concat listfile next to the output.
   const concatList = output + ".concat.txt";
   const listLines = lineFiles.map((p) => `file '${p.replace(/'/g, "'\\''")}'`).join("\n");
   await fs.writeFile(concatList, listLines, "utf8");
-  // Concat + master to -16 LUFS in one pass.
   await runFfmpeg([
     "-y",
     "-f",
@@ -163,7 +187,7 @@ async function concatAndMaster(lineFiles, output) {
     "-i",
     concatList,
     "-af",
-    "loudnorm=I=-16:TP=-1.5:LRA=11",
+    MASTERING_CHAIN,
     "-c:a",
     "libmp3lame",
     "-q:a",
@@ -171,6 +195,34 @@ async function concatAndMaster(lineFiles, output) {
     output,
   ]);
   await fs.unlink(concatList).catch(() => {});
+}
+
+/**
+ * Re-master an existing rendered episode WITHOUT calling ElevenLabs again.
+ * Reads the cached per-line MP3s from .lines/ and re-runs the mastering
+ * chain over them. Use this to apply chain tweaks to already-rendered
+ * episodes for free.
+ */
+async function remasterPodcast(slug) {
+  const linesDir = path.join(OUTPUT_ROOT, slug, ".lines");
+  if (!existsSync(linesDir)) {
+    console.error(`[${slug}] no .lines/ cache — render first.`);
+    return "missing";
+  }
+  const cached = (await fs.readdir(linesDir))
+    .filter((f) => f.endsWith(".mp3"))
+    .sort()
+    .map((f) => path.join(linesDir, f));
+  if (cached.length === 0) {
+    console.error(`[${slug}] .lines/ is empty.`);
+    return "missing";
+  }
+  const output = path.join(OUTPUT_ROOT, slug, "ep01.mp3");
+  console.log(`[${slug}] remastering from ${cached.length} cached lines …`);
+  await concatAndMaster(cached, output);
+  const stat = await fs.stat(output);
+  console.log(`[${slug}] done (${Math.round(stat.size / 1024)} KB).`);
+  return "rendered";
 }
 
 // ---------- per-podcast render ----------
@@ -281,6 +333,7 @@ async function main() {
   const positional = args.filter((a) => !a.startsWith("--"));
   const dryRun = flags.has("--dry-run");
   const force = flags.has("--force");
+  const remaster = flags.has("--remaster");
 
   await loadEnvLocal();
   const apiKey = process.env.ELEVENLABS_API_KEY;
@@ -298,10 +351,31 @@ async function main() {
   } else if (positional.length > 0) {
     targets = positional;
   } else {
-    console.error("Usage: node render-podcast.mjs <slug> [--force] [--dry-run]");
-    console.error("       node render-podcast.mjs --all");
+    console.error("Usage: node render-podcast.mjs <slug> [--force] [--dry-run] [--remaster]");
+    console.error("       node render-podcast.mjs --all [--remaster]");
     console.error("       node render-podcast.mjs --list");
+    console.error();
+    console.error("--remaster   re-run the ffmpeg mastering chain on the cached .lines/");
+    console.error("             from a previous render. No ElevenLabs calls. Free.");
     process.exit(2);
+  }
+
+  // --remaster mode doesn't touch the API — just re-runs the chain on the
+  // already-rendered per-line MP3s.
+  if (remaster) {
+    const summary = { rendered: 0, missing: 0, failed: 0 };
+    for (const slug of targets) {
+      try {
+        const result = await remasterPodcast(slug);
+        summary[result] = (summary[result] ?? 0) + 1;
+      } catch (err) {
+        console.error(`[${slug}] remaster failed: ${err.message}`);
+        summary.failed++;
+      }
+    }
+    console.log();
+    console.log("Remaster summary:", summary);
+    return;
   }
 
   if (!apiKey && !dryRun) {
