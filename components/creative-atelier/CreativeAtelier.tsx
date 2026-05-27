@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 
 /**
@@ -38,6 +38,7 @@ export function CreativeAtelier() {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(102); // "01:42" starting point
   const [videoPlaying, setVideoPlaying] = useState<boolean>(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const activeTrack = useMemo(
     () => TRACKS.find((t) => t.id === activeId) ?? TRACKS[0]!,
@@ -68,7 +69,19 @@ export function CreativeAtelier() {
   };
 
   const handleTogglePlay = () => setIsPlaying((p) => !p);
-  const handleToggleVideo = () => setVideoPlaying((p) => !p);
+  const handleToggleVideo = () => {
+    setVideoPlaying((p) => {
+      const next = !p;
+      if (videoRef.current) {
+        if (next) {
+          videoRef.current.play().catch(() => {});
+        } else {
+          videoRef.current.pause();
+        }
+      }
+      return next;
+    });
+  };
 
   const handlePrev = () => {
     const idx = TRACKS.findIndex((t) => t.id === activeId);
@@ -140,13 +153,26 @@ export function CreativeAtelier() {
           <article className="rt-creative__panel rt-creative__panel--motion">
             <div className="rt-creative__panel-art">
               <div className="rt-creative__video">
-                <Image
-                  src="/assets/portraits/05-mid-shot.png"
-                  alt=""
-                  width={1440}
-                  height={1920}
-                  sizes="(max-width: 720px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                <video
+                  ref={videoRef}
+                  src="/assets/video/veo-evolution.mp4"
+                  playsInline
+                  muted
+                  loop
+                  preload="metadata"
+                  style={{
+                    display: videoPlaying ? "block" : "none",
+                  }}
                 />
+                {!videoPlaying && (
+                  <Image
+                    src="/assets/portraits/05-mid-shot.png"
+                    alt=""
+                    width={1440}
+                    height={1920}
+                    sizes="(max-width: 720px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
+                )}
                 <button
                   className={`rt-creative__play ${videoPlaying ? "is-playing" : ""}`}
                   aria-label={videoPlaying ? "pause Veo evolution reel" : "play Veo evolution reel"}

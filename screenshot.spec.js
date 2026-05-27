@@ -3,8 +3,8 @@ const fs = require('fs');
 const path = require('path');
 
 const URLS = {
-  home: 'http://localhost:3005',
-  game: 'http://localhost:3005/technical/agent-game'
+  home: 'http://localhost:3007',
+  game: 'http://localhost:3007/technical/agent-game'
 };
 
 const VIEWPORTS = [
