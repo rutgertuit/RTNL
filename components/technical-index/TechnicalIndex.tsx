@@ -58,17 +58,31 @@ const PROJECTS = [
   },
 ] as const;
 
+/**
+ * Only highlight redaction markers when they are actually present in
+ * the desc string. The previous version injected `[redacted family]`
+ * + `[redacted]` tags for any private project — even after the markers
+ * had been removed from the data — leading to spurious `[REDACTED]`
+ * labels appearing in projects that should just read as plain text.
+ */
 function renderDesc(desc: string, status: string) {
   if (status !== "private") return desc;
+  const hasFamilyMarker = desc.includes("[redacted family]");
+  const hasGenericMarker = desc.includes("[redacted]");
+  if (!hasFamilyMarker && !hasGenericMarker) return desc;
   const [a, restA] = desc.split("[redacted family]");
   const [b, restB] = (restA ?? "").split("[redacted]");
   return (
     <>
       {a}
-      <span className="rt-redact rt-redact--warm">[redacted family]</span>
+      {hasFamilyMarker && (
+        <span className="rt-redact rt-redact--warm">[redacted family]</span>
+      )}
       {b}
-      <span className="rt-redact">[redacted]</span>
-      {restB ?? "."}
+      {hasGenericMarker && (
+        <span className="rt-redact">[redacted]</span>
+      )}
+      {restB ?? ""}
     </>
   );
 }

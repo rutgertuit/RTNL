@@ -4272,7 +4272,10 @@ body { padding-top: 0; }
   text-transform: uppercase;
   max-width: var(--container-max);
   margin: 0 auto;
-  padding: var(--space-4) var(--container-gutter) 0;
+  /* Top padding clears the fixed nav (h=79px). Without this, the
+     breadcrumb sat at document top:0 and showed through the nav's
+     transparent background at the top-of-page state. */
+  padding: calc(79px + var(--space-4)) var(--container-gutter) 0;
 }
 .rt-breadcrumb ol {
   display: flex;
