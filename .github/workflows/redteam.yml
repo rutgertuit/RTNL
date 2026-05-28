@@ -1,0 +1,37 @@
+name: Weekly Red-Team Audit
+
+# Runs the red-team protocol against the site and files findings as a GitHub Issue.
+# Read-only against the repo: contents:read means it CANNOT push or deploy the site.
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays 06:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  red-team-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Ensure red-team label exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create red-team \
+            --color B60205 \
+            --description "Red-team audit findings" \
+            || true
+
+      - name: Run red-team audit
+        uses: anthropics/claude-code-action@v1
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: "Follow the instructions in docs/redteam/AGENT-RUNBOOK.md exactly. Audit this site and file the findings as a GitHub Issue. Do not edit any files or push to any branch."
+          claude_args: "--allowedTools Read,Glob,Grep,WebSearch,WebFetch,Bash --max-turns 50"
