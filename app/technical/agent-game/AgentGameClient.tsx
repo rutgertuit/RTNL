@@ -1290,9 +1290,12 @@ export default function AgentGameClient() {
                     onSelect={() => handleCardClick(cardId)}
                     onPlay={() => {
                       if (card.requiresTarget) {
-                        // Keep current selection so the target-hint shows on the
-                        // office floor; user clicks a desk to confirm target.
+                        // Keep the card selected and close the drawer so the
+                        // office floor (and its desks) is visible — otherwise
+                        // the drawer covers the desks the player must click to
+                        // assign the card to a character.
                         setSelectedCardId(cardId);
+                        setDrawer(null);
                       } else {
                         handlePlayNoTargetCard();
                       }
