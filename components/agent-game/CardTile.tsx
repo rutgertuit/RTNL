@@ -54,7 +54,7 @@ export function CardTile({
       onMouseLeave={onMouseLeave}
       onFocus={onFocus}
       onBlur={onBlur}
-      aria-label={`${card.name}, $${card.cost.toLocaleString()}. ${card.rulesText}`}
+      aria-label={`${card.name}, $${card.cost.toLocaleString("en-US")}. ${card.rulesText}`}
       aria-pressed={selected ? true : undefined}
     >
       <header className="sim-card__head">

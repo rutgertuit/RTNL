@@ -25,7 +25,7 @@ function formatCashCompact(n: number): string {
 
 function formatCash(n: number): string {
   const sign = n < 0 ? "-" : "";
-  return `${sign}$${Math.abs(n).toLocaleString()}`;
+  return `${sign}$${Math.abs(n).toLocaleString("en-US")}`;
 }
 
 function summariseCause(state: GameState): string {

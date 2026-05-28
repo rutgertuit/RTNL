@@ -649,7 +649,7 @@ export default function AgentGameClient() {
                 </>
               ) : null
             }
-            ariaLabel={`Available cash: $${state.cash.toLocaleString()}`}
+            ariaLabel={`Available cash: $${state.cash.toLocaleString("en-US")}`}
           />
           <HudTile
             icon={<Building size={28} />}
@@ -667,7 +667,7 @@ export default function AgentGameClient() {
                 </>
               ) : null
             }
-            ariaLabel={`Valuation: $${state.valuation.toLocaleString()}, goal ${winThresholdLabel}`}
+            ariaLabel={`Valuation: $${state.valuation.toLocaleString("en-US")}, goal ${winThresholdLabel}`}
           />
           <HudTile
             icon={<Chip size={28} />}
@@ -998,7 +998,7 @@ export default function AgentGameClient() {
                         opacity: disabled ? 0.45 : 1,
                         cursor: disabled ? "not-allowed" : "pointer",
                       }}
-                      aria-label={`Choose ${tier}: extra setup $${delta.toLocaleString()}, rent $${rentOf(tier).toLocaleString()}/turn, capacity ${capacityOf(tier)}`}
+                      aria-label={`Choose ${tier}: extra setup $${delta.toLocaleString("en-US")}, rent $${rentOf(tier).toLocaleString("en-US")}/turn, capacity ${capacityOf(tier)}`}
                     >
                       <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", textAlign: "left" }}>
                         <span className="sim-stat__value" style={{ color: "var(--color-fg-1)" }}>{label}</span>
@@ -1006,10 +1006,10 @@ export default function AgentGameClient() {
                           {tier === "home" ? "Default" : tier === "coworking" ? "Mid-tier" : "Top-tier"}
                         </span>
                         <div className="sim-mode__detail">
-                          Extra setup: <strong>{delta === 0 ? "$0 (already paid)" : `$${delta.toLocaleString()}`}</strong>
+                          Extra setup: <strong>{delta === 0 ? "$0 (already paid)" : `$${delta.toLocaleString("en-US")}`}</strong>
                         </div>
                         <div className="sim-mode__detail">
-                          Rent: <strong>${rentOf(tier).toLocaleString()}/turn</strong>
+                          Rent: <strong>${rentOf(tier).toLocaleString("en-US")}/turn</strong>
                         </div>
                         <div className="sim-mode__detail">
                           Capacity: <strong>{capacityOf(tier)} seats</strong>
@@ -1108,11 +1108,11 @@ export default function AgentGameClient() {
                   title={
                     state.upgradedOfficeThisTurn
                       ? "Already upgraded the office this turn."
-                      : `Upgrade office: ${state.officeTier} → ${target}. Cost: $${cost.toLocaleString()} (setup + first month's rent).`
+                      : `Upgrade office: ${state.officeTier} → ${target}. Cost: $${cost.toLocaleString("en-US")} (setup + first month's rent).`
                   }
                   icon={<Layers size={20} />}
                   label={state.upgradedOfficeThisTurn ? "✓ Office upgraded" : `Upgrade → ${target}`}
-                  cost={`$${(cost / 1000).toLocaleString()}k`}
+                  cost={`$${(cost / 1000).toLocaleString("en-US")}k`}
                 />
               );
             })()}
