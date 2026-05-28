@@ -180,7 +180,7 @@ export const createInitialState = (
       hasPDP: false,
       inspirationTurnsLeft: 0,
       isAsleep: false,
-      turnsOnboarded: 0,
+      turnsOnboarded: 6, // founding employee — starts fully onboarded like Edgar/Jochem
       pptPoisoningTurns: 0,
     },
   ];
@@ -201,7 +201,10 @@ export const createInitialState = (
     version: 1,
     seed,
     rngTick: 0,
-    nextEntityId: 1,
+    // Start past the hardcoded founder IDs (emp_1..emp_3) so hired workers /
+    // agents never collide with them. A collision produced duplicate React
+    // keys, which broke per-desk portrait rendering and onboarding display.
+    nextEntityId: STARTER_TEMPLATES.length + 1,
     difficulty,
     turn: 1,
     cash: startingCash,
