@@ -8,7 +8,7 @@ import { Breadcrumb } from "@/components/breadcrumb/Breadcrumb";
 
 const TITLE = "Contact";
 const DESCRIPTION =
-  "Get in touch with Rutger Tuit. Speaking, press, strategic engagements with Dutch CMOs and agency CEOs, or notes on what you're building.";
+  "Get in touch with Rutger Tuit — speaking, press, and conversations about media, AI, and creative strategy.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -57,9 +57,10 @@ export default function ContactPage() {
           <div className="rt-contact__intro">
             <p className="rt-contact__lead">
               I read every message that comes through here personally. Useful channels: speaking
-              engagements and keynotes, press and interview requests, strategic engagements with
-              Dutch-market CMOs and agency CEOs, the occasional collaborator who wants to compare
-              notes on the homelab or one of the experiments.
+              engagements and keynotes, press and interview requests, conversations about media, AI,
+              and creative strategy, the occasional collaborator who wants to compare notes on the
+              homelab or one of the experiments. This isn&apos;t a private advisory service — just
+              an open line.
             </p>
             <p className="rt-contact__lead">
               Less useful here: vendor pitches, cold sales, requests for free advice on private

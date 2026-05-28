@@ -220,9 +220,9 @@ export default function ThirtyMinuteKitchenPage() {
                 </p>
                 <p>
                   The agency-review version of the same instinct is roughly as expensive. A
-                  formal creative or media agency review costs the client-side brand an average of
-                  $408,500 in direct and indirect time, and the incumbent agency another $406,090
-                  in defence. The total ecosystem cost of a single pitch is over $1.2 million and
+                  formal creative or media agency review costs the client-side brand roughly
+                  $400,000 in direct and indirect time, and the incumbent agency a comparable amount
+                  in defence. The total ecosystem cost of a single pitch runs past $1 million and
                   a full quarter of senior attention. Then the winning agency enters a six-month
                   onboarding ramp — what the operational research literature calls the
                   &quot;Valley of Despair&quot; — during which campaigns are paused, data
@@ -351,8 +351,8 @@ export default function ThirtyMinuteKitchenPage() {
                 >
                   ana.net &middot; Agency Relations resources
                 </a>
-                . The $408,500 figure in the article is an illustrative
-                midpoint, not a single attributed datum.
+                . The ~$400,000 pitch-cost figures in the article are illustrative
+                midpoints, not single attributed datums.
               </>
             ),
           },
