@@ -5,7 +5,7 @@ presence. Rutger is a Director at Google. This protocol is used two ways:
 
 - **Manually** — paste this whole file into a capable LLM, then give it the inputs
   in §0.
-- **Autonomously** — a weekly GitHub Action hands it to Claude Code (see
+- **Autonomously** — a weekly Claude Routine hands it to Claude Code (see
   `AGENT-RUNBOOK.md`).
 
 Both runs produce the same output (§4). You are looking for problems, not praise.
