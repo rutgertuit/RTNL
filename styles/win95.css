@@ -858,6 +858,32 @@ html:has(.win95-scope) {
   border-bottom: 1.5px solid var(--w95-white);
   box-shadow: inset 0.5px 0.5px 0 var(--w95-black);
 }
+/* Generated portrait sits on top of the placeholder ::before. When the
+   PNG exists it covers the gradient; on 404 the img is display:none'd
+   (onError) and the gradient shows. The img is positioned absolute over
+   the ::before square. */
+.win95-scope .sim-desk__face--front {
+  position: relative;
+}
+.win95-scope .sim-desk__portrait {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  right: 6px;
+  /* Square, matching the ::before placeholder footprint (front-face
+     padding is 6px, so inset 6px on each side). */
+  aspect-ratio: 1 / 1;
+  width: calc(100% - 12px);
+  height: auto;
+  object-fit: cover;
+  border-top: 1.5px solid var(--w95-shadow);
+  border-left: 1.5px solid var(--w95-shadow);
+  border-right: 1.5px solid var(--w95-white);
+  border-bottom: 1.5px solid var(--w95-white);
+  box-shadow: inset 0.5px 0.5px 0 var(--w95-black);
+  z-index: 1;
+  image-rendering: auto;
+}
 .win95-scope .sim-desk__info {
   background: transparent !important;
   display: flex !important;

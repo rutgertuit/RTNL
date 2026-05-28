@@ -9,9 +9,11 @@ interface Win95TaskbarProps {
   difficulty: string;
   chaosActive: boolean;
   onHelp: () => void;
+  soundOn: boolean;
+  onToggleSound: () => void;
 }
 
-export function Win95Taskbar({ turn, cashLabel, difficulty, chaosActive, onHelp }: Win95TaskbarProps) {
+export function Win95Taskbar({ turn, cashLabel, difficulty, chaosActive, onHelp, soundOn, onToggleSound }: Win95TaskbarProps) {
   const [time, setTime] = useState("");
   const [startOpen, setStartOpen] = useState(false);
 
@@ -121,6 +123,17 @@ export function Win95Taskbar({ turn, cashLabel, difficulty, chaosActive, onHelp 
         </div>
 
         <div className="win95-taskbar__tray">
+          <button
+            type="button"
+            className="win95-button"
+            onClick={onToggleSound}
+            aria-pressed={soundOn}
+            aria-label={soundOn ? "Mute sound" : "Enable sound"}
+            title={soundOn ? "Sound on — click to mute" : "Sound off — click to enable"}
+            style={{ minHeight: 18, padding: "0 6px", fontSize: 12, lineHeight: 1 }}
+          >
+            {soundOn ? "🔊" : "🔇"}
+          </button>
           <span className="win95-badge win95-badge--cash">{cashLabel}</span>
           <span className="win95-badge">{difficulty}</span>
           <span style={{ minWidth: 56, textAlign: "right", fontFamily: "'Lucida Console', Consolas, monospace" }}>{time}</span>

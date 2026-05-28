@@ -35,6 +35,7 @@ import { Edgar } from "@/components/agent-game/Edgar";
 import { EndCard } from "@/components/agent-game/EndCard";
 import { ChaosDialog } from "@/components/agent-game/ChaosDialog";
 import { Win95Taskbar } from "@/components/agent-game/Win95Taskbar";
+import { useSimSounds } from "@/components/agent-game/useSimSounds";
 import {
   Cash,
   Building,
@@ -201,6 +202,10 @@ export default function AgentGameClient() {
   // Sub-step 4: help modal open state (separate from showTutorial which is the full tutorial)
   const [helpOpen, setHelpOpen] = useState(false);
 
+  // Sound manager — sfx + character voices. Muted by default; player
+  // opts in via the taskbar speaker toggle.
+  const { enabled: soundOn, toggle: toggleSound, playSfx, playVoice } = useSimSounds();
+
   const logContainerRef = useRef<HTMLDivElement | null>(null);
   const cardElementsRef = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -270,6 +275,14 @@ export default function AgentGameClient() {
       logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
     }
   }, [state.eventLog]);
+
+  // 3b. Win / lose sting when the game ends. gameResult flips once at
+  // the END_TURN that ends the run; this fires the matching sfx.
+  useEffect(() => {
+    if (!state.isGameOver) return;
+    if (state.gameResult === "win") playSfx("game-win");
+    else if (state.gameResult === "lose") playSfx("game-lose");
+  }, [state.isGameOver, state.gameResult, playSfx]);
 
   // 4. Keyboard Listener for Ctrl + Enter and Escape (closes trait popovers)
   useEffect(() => {
@@ -399,6 +412,7 @@ export default function AgentGameClient() {
   const handlePlayNoTargetCard = () => {
     if (!selectedCardId || state.activeEventId || state.draftChoices) return;
     dispatch({ type: "PLAY_CARD", cardId: selectedCardId });
+    playSfx("card-play");
     setSelectedCardId(null);
   };
 
@@ -409,6 +423,7 @@ export default function AgentGameClient() {
       const card = CARD_DATABASE[selectedCardId];
       if (card && card.requiresTarget) {
         dispatch({ type: "PLAY_CARD", cardId: selectedCardId, targetEmployeeId: employeeId });
+        playSfx("card-play");
         setSelectedCardId(null);
       }
     }
@@ -417,26 +432,31 @@ export default function AgentGameClient() {
   const handlePromoteWorker = (employeeId: string) => {
     if (state.isGameOver || state.activeEventId || state.draftChoices) return;
     dispatch({ type: "PROMOTE_WORKER", employeeId });
+    playSfx("ui-click");
   };
 
   const handleHireWorker = () => {
     if (state.activeEventId || state.draftChoices) return;
     dispatch({ type: "EMPLOY_WORKER" });
+    playSfx("ui-click");
   };
 
   const handleHireAgent = () => {
     if (state.activeEventId || state.draftChoices) return;
     dispatch({ type: "EMPLOY_AGENT" });
+    playSfx("ui-click");
   };
 
   const handleRedefineOkrs = () => {
     if (state.activeEventId || state.draftChoices) return;
     dispatch({ type: "REDEFINE_OKRS" });
+    playSfx("ui-click");
   };
 
   const handleEndTurn = () => {
     if (state.activeEventId || state.draftChoices) return;
     dispatch({ type: "END_TURN" });
+    playSfx("turn-end");
     setSelectedCardId(null);
   };
 
@@ -779,6 +799,26 @@ export default function AgentGameClient() {
                             <span className="sim-desk__badge sim-desk__badge--critical" title="Token hallucination — needs Markdown Wiki">⚠</span>
                           )}
                         </div>
+                        {/* Win95 portrait — loads /agent-game/portraits/<traitId>.png
+                            when one exists for this character. On 404 (most
+                            traits don't have a render yet) the onError handler
+                            hides the img so the CSS gradient placeholder on
+                            .sim-desk__face--front::before shows through. The
+                            legacy EmployeeAvatar / agent SVG are kept in the
+                            DOM but hidden by win95.css — they remain the
+                            non-Win95 fallback. */}
+                        {emp.traitId && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            className="sim-desk__portrait"
+                            src={`/agent-game/portraits/${emp.traitId}.png`}
+                            alt={`${displayName} — generated portrait`}
+                            loading="lazy"
+                            onError={(e) => {
+                              (e.currentTarget as HTMLImageElement).style.display = "none";
+                            }}
+                          />
+                        )}
                         {isAgent ? (
                           <svg className="sim-desk__character" viewBox="0 0 60 70" aria-hidden>
                             <rect x="14" y="14" width="32" height="40" rx="3" fill="currentColor" />
@@ -818,10 +858,14 @@ export default function AgentGameClient() {
                                 aria-expanded={!!traitPopoverOpen[emp.id]}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setTraitPopoverOpen((prev) => ({
-                                    ...prev,
-                                    [emp.id]: !prev[emp.id],
-                                  }));
+                                  setTraitPopoverOpen((prev) => {
+                                    const willOpen = !prev[emp.id];
+                                    // Play the character's voice line when
+                                    // flipping the card open (not on close).
+                                    if (willOpen && emp.traitId) playVoice(emp.traitId);
+                                    else playSfx("ui-click");
+                                    return { ...prev, [emp.id]: willOpen };
+                                  });
                                 }}
                               >i</button>
                             )}
@@ -1366,8 +1410,8 @@ export default function AgentGameClient() {
             cards={state.draftChoices
               .map((id) => CARD_DATABASE[id])
               .filter((c): c is NonNullable<typeof c> => Boolean(c))}
-            onPull={(cardId) => dispatch({ type: "DRAFT_CARD", cardId })}
-            onSkip={() => dispatch({ type: "SKIP_DRAFT" })}
+            onPull={(cardId) => { dispatch({ type: "DRAFT_CARD", cardId }); playSfx("card-draw"); }}
+            onSkip={() => { dispatch({ type: "SKIP_DRAFT" }); playSfx("ui-click"); }}
             pullHoverProps={(cardId) => withHover(hover, { type: "DRAFT_CARD", cardId })}
           />
         )}
@@ -1547,6 +1591,8 @@ export default function AgentGameClient() {
         difficulty={state.difficulty.toUpperCase()}
         chaosActive={!!state.activeChaosEvent}
         onHelp={() => setHelpOpen(true)}
+        soundOn={soundOn}
+        onToggleSound={toggleSound}
       />
 
       {/* Win95 chaos modal — fires when the engine rolled an event this turn */}
