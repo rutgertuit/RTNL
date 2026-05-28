@@ -228,7 +228,9 @@ export default function AgentInclusivePage() {
                   Markdown is now the format your future agentic teammates will read most
                   efficiently — 68 to 87% fewer tokens than the equivalent HTML, 20 to 30% lower
                   inference cost in retrieval-augmented pipelines, and roughly 35% higher
-                  retrieval accuracy in the RAG benchmarks. The human reason is that the
+                  retrieval accuracy in the RAG benchmarks (measured in my own homelab setup;
+                  directionally consistent with public engineering literature but not a
+                  peer-reviewed result). The human reason is that the
                   discipline of writing Markdown forces you to strip away visual decoration and
                   state what you actually mean.
                 </p>

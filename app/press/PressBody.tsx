@@ -12,7 +12,7 @@ export interface PressItem {
   publication: string;
   date: string;
   description: string;
-  url: string;
+  url?: string;
 }
 
 export interface PullQuote {
@@ -59,10 +59,14 @@ function Section({
                 <span className="rt-press__item-date">{item.date}</span>
               </div>
               <h3 className="rt-press__item-title">
-                <a href={item.url} target="_blank" rel="noopener noreferrer">
-                  {item.title}{" "}
-                  <span className="rt-press__item-arrow" aria-hidden>↗</span>
-                </a>
+                {item.url ? (
+                  <a href={item.url} target="_blank" rel="noopener noreferrer">
+                    {item.title}{" "}
+                    <span className="rt-press__item-arrow" aria-hidden>↗</span>
+                  </a>
+                ) : (
+                  item.title
+                )}
               </h3>
               <p className="rt-press__item-desc">{item.description}</p>
             </div>

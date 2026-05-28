@@ -156,7 +156,6 @@ const VIDEO: PressItem[] = [
     date: "July 2024",
     description:
       "Video discussion on 20 years of YouTube, covering what works and what doesn't in YouTube marketing and advertising.",
-    url: "https://m.youtube.com/@GoogleAdsNordics/about",
   },
 ];
 

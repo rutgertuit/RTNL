@@ -33,7 +33,7 @@ const FRAMEWORKS: CreditItem[] = [
 
 const MODELS: CreditItem[] = [
   { name: "Google Gemini", href: "https://ai.google.dev", note: "Gemini 3.5 Flash powers the Prompt Scribe exhibit and the in-game chaos engine." },
-  { name: "Nano Banana / Imagen", href: "https://ai.google.dev/gemini-api/docs/image-generation", note: "Image generation for the article illustrations + portrait sets." },
+  { name: "Nano Banana 2 / Imagen", href: "https://ai.google.dev/gemini-api/docs/image-generation", note: "Image generation for the article illustrations + portrait sets." },
   { name: "Veo 2, Veo 3, Veo 3.1, Omni", href: "https://deepmind.google/technologies/veo/", note: "Every clip in the video-models article. Subject of its own piece." },
   { name: "NotebookLM", href: "https://notebooklm.google.com", note: "Featured in the Interactivity article; the audio-overview pattern inspired the podcast format." },
   { name: "ElevenLabs", href: "https://elevenlabs.io", note: "Every synthetic voice on this site is from ElevenLabs Voice Design + their TTS API." },
