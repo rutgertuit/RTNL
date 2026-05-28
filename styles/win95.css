@@ -1390,6 +1390,93 @@ html:has(.win95-scope) {
   text-shadow: none !important;
 }
 
+/* CardTile (.sim-card) — the live hand-card component. The dark-theme
+   base in components.css gives these an aspect-ratio:3/4 (too tall) and
+   light-on-dark text that clashes inside the Win95 white drawer. Re-skin
+   to a compact Win95 tile with dark text and an inset art well. */
+.win95-scope .sim-cards-grid {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+  gap: 8px !important;
+}
+.win95-scope .sim-card {
+  background-color: var(--w95-gray) !important;
+  background-image: none !important;
+  border-top: 1.5px solid var(--w95-white) !important;
+  border-left: 1.5px solid var(--w95-white) !important;
+  border-right: 1.5px solid var(--w95-shadow) !important;
+  border-bottom: 1.5px solid var(--w95-shadow) !important;
+  box-shadow: inset 0.5px 0.5px 0 var(--w95-white), inset -0.5px -0.5px 0 var(--w95-black), 2px 2px 0 rgba(0, 0, 0, 0.35) !important;
+  color: var(--w95-text) !important;
+  border-radius: 0 !important;
+  /* Kill the 3/4 aspect ratio that made cards huge; size to content. */
+  aspect-ratio: auto !important;
+  min-height: 0 !important;
+  padding: 6px !important;
+  gap: 4px !important;
+}
+.win95-scope .sim-card,
+.win95-scope .sim-card * {
+  color: var(--w95-text) !important;
+  text-shadow: none !important;
+}
+.win95-scope .sim-card.is-selected {
+  outline: 2px dotted var(--w95-black) !important;
+  outline-offset: -4px;
+}
+.win95-scope .sim-card__name {
+  font-family: var(--w95-font, "MS Sans Serif", Tahoma, sans-serif) !important;
+  font-size: 12px !important;
+  font-weight: bold !important;
+  line-height: 1.2 !important;
+}
+.win95-scope .sim-card__cost {
+  font-size: 11px !important;
+  letter-spacing: 0 !important;
+}
+.win95-scope .sim-card__rules {
+  font-size: 11px !important;
+  line-height: 1.3 !important;
+}
+.win95-scope .sim-card__flavor {
+  font-size: 10px !important;
+  line-height: 1.3 !important;
+}
+/* Inset "image" well for the card art SVG. */
+.win95-scope .sim-card__art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  background-color: var(--w95-white) !important;
+  border-top: 1.5px solid var(--w95-shadow) !important;
+  border-left: 1.5px solid var(--w95-shadow) !important;
+  border-right: 1.5px solid var(--w95-white) !important;
+  border-bottom: 1.5px solid var(--w95-white) !important;
+}
+.win95-scope .sim-card__art svg {
+  width: 30px;
+  height: 30px;
+  color: var(--w95-black) !important;
+}
+/* Play button → Win95 push button. */
+.win95-scope .sim-card__play {
+  background-color: var(--w95-gray) !important;
+  color: var(--w95-text) !important;
+  border-top: 1.5px solid var(--w95-white) !important;
+  border-left: 1.5px solid var(--w95-white) !important;
+  border-right: 1.5px solid var(--w95-shadow) !important;
+  border-bottom: 1.5px solid var(--w95-shadow) !important;
+  border-radius: 0 !important;
+  font-size: 11px !important;
+  padding: 3px 8px !important;
+}
+.win95-scope .sim-card__play:active {
+  border-top: 1.5px solid var(--w95-shadow) !important;
+  border-left: 1.5px solid var(--w95-shadow) !important;
+  border-right: 1.5px solid var(--w95-white) !important;
+  border-bottom: 1.5px solid var(--w95-white) !important;
+}
+
 /* Log + drawers */
 .win95-scope .sim-fs__drawer-tabs {
   background-color: var(--w95-gray) !important;

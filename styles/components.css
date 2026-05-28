@@ -4917,6 +4917,8 @@ body { padding-top: 0; }
 .sim-card__cost { font-family: var(--font-mono); font-size: var(--fs-50); color: var(--color-fg-3); letter-spacing: var(--tracking-eyebrow); }
 .sim-card__rules { font-family: var(--font-body, var(--font-sans)); font-size: var(--fs-100); color: var(--color-fg-1); margin: 0; }
 .sim-card__flavor { font-family: var(--font-display); font-style: italic; font-size: var(--fs-50); color: var(--color-fg-2); margin: 0; margin-top: auto; }
+.sim-card__art { display: flex; align-items: center; justify-content: center; height: 48px; color: var(--color-accent-warm); }
+.sim-card__art svg { width: 36px; height: 36px; }
 .sim-card__play {
   background: var(--color-accent-warm);
   color: var(--color-bg-base);

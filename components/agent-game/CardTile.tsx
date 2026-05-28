@@ -2,6 +2,7 @@
 
 import type { FocusEventHandler, MouseEventHandler } from "react";
 import type { Card } from "@/app/technical/agent-game/cards";
+import { renderCardArt } from "@/app/technical/agent-game/cards";
 
 interface CardTileProps {
   card: Card;
@@ -60,6 +61,7 @@ export function CardTile({
         <h3 className="sim-card__name">{card.name}</h3>
         <span className="sim-card__cost">${(card.cost / 1000).toFixed(card.cost % 1000 === 0 ? 0 : 1)}k</span>
       </header>
+      <div className="sim-card__art" aria-hidden>{renderCardArt(card.id)}</div>
       <p className="sim-card__rules">{card.rulesText}</p>
       <p className="sim-card__flavor">{card.flavor}</p>
       {selected && !disabled && (
