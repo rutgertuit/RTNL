@@ -253,6 +253,10 @@ export function gameReducer(state: GameState, action: Action): GameState {
     action.type !== "CHOOSE_EVENT_OPTION" &&
     action.type !== "DRAFT_CARD" &&
     action.type !== "SKIP_DRAFT" &&
+    // A chaos event can be active alongside a pending draft (both resolve at
+    // END_TURN). Without this exception the chaos modal's dismiss is swallowed
+    // and the window can't be closed.
+    action.type !== "DISMISS_CHAOS_EVENT" &&
     action.type !== "RESET_GAME" &&
     action.type !== "LOAD_STATE"
   ) {
