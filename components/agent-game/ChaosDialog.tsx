@@ -18,7 +18,7 @@ const CATEGORY_LABEL: Record<ChaosLog["cat"], string> = {
 const formatSigned = (n: number, prefix = ""): string => {
   if (n === 0) return `${prefix}0`;
   const sign = n > 0 ? "+" : "-";
-  return `${sign}${prefix}${Math.abs(n).toLocaleString()}`;
+  return `${sign}${prefix}${Math.abs(n).toLocaleString("en-US")}`;
 };
 
 export function ChaosDialog({ event, onDismiss }: ChaosDialogProps) {
