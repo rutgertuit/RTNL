@@ -1,5 +1,8 @@
 "use server";
 
+import { headers } from "next/headers";
+import { rateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
+
 /**
  * Server Action for the /contact form. Validates inputs, drops bot
  * submissions via honeypot, then ships the message via Resend's REST
@@ -40,6 +43,16 @@ export async function sendContactMessage(formData: FormData): Promise<ContactRes
   const honeypot = (formData.get("hp_field") ?? "").toString().trim();
   if (honeypot) {
     return { ok: true };
+  }
+
+  // Per-IP throttle so a bot that slips past the honeypot can't drain the
+  // Resend quota. 5 sends per 15-minute window per IP.
+  const ip = clientIpFromHeaders(await headers());
+  if (!rateLimit(`contact:${ip}`, 5, 15 * 60_000).ok) {
+    return {
+      ok: false,
+      error: "You've sent a few messages already — give it a few minutes before trying again.",
+    };
   }
 
   const name = (formData.get("name") ?? "").toString().trim().slice(0, MAX_NAME);

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { rateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
 
 /**
  * Server-side proxy to the Gemini API. Ported from C:/Flowcode/DML's
@@ -25,6 +26,17 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
+  // Per-IP throttle before any cost-incurring work — this route proxies the
+  // paid Gemini API, so an unthrottled public endpoint is a financial risk.
+  const ip = clientIpFromHeaders(request.headers);
+  const limit = rateLimit(`gemini:${ip}`, 20, 60_000);
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "Too many requests. Please slow down and try again shortly." },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfterSec) } },
+    );
+  }
+
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
