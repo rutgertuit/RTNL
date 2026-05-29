@@ -51,6 +51,11 @@ export function Footer() {
             commentary on industry trends, or speaker bios on this site reflect only my
             individual perspective.
           </p>
+          <p className="rt-footer__egg">
+            <Link href="/the-panel">
+              &dagger; there is a tape of the guests discussing all of this.
+            </Link>
+          </p>
         </div>
       </div>
     </footer>

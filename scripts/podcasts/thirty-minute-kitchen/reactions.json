@@ -1,0 +1,9 @@
+{
+  "_note": "EXPERIMENTAL overlap layer (prototype). Reactions are mixed OVER the dialogue base via overlay-reactions.mjs. Placement is time-based (atSec) snapped to the nearest detected hand-off gap; tune atSec/leadMs/gain by ear. leadMs = how far before the gap the reaction starts (the actual overlap into the prior line).",
+  "reactions": [
+    { "speaker": "RUTGER", "text": "Mm.",    "atSec": 60,  "leadMs": 250, "gain": 0.34 },
+    { "speaker": "RUTGER", "text": "Mm-hm.", "atSec": 105, "leadMs": 250, "gain": 0.34 },
+    { "speaker": "RUTGER", "text": "Right.", "atSec": 250, "leadMs": 250, "gain": 0.32 },
+    { "speaker": "RUTGER", "text": "Hm.",    "atSec": 365, "leadMs": 250, "gain": 0.32 }
+  ]
+}

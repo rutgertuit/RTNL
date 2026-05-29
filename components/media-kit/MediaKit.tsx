@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { PodcastTab } from "@/components/podcast-player/PodcastTab";
 
 type BioKey = "short" | "medium" | "long";
 
@@ -142,27 +141,6 @@ export function MediaKit() {
             {copied ? `${copied.charAt(0).toUpperCase() + copied.slice(1)} bio copied to clipboard` : ""}
           </span>
           <p className={`rt-mk__bio rt-mk__bio--${bio}`}>{BIOS[bio]}</p>
-          <PodcastTab
-            src="/audio/podcasts/about-rutger/ep01.mp3"
-            title="The file on Rutger — a panel, no host."
-            eyebrow="EP 06 · ~6 MIN · GUESTS ONLY · SYNTHETIC AI VOICES"
-            subtitle="Five invented guests go through the press clippings, the bio, and this website — while the subject is out of the room. Voices are synthetic; no real person was cloned."
-            duration="5:48"
-            tabLabel="LISTEN · 5:48"
-          >
-            <h3 className="rt-podcast-tab__essay-title">How this was made</h3>
-            <p>
-              Every voice here is a character from elsewhere on this site &mdash; Frits and the
-              Oracle from the Snoek &amp; Partners game, the creative Dinosaur, Angela from the
-              Agent Inclusive sim, and Marie. They were each given the same folder &mdash; the
-              press page, the three bios, the articles and the games &mdash; and asked to react,
-              with the host deliberately left out of the room.
-            </p>
-            <p>
-              Generated with ElevenLabs&rsquo; multi-speaker dialogue model, then mastered. Like
-              everything else here: prompted, then chosen.
-            </p>
-          </PodcastTab>
         </div>
 
         {/* Photos */}
