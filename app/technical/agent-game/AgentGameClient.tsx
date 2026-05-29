@@ -1433,7 +1433,7 @@ export default function AgentGameClient() {
         {/* Difficulty Selector Modal */}
         {showDifficultySelector && (
           <div className="sim-mode" role="dialog" aria-modal="true" aria-labelledby="mode-title">
-            <div>
+            <div className="sim-mode__window">
               <h1 id="mode-title" className="sim-mode__heading">Choose your cognitive reality</h1>
               <div className="sim-mode__grid">
                 {(
