@@ -57,9 +57,9 @@ const EXTERNAL_REPOS: CreditItem[] = [
     note: "The Python Gemini SDK used in render-clip.py and the Win95 portrait generator.",
   },
   {
-    name: "google-gemini/generative-ai-js",
-    href: "https://github.com/google-gemini/generative-ai-js",
-    note: "JS SDK conventions for the /api/gemini server route powering the Prompt Scribe exhibit.",
+    name: "googleapis/js-genai (@google/genai)",
+    href: "https://github.com/googleapis/js-genai",
+    note: "JS SDK conventions for the /api/gemini server route powering the Prompt Scribe exhibit. Replaces the now-deprecated google-gemini/generative-ai-js.",
   },
   {
     name: "vercel/next.js",

@@ -40,7 +40,7 @@ export default function AgentInclusivePage() {
       <PodcastTab
         src="/audio/podcasts/agent-inclusive/ep01.mp3"
         title="Agent Inclusive — with Angela."
-        eyebrow="EP 04 · ~6 MIN · SYNTHETIC AI VOICES"
+        eyebrow="~6 MIN · SYNTHETIC AI VOICES"
         subtitle="Angela Perkel, German HR director, has four questions about the title. She does not love it. Voices are synthetic; no real person was cloned."
         duration="6:00"
         tabLabel="LISTEN · 6:00"

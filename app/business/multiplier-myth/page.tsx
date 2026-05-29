@@ -39,7 +39,7 @@ export default function MultiplierMythPage() {
       <PodcastTab
         src="/audio/multiplier-myth-ep02.mp3"
         title="The Multiplier Myth — a conversation."
-        eyebrow="EP 02 · 5:30 LISTEN · SYNTHETIC AI VOICES"
+        eyebrow="5:30 · LISTEN · SYNTHETIC AI VOICES"
         subtitle="With Maya, who is allergic to corporate spirituality. Voices are synthetic; no real person was cloned."
         duration="5:30"
         tabLabel="LISTEN · 5:30"
@@ -53,9 +53,10 @@ export default function MultiplierMythPage() {
         </p>
         <p>
           Maya&apos;s prompt was the interesting one: I fed the model a
-          four-thousand-word sociolinguistic analysis of West-Frisian humour
-          (<em>relativeren</em>, antonymic deadpan, the regional aversion
-          to <em>verbeelding</em>) and told it her job was to deflate me
+          four-thousand-word sociolinguistic analysis of Dutch humour
+          (<em>relativeren</em>, antonymic deadpan, the Calvinist aversion
+          to <em>verbeelding</em> &mdash; <em>doe maar gewoon, dan doe je al
+          gek genoeg</em>) and told it her job was to deflate me
           whenever I drift toward manifesto. The voices are synthetic
           ElevenLabs voices &mdash; fixed random seed per speaker so
           consecutive lines don&apos;t drift accent. Both Maya and the
@@ -221,10 +222,13 @@ export default function MultiplierMythPage() {
                   <em>up</em>, from roughly 500,000 to nearly 600,000. The ATM did not kill the
                   teller. It collapsed the unit cost of branch operations, and the winners used
                   that compression to expand the surface area of their business.
+                  (One honest caveat: teller headcount began a slow decline through the
+                  2010s as branches consolidated &mdash; the parable describes the ATM era,
+                  not a permanent verdict.)
                 </p>
                 <p>
                   <strong>The spreadsheet was supposed to eliminate bookkeepers.</strong> It did —
-                  about 900,000 fewer routine clerical roles between 1990 and 2015. But during the
+                  several hundred thousand fewer routine clerical roles between 1990 and 2015. But during the
                   same window, financial managers, analysts, and accountants who used the same tool
                   to do something <em>larger</em> grew at roughly 3% annually. The spreadsheet did
                   not shrink the financial industry. It expanded what counted as financial work,
@@ -251,10 +255,11 @@ export default function MultiplierMythPage() {
                   the 0–3% range. The savings story largely doesn&apos;t show up.
                 </p>
                 <p>
-                  The risk story, on the other hand, does show up. Air Canada was ordered to pay
-                  damages after its customer-service chatbot invented a bereavement refund policy
-                  that didn&apos;t exist. DPD pulled its chatbot offline when screenshots of it
-                  swearing at a customer reached 1.3 million viewers. The Commonwealth Bank of
+                  The risk story, on the other hand, does show up. A tribunal found Air Canada
+                  liable for negligent misrepresentation after its customer-service chatbot
+                  invented a retroactive bereavement-refund path that its actual policy
+                  didn&apos;t offer. DPD disabled the AI part of its chatbot when screenshots of
+                  it swearing at a customer reached over a million views. The Commonwealth Bank of
                   Australia reversed 45 customer-service layoffs because the automation was
                   producing systemic operational failures. The pattern is unambiguous: pure
                   cost-cutting AI deployments produce small savings, big tail risks, and zero
@@ -352,8 +357,8 @@ export default function MultiplierMythPage() {
                 >
                   pwc.com/gx · 2026 AI Performance Study (press release)
                 </a>
-                . Methodology described inside; cohort study of 6,000+
-                organisations.
+                . Methodology described inside; survey of 1,217 senior
+                executives across 25 sectors.
               </>
             ),
           },

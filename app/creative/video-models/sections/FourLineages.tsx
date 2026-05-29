@@ -62,14 +62,14 @@ const LINEAGES: Lineage[] = [
   },
   {
     id: "genie",
-    eyebrow: "INTERACTIVE WORLDS · AUTOREGRESSIVE FRAME PREDICTION · MAR 2024 → MAY 2026",
+    eyebrow: "INTERACTIVE WORLDS · AUTOREGRESSIVE FRAME PREDICTION · FEB 2024 → MAY 2026",
     name: "Genie · 3 generations + Project Genie",
     honestTradeoff:
       "Real-time interactive 3D worlds from a single prompt. Significant input latency. 60-second session ceiling. The most ambitious of the four, and currently the roughest in practice.",
     pickFor:
       "Rapid-prototyping a game environment before any engine work. AI agent training environments. Spatial reasoning research. Generating a \"what does this place feel like to walk through\" mood-board for an architectural or product concept. Not for shipping a playable game (yet).",
     evolution: [
-      { version: "Genie (1)", date: "Mar 2024", adds: "2D interactive environments from text/image" },
+      { version: "Genie (1)", date: "Feb 2024", adds: "2D interactive environments from text/image" },
       { version: "Genie 2", date: "Dec 2024", adds: "3D environments, first-person navigation" },
       { version: "Genie 3", date: "Aug 2025", adds: "720p @ 24fps, world memory for cross-session consistency" },
       { version: "Project Genie", date: "Jan 2026", adds: "Public access via Google AI Ultra" },

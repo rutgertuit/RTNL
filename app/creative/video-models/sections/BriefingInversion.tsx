@@ -56,7 +56,7 @@ const STOPS: Stop[] = [
     clips: [
       { slug: "veo2-moog-260w", label: "VEO 2 · DEC 2024 · 260 WORDS", hasAudio: false },
     ],
-    brief: `A medium-shot, eye-level cinematic video. A bald man in his early forties — full beard, light stubble at the jawline, dark slate-grey hoodie under a heavier black overshirt — is seated at a vintage analog synthesizer in a converted Rotterdam warehouse studio. The synth is a Moog Voyager, brass keys, two-handed posture, his right hand on the keys at mid-keyboard, his left hand adjusting the cutoff knob in the upper-left corner of the panel.
+    brief: `A medium-shot, eye-level cinematic video. A bald man in his early forties — full beard, light stubble at the jawline, dark slate-grey hoodie under a heavier black overshirt — is seated at a vintage analog synthesizer in a converted Rotterdam warehouse studio. The synth is a Moog Voyager, wood side-panels, two-handed posture, his right hand on the keys at mid-keyboard, his left hand adjusting the cutoff knob in the upper-left corner of the panel.
 
 Soft, even key light from camera-left at roughly 3200K. A cooler 4500K rim light from camera-right, separating him from the dark concrete wall behind. Visible dust particles in the shafts of light. Camera: 35mm lens, slight push-in at 5% over the eight-second duration. The subject is fully concentrated; he does not look at the camera. He plays three or four chords across the eight seconds. His hand on the cutoff knob moves once, slowly, mid-clip.
 
