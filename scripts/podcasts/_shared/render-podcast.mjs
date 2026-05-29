@@ -17,18 +17,31 @@
  *     speaker label belongs to the previous speaker. Blank lines are
  *     fine. Lines starting with `#` or `//` are comments and skipped.
  *
- *   - voices.json — keys are speaker labels (uppercase), values:
+ *   - voices.json — keys are speaker labels (uppercase), values carry the
+ *     voiceId (the per-speaker settings from the old per-line path are kept
+ *     for reference but the dialogue endpoint takes settings top-level):
  *
  *         {
- *           "RUTGER":  { "voiceId": "...", "model": "eleven_v3",
- *                        "stability": 0.5, "similarity": 0.85 },
- *           "FRITS":   { "voiceId": "...", ... }
+ *           "RUTGER":  { "voiceId": "..." },
+ *           "FRITS":   { "voiceId": "..." },
+ *           "_dialogue": { "stability": 0.5, "seed": 12345 }   // optional
  *         }
  *
- * Renders each line with the matching voice via ElevenLabs REST,
- * ffmpeg-concatenates the per-line MP3s into one track, and writes to:
+ *     The optional "_dialogue" key sets the episode-wide v3 stability
+ *     (0.0 Creative / 0.5 Natural / 1.0 Robust) and seed. Defaults:
+ *     stability 0.5, seed derived deterministically from the slug.
+ *
+ * Generates the conversation with ElevenLabs' Text to Dialogue endpoint
+ * (eleven_v3) — turns are batched on speaker boundaries (≤1800 chars/request)
+ * so the model delivers each batch as one cohesive multi-speaker exchange with
+ * natural turn-taking and interruptions, instead of isolated concatenated
+ * lines. Batch MP3s are ffmpeg-concatenated + mastered, and written to:
  *
  *     web/public/audio/podcasts/<slug>/ep01.mp3
+ *
+ * Inline v3 audio tags in the script text — [laughs], [interrupting],
+ * [overlapping], em-dash (—) for cut-offs, ellipsis (…) for trailing — flow
+ * straight through to the model. The script CONTENT is never modified here.
  *
  * Usage:
  *     cd web
@@ -103,21 +116,97 @@ function parseScript(raw) {
   return lines;
 }
 
-// ---------- elevenlabs ----------
+// ---------- elevenlabs (Text to Dialogue, eleven_v3) ----------
 
-const TTS_MODEL_DEFAULT = "eleven_v3";
+/**
+ * Why dialogue and not per-line TTS:
+ * The old path synthesised every line in isolation via
+ * /v1/text-to-speech/{voiceId} and concatenated the clips — so each line was
+ * delivered with zero awareness of the conversation around it (flat
+ * turn-taking, no reactive intonation, no overlap). The Text to Dialogue
+ * endpoint generates a whole multi-speaker exchange in one pass, so the model
+ * carries emotional context across turns and handles natural timing /
+ * interruptions. eleven_v3 only. Inline audio tags ([laughs], [interrupting],
+ * em-dash for cut-offs) in the script text flow straight through.
+ *
+ * Constraints we design around (verified against the live docs, 2026-05):
+ *   - inputs[] = [{ text, voice_id }] — NO per-turn settings.
+ *   - settings / seed / apply_text_normalization are TOP-LEVEL only.
+ *   - Keep total characters across all inputs[].text ≤ ~2000 per request →
+ *     we batch on speaker-turn boundaries (MAX_DIALOGUE_CHARS below).
+ *   - No previous_text/next_text continuity on this endpoint; the only
+ *     cross-batch consistency lever is a shared `seed` (+ same voices +
+ *     same settings), which we hold constant for the whole episode.
+ *   - v3 stability is discrete: 0.0 Creative / 0.5 Natural / 1.0 Robust
+ *     (Robust ignores audio tags). Default 0.5 for expressive-but-stable.
+ */
 
-async function synthesizeLine({ apiKey, voiceId, model, text, settings }) {
-  const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`;
+const DIALOGUE_MODEL = "eleven_v3";
+// Live docs cap dialogue at ~2000 chars total across inputs; leave headroom.
+const MAX_DIALOGUE_CHARS = 1800;
+const DEFAULT_STABILITY = 0.5; // Natural
+const DEFAULT_TEXT_NORMALIZATION = "auto";
+
+/** Deterministic 32-bit seed from the slug so re-renders stay consistent. */
+function seedFromSlug(slug) {
+  let h = 2166136261;
+  for (let i = 0; i < slug.length; i++) {
+    h ^= slug.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0; // unsigned 0..4294967295
+}
+
+/** Split one over-long turn into ≤MAX_DIALOGUE_CHARS pieces on sentence
+ *  boundaries, preserving the speaker. Rare for podcast lines but keeps a
+ *  monologue from 422-ing the dialogue request. */
+function splitLongText(text) {
+  if (text.length <= MAX_DIALOGUE_CHARS) return [text];
+  const sentences = text.match(/[^.!?…]+[.!?…]*\s*/g) ?? [text];
+  const pieces = [];
+  let buf = "";
+  for (const s of sentences) {
+    if (buf && buf.length + s.length > MAX_DIALOGUE_CHARS) {
+      pieces.push(buf.trim());
+      buf = "";
+    }
+    buf += s;
+  }
+  if (buf.trim()) pieces.push(buf.trim());
+  return pieces;
+}
+
+/** Group parsed turns into dialogue batches, each ≤MAX_DIALOGUE_CHARS total,
+ *  split only on speaker-turn boundaries so the model sees coherent exchanges. */
+function batchTurns(lines, voices) {
+  const batches = [];
+  let current = [];
+  let chars = 0;
+  const push = (speaker, text) => {
+    const voiceId = voices[speaker].voiceId;
+    if (current.length && chars + text.length > MAX_DIALOGUE_CHARS) {
+      batches.push(current);
+      current = [];
+      chars = 0;
+    }
+    current.push({ speaker, text, voice_id: voiceId });
+    chars += text.length;
+  };
+  for (const l of lines) {
+    for (const piece of splitLongText(l.text)) push(l.speaker, piece);
+  }
+  if (current.length) batches.push(current);
+  return batches;
+}
+
+async function synthesizeDialogue({ apiKey, inputs, stability, seed }) {
+  const url = `https://api.elevenlabs.io/v1/text-to-dialogue?output_format=mp3_44100_128`;
   const body = {
-    text,
-    model_id: model ?? TTS_MODEL_DEFAULT,
-    voice_settings: {
-      stability: settings?.stability ?? 0.5,
-      similarity_boost: settings?.similarity ?? 0.85,
-      style: settings?.style ?? 0,
-      use_speaker_boost: settings?.useSpeakerBoost ?? true,
-    },
+    inputs: inputs.map((t) => ({ text: t.text, voice_id: t.voice_id })),
+    model_id: DIALOGUE_MODEL,
+    settings: { stability },
+    seed,
+    apply_text_normalization: DEFAULT_TEXT_NORMALIZATION,
   };
   const res = await fetch(url, {
     method: "POST",
@@ -199,26 +288,26 @@ async function concatAndMaster(lineFiles, output) {
 
 /**
  * Re-master an existing rendered episode WITHOUT calling ElevenLabs again.
- * Reads the cached per-line MP3s from .lines/ and re-runs the mastering
- * chain over them. Use this to apply chain tweaks to already-rendered
- * episodes for free.
+ * Reads the cached per-batch dialogue MP3s from .batches/ and re-runs the
+ * mastering chain over them. Use this to apply chain tweaks to already-
+ * rendered episodes for free.
  */
 async function remasterPodcast(slug) {
-  const linesDir = path.join(OUTPUT_ROOT, slug, ".lines");
-  if (!existsSync(linesDir)) {
-    console.error(`[${slug}] no .lines/ cache — render first.`);
+  const batchesDir = path.join(OUTPUT_ROOT, slug, ".batches");
+  if (!existsSync(batchesDir)) {
+    console.error(`[${slug}] no .batches/ cache — render first.`);
     return "missing";
   }
-  const cached = (await fs.readdir(linesDir))
+  const cached = (await fs.readdir(batchesDir))
     .filter((f) => f.endsWith(".mp3"))
     .sort()
-    .map((f) => path.join(linesDir, f));
+    .map((f) => path.join(batchesDir, f));
   if (cached.length === 0) {
-    console.error(`[${slug}] .lines/ is empty.`);
+    console.error(`[${slug}] .batches/ is empty.`);
     return "missing";
   }
   const output = path.join(OUTPUT_ROOT, slug, "ep01.mp3");
-  console.log(`[${slug}] remastering from ${cached.length} cached lines …`);
+  console.log(`[${slug}] remastering from ${cached.length} cached batch(es) …`);
   await concatAndMaster(cached, output);
   const stat = await fs.stat(output);
   console.log(`[${slug}] done (${Math.round(stat.size / 1024)} KB).`);
@@ -267,42 +356,52 @@ async function renderPodcast(slug, { dryRun, force, apiKey }) {
     return "skipped";
   }
 
-  console.log(`[${slug}] ${lines.length} lines, ${speakers.length} speakers (${speakers.join(", ")}).`);
+  // Episode-level dialogue config: one shared stability + seed across all
+  // batches (the only cross-batch consistency lever the dialogue endpoint
+  // gives us). Overridable per episode via an optional "_dialogue" key in
+  // voices.json: { "stability": 0.5, "seed": 12345 }.
+  const dialogueCfg = voices._dialogue ?? {};
+  const stability = dialogueCfg.stability ?? DEFAULT_STABILITY;
+  const seed = dialogueCfg.seed ?? seedFromSlug(slug);
+
+  const batches = batchTurns(lines, voices);
+
+  console.log(
+    `[${slug}] ${lines.length} turns → ${batches.length} dialogue batch(es), ` +
+      `${speakers.length} speakers (${speakers.join(", ")}); stability=${stability}, seed=${seed}.`,
+  );
   if (dryRun) {
-    for (const l of lines.slice(0, 8)) {
-      console.log(`   ${l.speaker}: ${l.text.slice(0, 80)}${l.text.length > 80 ? "…" : ""}`);
-    }
-    if (lines.length > 8) console.log(`   …(${lines.length - 8} more lines)`);
+    batches.forEach((b, bi) => {
+      const chars = b.reduce((s, t) => s + t.text.length, 0);
+      console.log(`   batch ${bi + 1}: ${b.length} turns, ${chars} chars`);
+      for (const t of b.slice(0, 3)) {
+        console.log(`      ${t.speaker}: ${t.text.slice(0, 70)}${t.text.length > 70 ? "…" : ""}`);
+      }
+      if (b.length > 3) console.log(`      …(${b.length - 3} more turns)`);
+    });
     return "dry-run";
   }
 
   await fs.mkdir(outputDir, { recursive: true });
-  const tempDir = path.join(outputDir, ".lines");
+  const tempDir = path.join(outputDir, ".batches");
   await fs.mkdir(tempDir, { recursive: true });
 
-  const lineFiles = [];
-  for (let i = 0; i < lines.length; i++) {
-    const { speaker, text } = lines[i];
-    const cfg = voices[speaker];
-    const linePath = path.join(tempDir, `${String(i).padStart(3, "0")}_${speaker}.mp3`);
-    if (existsSync(linePath) && !force) {
-      lineFiles.push(linePath);
+  const batchFiles = [];
+  for (let i = 0; i < batches.length; i++) {
+    const batchPath = path.join(tempDir, `${String(i).padStart(3, "0")}.mp3`);
+    if (existsSync(batchPath) && !force) {
+      batchFiles.push(batchPath);
       continue;
     }
-    process.stdout.write(`   [${String(i + 1).padStart(3, "0")}/${lines.length}] ${speaker} … `);
+    const chars = batches[i].reduce((s, t) => s + t.text.length, 0);
+    process.stdout.write(`   [${String(i + 1).padStart(2, "0")}/${batches.length}] dialogue · ${batches[i].length} turns · ${chars} chars … `);
     let attempt = 0;
     while (true) {
       try {
-        const buf = await synthesizeLine({
-          apiKey,
-          voiceId: cfg.voiceId,
-          model: cfg.model,
-          text,
-          settings: cfg,
-        });
-        await fs.writeFile(linePath, buf);
+        const buf = await synthesizeDialogue({ apiKey, inputs: batches[i], stability, seed });
+        await fs.writeFile(batchPath, buf);
         process.stdout.write(`${Math.round(buf.length / 1024)} KB\n`);
-        lineFiles.push(linePath);
+        batchFiles.push(batchPath);
         break;
       } catch (err) {
         attempt++;
@@ -317,8 +416,8 @@ async function renderPodcast(slug, { dryRun, force, apiKey }) {
     }
   }
 
-  console.log(`[${slug}] concatenating ${lineFiles.length} lines → ${path.relative(WEB_ROOT, outputFile)}`);
-  await concatAndMaster(lineFiles, outputFile);
+  console.log(`[${slug}] concatenating ${batchFiles.length} batch(es) → ${path.relative(WEB_ROOT, outputFile)}`);
+  await concatAndMaster(batchFiles, outputFile);
   const finalStat = await fs.stat(outputFile);
   console.log(`[${slug}] done (${Math.round(finalStat.size / 1024)} KB).`);
 
