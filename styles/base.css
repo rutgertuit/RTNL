@@ -2382,6 +2382,22 @@ html {
   color: var(--color-fg-3);
   margin: 0;
 }
+/* Easter-egg link to /the-panel — deliberately faint, sits under the
+   disclaimer like a footnote. Brightens on hover for anyone who finds it. */
+.rt-footer__egg {
+  margin-top: var(--space-4) !important;
+}
+.rt-footer__egg a {
+  font-family: var(--font-mono);
+  font-size: var(--fs-50);
+  letter-spacing: 0.04em;
+  color: var(--color-fg-4);
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+.rt-footer__egg a:hover {
+  color: var(--color-accent-warm);
+}
 .rt-footer__contact-link {
   font-family: var(--font-body);
   font-size: var(--fs-100);
@@ -2676,6 +2692,12 @@ html {
     width: auto;
     padding: var(--space-3) var(--space-4);
     border-radius: 6px 0 0 6px;
+    /* The container is a zero-height box anchored by bottom. The base rule
+       positions the handle with top:0, which makes it hang DOWN below the
+       viewport. Anchor it by the bottom so it grows upward and stays fully
+       on-screen. */
+    top: auto;
+    bottom: 0;
   }
   .rt-podcast-tab__label {
     writing-mode: horizontal-tb;
