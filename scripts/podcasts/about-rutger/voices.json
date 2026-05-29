@@ -1,0 +1,9 @@
+{
+  "_note": "Episode 06 — guests-only panel reviewing Rutger's press/bio/site. No host (RUTGER absent). Frits, Dino, Oracle, Angela carry the time; Marie lands short precision interjections only (never lengthen her lines). Voice IDs match the existing per-episode configs.",
+  "FRITS":  { "voiceId": "zoiHymAGyFOFuS51xKG1", "model": "eleven_v3" },
+  "DINO":   { "voiceId": "3DEd8bTvQonz90PbbWXC", "model": "eleven_v3" },
+  "ORACLE": { "voiceId": "I1aZXfdukqudcrBcjAWi", "model": "eleven_v3" },
+  "ANGELA": { "voiceId": "gZWyS8DEXz4sJeL2FPEZ", "model": "eleven_v3" },
+  "MARIE":  { "voiceId": "ddUqaOAX9uaMFHJ1LLHg", "model": "eleven_v3" },
+  "_dialogue": { "stability": 0.5 }
+}
