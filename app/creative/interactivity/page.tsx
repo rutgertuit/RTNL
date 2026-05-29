@@ -44,7 +44,7 @@ export default function InteractivityPage() {
       <PodcastTab
         src="/audio/podcasts/creative-interactivity/ep01.mp3"
         title="Interactivity — a panel."
-        eyebrow="EP 05 · ~7 MIN · PANEL · SYNTHETIC AI VOICES"
+        eyebrow="~7 MIN · PANEL · SYNTHETIC AI VOICES"
         subtitle="Strategy Oracle defends slides; Marie keeps everyone definitionally honest. Voices are synthetic; no real person was cloned."
         duration="7:00"
         tabLabel="LISTEN · 7:00"
@@ -347,7 +347,7 @@ export default function InteractivityPage() {
           },
           {
             marker: "2",
-            claim: "NotebookLM Plus is bundled with Google AI Pro / Ultra; the same subscription that unlocks Gemini Advanced.",
+            claim: "NotebookLM Plus is bundled with Google AI Pro / Ultra — the same subscription that unlocks the paid Gemini features in the consumer app.",
             citation: (
               <>
                 Current Google AI plan structure &mdash;{" "}

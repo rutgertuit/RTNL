@@ -39,7 +39,7 @@ export default function ThirtyMinuteKitchenPage() {
       <PodcastTab
         src="/audio/podcasts/thirty-minute-kitchen/ep01.mp3"
         title="The Thirty-Minute Kitchen — with Frits."
-        eyebrow="EP 03 · ~6 MIN · SYNTHETIC AI VOICES"
+        eyebrow="~6 MIN · SYNTHETIC AI VOICES"
         subtitle="Frits the Nestor, legendary creative director from the cigarette-ad era, is mildly insulted by the title. Voices are synthetic; no real person was cloned."
         duration="6:00"
         tabLabel="LISTEN · 6:00"

@@ -58,7 +58,7 @@ const TABLE_ROWS: {
 }[] = [
   {
     model: "Veo 3.1 (Premium)",
-    training: "~1.5 × 10²⁵ FLOPs",
+    training: "Largest training scale (undisclosed)",
     latency: "60–90 s for 8-second clip",
     optimizedFor: "Cinematic 4K, high-physics fidelity",
   },
@@ -88,7 +88,7 @@ const TABLE_ROWS: {
   },
   {
     model: "Gemini Omni Flash",
-    training: "Unified core (~10²⁶ FLOPs estimated)",
+    training: "Unified multimodal core",
     latency: "10–15 s for 10-second clip",
     optimizedFor: "Multi-turn conversational editing",
   },
@@ -126,9 +126,10 @@ export function CostOfFrame() {
 
   const computed = useMemo(() => {
     const totalKwh = totalsWh / 1000;
-    // Anchored to the framing prose: "two minutes of microwave for every second of video."
-    // At video=200 Wh/sec, that's 2 min per 200 Wh => 0.01 min/Wh.
-    const microwaveMin = totalsWh * 0.01;
+    // A ~1000 W microwave draws 1000 Wh/hour = 16.67 Wh per minute, so
+    // minutes = Wh / 16.67. (At video=200 Wh/sec that's ~12 microwave-minutes
+    // per second of footage; 2 kWh ≈ 120 microwave-minutes.)
+    const microwaveMin = totalsWh / (1000 / 60);
     const phoneCharges = totalsWh / 12;
     const ledHours = totalsWh / 9;
     return {
@@ -249,9 +250,9 @@ export function CostOfFrame() {
             Generating one minute of AI video burns roughly 200 watt-hours per
             second
           </strong>{" "}
-          — that&apos;s two minutes of running a microwave for every second of
-          footage. A four-minute social-cut is twelve dishwasher loads&apos;
-          worth of electricity.
+          — that&apos;s about twelve minutes of running a microwave for every
+          second of footage. A four-minute social-cut is roughly forty dishwasher
+          loads&apos; worth of electricity.
         </p>
         <p>
           That&apos;s why Veo 3.1 Fast costs 90% less than standard Veo 3.1.

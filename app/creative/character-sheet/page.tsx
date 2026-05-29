@@ -8,7 +8,7 @@ import { PodcastTab } from "@/components/podcast-player/PodcastTab";
 
 const TITLE = "How to build a character sheet";
 const DESCRIPTION =
-  "Three ways to build a consistent AI character sheet, in order of effort — Google Flow's Use Character feature, a manual reference-shot pipeline, and training a Flux1D LoRA. With the tradeoffs honestly named. The portrait series cycling in the hero of this site was built using method two.";
+  "Three ways to build a consistent AI character sheet, in order of effort — Google Flow's Use Character feature, a manual reference-shot pipeline, and training a FLUX.1 [dev] LoRA. With the tradeoffs honestly named. The portrait series cycling in the hero of this site was built using method two.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -27,8 +27,8 @@ const howToLd = {
   totalTime: "PT3H",
   tool: [
     { "@type": "HowToTool", name: "Google Flow (Use Character feature)" },
-    { "@type": "HowToTool", name: "Nano Banana / Midjourney / Imagen 3 (reference-image conditioning)" },
-    { "@type": "HowToTool", name: "Flux1D + ComfyUI / Forge / Replicate LoRA trainer" },
+    { "@type": "HowToTool", name: "Nano Banana / Midjourney / Imagen 4 (reference-image conditioning)" },
+    { "@type": "HowToTool", name: "FLUX.1 [dev] + ComfyUI / Forge / Replicate LoRA trainer" },
   ],
   step: [
     {
@@ -43,12 +43,12 @@ const howToLd = {
       position: 2,
       name: "Method 02 — Reference-shot pipeline, manually composited",
       text:
-        "Most control, moderate effort. Pick one anchor reference image. Use reference-conditioned generation (Midjourney --cref, Nano Banana reference attach, Imagen 3 character mode) to generate four to eight variants per angle. Cherry-pick the best of each. Composite the picks into a single multi-panel sheet. Two to four hours per character; produces a portable sheet usable across tools.",
+        "Most control, moderate effort. Pick one anchor reference image. Use reference-conditioned generation (Midjourney --cref, Nano Banana reference attach, Imagen subject customization) to generate four to eight variants per angle. Cherry-pick the best of each. Composite the picks into a single multi-panel sheet. Two to four hours per character; produces a portable sheet usable across tools.",
     },
     {
       "@type": "HowToStep",
       position: 3,
-      name: "Method 03 — Train a Flux1D LoRA",
+      name: "Method 03 — Train a FLUX.1 [dev] LoRA",
       text:
         "Highest consistency, largest upfront cost. Gather 15-30+ clean images of the character, caption each one describing everything except the character itself, train on RunPod / Vast.ai / Replicate / local 24GB+ GPU with 1500-3000 steps at learning rate 1e-4 to 4e-4. One to two weekends the first time; produces a portable character LoRA that costs nothing per generation thereafter.",
     },
@@ -71,7 +71,7 @@ export default function CharacterSheetPage() {
       <PodcastTab
         src="/audio/podcasts/creative-character-sheet/ep01.mp3"
         title="Character sheets — a panel."
-        eyebrow="EP 07 · ~7 MIN · PANEL · SYNTHETIC AI VOICES"
+        eyebrow="~7 MIN · PANEL · SYNTHETIC AI VOICES"
         subtitle="Dino defends the soul of a character; Marie demands a metric. They end up agreeing twice, which surprises Dino. Voices are synthetic; no real person was cloned."
         duration="7:00"
         tabLabel="LISTEN · 7:00"
@@ -190,8 +190,8 @@ export default function CharacterSheetPage() {
               <p>
                 <strong>Most control. Moderate effort.</strong> When to use it: you want maximum
                 control over which &quot;version&quot; of the character becomes canonical, and you
-                want a sheet that is portable across multiple tools (<a href="https://www.midjourney.com" rel="noopener noreferrer" target="_blank">Midjourney</a> <code>--cref</code>
-                , Nano Banana reference-attach, Imagen 3 character mode, Flux ControlNet, etc.).
+                want a sheet that is portable across multiple tools (<a href="https://www.midjourney.com" rel="noopener noreferrer" target="_blank">Midjourney</a> omni-reference <code>--oref</code>
+                , Nano Banana reference-attach, Imagen subject customization, Flux ControlNet, etc.).
               </p>
               <p>
                 <strong>This is the method I used for the portrait series on this site.</strong>{" "}
@@ -216,9 +216,9 @@ export default function CharacterSheetPage() {
                 </li>
                 <li>
                   <strong>Generate each angle with reference conditioning.</strong> In Midjourney
-                  that is <code>--cref [your image URL] --cw 100</code>. In Nano Banana it is the
-                  reference-attach feature. In Imagen 3 it is character mode. Generate four to
-                  eight variants per angle.
+                  that is omni-reference (<code>--oref</code>, the 2025 successor to the older
+                  <code>--cref --cw 100</code>). In Nano Banana it is the reference-attach feature.
+                  In Imagen it is subject customization. Generate four to eight variants per angle.
                 </li>
                 <li>
                   <strong>Cherry-pick.</strong> For each angle, choose the variant where the face
@@ -266,7 +266,7 @@ export default function CharacterSheetPage() {
           <div className="rt-tuit__stage">
             <h2 className="rt-tuit__stage-marker">
               <span className="rt-tuit__stage-num">03</span>
-              <span className="rt-tuit__stage-label">Train a Flux1D LoRA</span>
+              <span className="rt-tuit__stage-label">Train a FLUX.1 [dev] LoRA</span>
             </h2>
             <div className="rt-tuit__stage-body">
               <p>
@@ -276,6 +276,11 @@ export default function CharacterSheetPage() {
                 do it. You are comfortable opening a terminal and editing a YAML file.
               </p>
               <p>
+                <em>Note:</em> this walkthrough uses FLUX.1 [dev]. Black Forest Labs shipped
+                FLUX.2 in November 2025, so if you&apos;re starting fresh today, weigh FLUX.2
+                against FLUX.1 [dev] &mdash; the LoRA workflow is the same shape either way.
+              </p>
+              <p>
                 <strong>How it works.</strong>
               </p>
               <ol>
@@ -283,7 +288,7 @@ export default function CharacterSheetPage() {
                   <strong>Gather a dataset.</strong> Fifteen to thirty-plus images of the
                   character. Mix of angles, lighting setups, expressions, distances. Crop each
                   one to a consistent square or portrait aspect (1024×1024 or 1024×1280 are the
-                  current Flux1D sweet spots). Remove blurry, watermarked, or off-character
+                  current FLUX.1 [dev] sweet spots). Remove blurry, watermarked, or off-character
                   images. The dataset is the entire game.
                 </li>
                 <li>
@@ -320,7 +325,7 @@ export default function CharacterSheetPage() {
                   character.
                 </li>
                 <li>
-                  <strong>Test in <a href="https://www.comfy.org" rel="noopener noreferrer" target="_blank">ComfyUI</a> or Forge.</strong> Load Flux1D base + your new LoRA
+                  <strong>Test in <a href="https://www.comfy.org" rel="noopener noreferrer" target="_blank">ComfyUI</a> or Forge.</strong> Load FLUX.1 [dev] base + your new LoRA
                   file at strength 0.7-1.0. Generate test prompts that include your trigger
                   word. Bad outputs almost always mean the dataset is bad, not that the training
                   is bad — go back to step 1.

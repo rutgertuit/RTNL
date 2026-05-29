@@ -38,7 +38,7 @@ export default function ThePanelPage() {
           <PodcastPlayer
             src="/audio/podcasts/about-rutger/ep01.mp3"
             title="The file on Rutger — a panel, no host."
-            eyebrow="EP 06 · ~6 MIN · GUESTS ONLY · SYNTHETIC AI VOICES"
+            eyebrow="~6 MIN · GUESTS ONLY · SYNTHETIC AI VOICES"
             subtitle="Voices are synthetic; no real person was cloned. Like everything else here: prompted, then chosen."
             duration="5:48"
           />

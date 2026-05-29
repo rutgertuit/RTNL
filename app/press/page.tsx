@@ -234,8 +234,8 @@ const SPEAKING: PressItem[] = [
   },
   {
     n: "24",
-    title: "Above Max Lead — speaker profile",
-    publication: "Above Max Lead",
+    title: "Abovo Maxlead — speaker profile",
+    publication: "Abovo Maxlead",
     date: "Ongoing",
     description:
       "Speaker profile highlighting the background at KPN, GroupM, and Google/YouTube, offering broad perspective on the marketing landscape.",

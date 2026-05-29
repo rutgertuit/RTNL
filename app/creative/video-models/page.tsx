@@ -48,7 +48,7 @@ export default function BriefingInversionPage() {
       <PodcastTab
         src="/audio/podcasts/creative-video-models/ep01.mp3"
         title="Veo, threshold-crossed — with Dino."
-        eyebrow="EP 06 · ~6 MIN · SYNTHETIC AI VOICES"
+        eyebrow="~6 MIN · SYNTHETIC AI VOICES"
         subtitle="The Creative Dinosaur lit a Volvo commercial in 1996 with six tungstens. He has feelings about generative video. Voices are synthetic; no real person was cloned."
         duration="6:00"
         tabLabel="LISTEN · 6:00"
