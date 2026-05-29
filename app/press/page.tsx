@@ -86,7 +86,7 @@ const ARTICLES: PressItem[] = [
     publication: "Fonk Magazine",
     date: "September 2025",
     description:
-      "Coverage of YouTube's 20th anniversary festival featuring presentations by Rutger Tuit (Head of Agencies) and Sam Vergauwen (Head of Benelux), along with case studies from Thuisbezorgd and Zelesta.",
+      "Coverage of YouTube's 20th anniversary festival featuring presentations by Rutger Tuit (Head of Agencies at the time) and Sam Vergauwen (Head of Benelux), along with case studies from Thuisbezorgd and Zelesta.",
     url: "https://fonkmagazine.nl/artikelen/marketing/youtube-viert-twintigste-verjaardag-met-groots-festival-voor-merken-en-bureaus-73928.html",
   },
   {
