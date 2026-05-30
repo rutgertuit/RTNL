@@ -5,6 +5,16 @@
   },
   "episodes": [
     {
+      "slug": "weekly-02",
+      "title": "The swappable slot: your archive just became your ad inventory.",
+      "date": "2026-05-30",
+      "duration": "—",
+      "cast": ["RUTGER", "ANGELA", "DINO"],
+      "summary": "YouTube's Dynamic Sponsorships — announced at Brandcast 2026 and Newfronts — let creators swap, resell, and multi-market a sponsorship slot without burning it permanently into the video. Rutger walks Angela and Dino through why the slot brief is now a media product, why Dino is right that bad creative scales worse than ever, and what the four-surface Tuit Doctrine has to do with all of it.",
+      "src": "/audio/podcasts/weekly-02/ep01.mp3",
+      "backlink": { "href": "/doctrine", "label": "The Tuit Doctrine" }
+    },
+    {
       "slug": "weekly-01",
       "title": "The agentic ad stack lands. Now what.",
       "date": "2026-05-30",
