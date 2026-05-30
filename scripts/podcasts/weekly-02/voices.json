@@ -1,0 +1,7 @@
+{
+  "_note": "Weekly 02 — Rutger + Dino + Angela on YouTube Brandcast 2026: creator TV, Buy with Google Pay on CTV, Custom Sponsorships AI. Topic source: blog.youtube, blog.google. Rutger leads with Tuit Doctrine + Jazz Swing; carries the public-views disclaimer.",
+  "RUTGER": { "voiceId": "3UDL95XpjDt8BT7uFojh", "model": "eleven_v3" },
+  "DINO":   { "voiceId": "3DEd8bTvQonz90PbbWXC", "model": "eleven_v3" },
+  "ANGELA": { "voiceId": "gZWyS8DEXz4sJeL2FPEZ", "model": "eleven_v3" },
+  "_dialogue": { "stability": 0.5 }
+}
