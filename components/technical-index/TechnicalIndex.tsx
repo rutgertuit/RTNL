@@ -65,6 +65,16 @@ const PROJECTS = [
     tags: ["OPNSENSE", "VLAN"],
     status: "open",
   },
+  {
+    id: "D · 07",
+    name: "Prism",
+    desc:
+      "Agentic creative-agency tooling for YouTube. 10 Cloud Run services + Next.js cockpit + Composer DAG. Static brand assets in, 16:9 + 9:16 variants out, compliance-judged and Google Ads ready. Built so one CSD runs the full workflow.",
+    tags: ["VEO 3", "FASTAPI", "CLOUD RUN"],
+    status: "open",
+    href: "/technical/prism",
+    internal: true,
+  },
 ];
 
 /**
@@ -103,7 +113,7 @@ export function TechnicalIndex() {
         <header className="rt-tech__head">
           <div className="eyebrow eyebrow--warm">03 · TECHNICAL / DEEP END</div>
           <h2 className="rt-tech__title">
-            Six projects, one rack, one Pi5 named Hermes.
+            Seven projects, one rack, one Pi5 named Hermes.
           </h2>
           <p className="rt-tech__lead">
             Built locally, broken locally, documented in the order I figured them out. Not a
