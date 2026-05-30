@@ -1,5 +1,595 @@
 {
-  "version": "0.1.0",
-  "generated_at": "2026-05-23T00:00:00Z",
-  "items": []
+  "version": "0.2.0",
+  "generated_at": "2026-05-30T00:00:00Z",
+  "items": [
+    {
+      "id": "multiplier-myth",
+      "collection": "business",
+      "slug": "multiplier-myth",
+      "title": "The Multiplier Myth",
+      "summary": "AI is a multiplier only if you use it on the part of the work that compounds, not as a way to do the same job with fewer people.",
+      "body_path": "business/multiplier-myth.md",
+      "topic_tags": ["leadership", "ai-strategy", "tuit-doctrine", "multiplier"],
+      "model_used": "claude-opus",
+      "model_version": "4.6",
+      "models_secondary": ["nano-banana", "elevenlabs-eleven-v3"],
+      "created_by_role": "hybrid",
+      "created_at": "2026-05-23T00:00:00Z",
+      "last_reviewed": "2026-05-30T00:00:00Z",
+      "related_items": [
+        "agent-inclusive",
+        "thirty-minute-kitchen",
+        "weekly-01",
+        "doctrine-jazz-swing"
+      ],
+      "external_links": [
+        {
+          "url": "https://rutgertuit.nl/business/multiplier-myth",
+          "label": "Read the article",
+          "type": "article"
+        }
+      ],
+      "publish_state": "live"
+    },
+    {
+      "id": "thirty-minute-kitchen",
+      "collection": "business",
+      "slug": "thirty-minute-kitchen",
+      "title": "The Thirty-Minute Kitchen",
+      "summary": "The kitchen is the prep line, not the meal. A frame for what AI changes — and doesn't change — about how teams produce work.",
+      "body_path": "business/thirty-minute-kitchen.md",
+      "topic_tags": ["leadership", "operations", "ai-workflow", "kitchen-metaphor"],
+      "model_used": "claude-opus",
+      "model_version": "4.6",
+      "models_secondary": ["nano-banana", "elevenlabs-eleven-v3"],
+      "created_by_role": "hybrid",
+      "created_at": "2026-05-23T00:00:00Z",
+      "last_reviewed": "2026-05-30T00:00:00Z",
+      "related_items": ["multiplier-myth", "agent-inclusive"],
+      "external_links": [
+        {
+          "url": "https://rutgertuit.nl/business/thirty-minute-kitchen",
+          "label": "Read the article",
+          "type": "article"
+        }
+      ],
+      "publish_state": "live"
+    },
+    {
+      "id": "agent-inclusive",
+      "collection": "business",
+      "slug": "agent-inclusive",
+      "title": "Agent Inclusive",
+      "summary": "Org change runs at twelve to eighteen months. The model that lands in production next quarter is six weeks away. Build the team so an agentic teammate can sit down on day one.",
+      "body_path": "business/agent-inclusive.md",
+      "topic_tags": ["leadership", "org-design", "agentic-ai", "inclusion"],
+      "model_used": "claude-opus",
+      "model_version": "4.6",
+      "models_secondary": ["nano-banana", "elevenlabs-eleven-v3"],
+      "created_by_role": "hybrid",
+      "created_at": "2026-05-23T00:00:00Z",
+      "last_reviewed": "2026-05-30T00:00:00Z",
+      "related_items": ["multiplier-myth", "agent-game", "doctrine-jazz-swing"],
+      "external_links": [
+        {
+          "url": "https://rutgertuit.nl/business/agent-inclusive",
+          "label": "Read the article",
+          "type": "article"
+        },
+        {
+          "url": "https://rutgertuit.nl/technical/agent-game",
+          "label": "Play the sim",
+          "type": "demo"
+        }
+      ],
+      "publish_state": "live"
+    },
+    {
+      "id": "creative-video-models",
+      "collection": "creative",
+      "slug": "video-models",
+      "title": "The Evolution of Video Models",
+      "summary": "From Veo 2 through Omni, a four-lineage frame for the current generation of AI video models. Side-by-side comparisons of real prompts and outputs.",
+      "body_path": "creative/video-models.md",
+      "topic_tags": ["video-generation", "veo", "omni", "model-comparison"],
+      "model_used": "claude-opus",
+      "model_version": "4.6",
+      "models_secondary": ["veo-2", "veo-3", "veo-3.1", "omni"],
+      "created_by_role": "hybrid",
+      "created_at": "2026-05-23T00:00:00Z",
+      "last_reviewed": "2026-05-30T00:00:00Z",
+      "related_items": [
+        "creative-character-sheet",
+        "creative-interactivity",
+        "doctrine-prompted-then-chosen"
+      ],
+      "external_links": [
+        {
+          "url": "https://rutgertuit.nl/creative/video-models",
+          "label": "Read the article",
+          "type": "article"
+        }
+      ],
+      "publish_state": "live"
+    },
+    {
+      "id": "creative-character-sheet",
+      "collection": "creative",
+      "slug": "character-sheet",
+      "title": "How to make a character sheet",
+      "summary": "A three-method tutorial for getting consistent characters out of image generators. Reference-conditioning beats prompt-only.",
+      "body_path": "creative/character-sheet.md",
+      "topic_tags": ["image-generation", "reference-conditioning", "tutorial", "whisk"],
+      "model_used": "claude-opus",
+      "model_version": "4.6",
+      "models_secondary": ["nano-banana", "whisk", "elevenlabs-eleven-v3"],
+      "created_by_role": "hybrid",
+      "created_at": "2026-05-23T00:00:00Z",
+      "last_reviewed": "2026-05-30T00:00:00Z",
+      "related_items": [
+        "creative-video-models",
+        "doctrine-prompted-then-chosen"
+      ],
+      "external_links": [
+        {
+          "url": "https://rutgertuit.nl/creative/character-sheet",
+          "label": "Read the tutorial",
+          "type": "article"
+        }
+      ],
+      "publish_state": "live"
+    },
+    {
+      "id": "creative-interactivity",
+      "collection": "creative",
+      "slug": "interactivity",
+      "title": "Interactivity Is The New Explanation",
+      "summary": "Why a live demo is the new slide. Live demos give up the frozen argument; they gain something more honest in return.",
+      "body_path": "creative/interactivity.md",
+      "topic_tags": ["interactivity", "presentation", "live-demo", "notebooklm"],
+      "model_used": "claude-opus",
+      "model_version": "4.6",
+      "models_secondary": ["nano-banana", "elevenlabs-eleven-v3"],
+      "created_by_role": "hybrid",
+      "created_at": "2026-05-27T00:00:00Z",
+      "last_reviewed": "2026-05-30T00:00:00Z",
+      "related_items": [
+        "creative-video-models",
+        "doctrine-trusted-translator"
+      ],
+      "external_links": [
+        {
+          "url": "https://rutgertuit.nl/creative/interactivity",
+          "label": "Read the article",
+          "type": "article"
+        }
+      ],
+      "publish_state": "live"
+    },
+    {
+      "id": "technical-luminary",
+      "collection": "technical",
+      "slug": "luminary",
+      "title": "Luminary",
+      "summary": "A voice-first deep-research agent. Multi-phase pipeline (query analysis, study planning, iterative source-grounded research, claim validation, QA anticipation, synthesis) that reads the result back aloud.",
+      "body_path": "technical/luminary.md",
+      "topic_tags": [
+        "agentic-ai",
+        "google-adk",
+        "voice-interface",
+        "deep-research",
+        "elevenlabs"
+      ],
+      "model_used": "claude-opus",
+      "model_version": "4.7",
+      "models_secondary": [
+        "gemini-2.5-flash",
+        "gemini-2.5-pro",
+        "openai-o4-mini",
+        "elevenlabs-conversational"
+      ],
+      "created_by_role": "claude-code",
+      "created_at": "2026-05-30T00:00:00Z",
+      "last_reviewed": "2026-05-30T00:00:00Z",
+      "related_items": [
+        "technical-shop-life",
+        "technical-agentc",
+        "technical-bedtime-stories",
+        "doctrine-trusted-translator"
+      ],
+      "external_links": [
+        {
+          "url": "https://github.com/rutgertuit/Luminary",
+          "label": "github.com/rutgertuit/Luminary",
+          "type": "github"
+        }
+      ],
+      "publish_state": "live"
+    },
+    {
+      "id": "technical-shop-life",
+      "collection": "technical",
+      "slug": "shop-life",
+      "title": "Shop Life",
+      "summary": "A voice-first family assistant, designed for the car. Calendar, meal planning + Picnic ordering, deep research + RAG-backed debate. ElevenLabs voice in, WhatsApp out for approvals.",
+      "body_path": "technical/shop-life.md",
+      "topic_tags": [
+        "family-assistant",
+        "elevenlabs",
+        "gemini",
+        "whatsapp",
+        "picnic"
+      ],
+      "model_used": "claude-opus",
+      "model_version": "4.7",
+      "models_secondary": [
+        "gemini-2.5-flash",
+        "gemini-2.5-pro",
+        "elevenlabs-conversational"
+      ],
+      "created_by_role": "claude-code",
+      "created_at": "2026-05-30T00:00:00Z",
+      "last_reviewed": "2026-05-30T00:00:00Z",
+      "related_items": ["technical-luminary", "technical-homelab"],
+      "external_links": [
+        {
+          "url": "https://github.com/rutgertuit/smart-family-assistant",
+          "label": "github.com/rutgertuit/smart-family-assistant",
+          "type": "github"
+        }
+      ],
+      "publish_state": "live"
+    },
+    {
+      "id": "technical-clout-cannon",
+      "collection": "technical",
+      "slug": "clout-cannon",
+      "title": "Clout Cannon",
+      "summary": "A LinkedIn content factory, in four rooms. Ingredients → AI writing → visual generation → publish. Twelve writing personas, six visual archetypes.",
+      "body_path": "technical/clout-cannon.md",
+      "topic_tags": [
+        "linkedin",
+        "content-generation",
+        "dotnet",
+        "react",
+        "gemini",
+        "imagen"
+      ],
+      "model_used": "claude-opus",
+      "model_version": "4.7",
+      "models_secondary": ["gemini-3-flash", "gemini-3.1-flash-image"],
+      "created_by_role": "claude-code",
+      "created_at": "2026-05-30T00:00:00Z",
+      "last_reviewed": "2026-05-30T00:00:00Z",
+      "related_items": ["technical-prism"],
+      "external_links": [
+        {
+          "url": "https://github.com/rutgertuit/Social_Tool",
+          "label": "github.com/rutgertuit/Social_Tool",
+          "type": "github"
+        },
+        {
+          "url": "https://rutger-social.web.app",
+          "label": "rutger-social.web.app (live)",
+          "type": "demo"
+        }
+      ],
+      "publish_state": "live"
+    },
+    {
+      "id": "technical-bedtime-stories",
+      "collection": "technical",
+      "slug": "bedtime-stories",
+      "title": "Bedtime Stories",
+      "summary": "A Dutch AI bedtime-story generator. Creature Team Verhalenmachine. Build a fantasy world, configure a story, get a multi-chapter illustrated bedtime story with parent reading aid and printable booklets.",
+      "body_path": "technical/bedtime-stories.md",
+      "topic_tags": [
+        "children-stories",
+        "dutch",
+        "nextjs",
+        "gemini",
+        "imagen",
+        "image-generation"
+      ],
+      "model_used": "claude-opus",
+      "model_version": "4.7",
+      "models_secondary": ["gemini-3.1-pro-preview", "imagen-4"],
+      "created_by_role": "claude-code",
+      "created_at": "2026-05-30T00:00:00Z",
+      "last_reviewed": "2026-05-30T00:00:00Z",
+      "related_items": ["technical-luminary", "doctrine-prompted-then-chosen"],
+      "external_links": [
+        {
+          "url": "https://github.com/rutgertuit/creature-team-stories",
+          "label": "github.com/rutgertuit/creature-team-stories",
+          "type": "github"
+        }
+      ],
+      "publish_state": "live"
+    },
+    {
+      "id": "technical-agentc",
+      "collection": "technical",
+      "slug": "agentc",
+      "title": "AgentC Arena",
+      "summary": "An AI debate arena. Two researcher agents, two debater agents, a moderator, a judge. Four battle modes: structured debate, rap battle, roast, pitch-off.",
+      "body_path": "technical/agentc.md",
+      "topic_tags": [
+        "multi-agent",
+        "google-adk",
+        "debate",
+        "websocket",
+        "gemini"
+      ],
+      "model_used": "claude-opus",
+      "model_version": "4.7",
+      "models_secondary": [
+        "gemini-2.5-flash",
+        "gemini-2.5-pro",
+        "gemini-3-pro-preview"
+      ],
+      "created_by_role": "claude-code",
+      "created_at": "2026-05-30T00:00:00Z",
+      "last_reviewed": "2026-05-30T00:00:00Z",
+      "related_items": ["technical-luminary", "agent-game"],
+      "external_links": [
+        {
+          "url": "https://github.com/rutgertuit/AgentC",
+          "label": "github.com/rutgertuit/AgentC",
+          "type": "github"
+        }
+      ],
+      "publish_state": "live"
+    },
+    {
+      "id": "technical-homelab",
+      "collection": "technical",
+      "slug": "homelab",
+      "title": "Homelab",
+      "summary": "The hardware that runs everything else. OPNsense + UniFi with six VLANs, plus a self-learning Homey Pro v18 climate controller (152 devices, 31 zones, BigQuery-backed thermal model that arbitrages against Tibber prices).",
+      "body_path": "technical/homelab.md",
+      "topic_tags": [
+        "networking",
+        "opnsense",
+        "unifi",
+        "homey-pro",
+        "smart-home",
+        "energy-arbitrage",
+        "bigquery"
+      ],
+      "model_used": "claude-opus",
+      "model_version": "4.7",
+      "models_secondary": [],
+      "created_by_role": "claude-code",
+      "created_at": "2026-05-30T00:00:00Z",
+      "last_reviewed": "2026-05-30T00:00:00Z",
+      "related_items": [
+        "technical-luminary",
+        "technical-shop-life",
+        "technical-bedtime-stories"
+      ],
+      "external_links": [],
+      "publish_state": "live"
+    },
+    {
+      "id": "technical-prism",
+      "collection": "technical",
+      "slug": "prism",
+      "title": "Prism",
+      "summary": "Agentic creative-agency tooling for YouTube. 10 Cloud Run services + Next.js cockpit + Composer DAG. Static brand assets in, 16:9 + 9:16 variants out, compliance-judged and Google Ads ready.",
+      "body_path": "technical/prism.md",
+      "topic_tags": [
+        "youtube",
+        "advertising",
+        "video-generation",
+        "veo",
+        "imagen",
+        "compliance",
+        "multi-service"
+      ],
+      "model_used": "claude-opus",
+      "model_version": "4.7",
+      "models_secondary": [
+        "veo-3",
+        "imagen-3",
+        "gemini",
+        "ariel",
+        "chirp-3-hd"
+      ],
+      "created_by_role": "claude-code",
+      "created_at": "2026-05-30T00:00:00Z",
+      "last_reviewed": "2026-05-30T00:00:00Z",
+      "related_items": [
+        "technical-clout-cannon",
+        "creative-video-models",
+        "doctrine-trusted-translator"
+      ],
+      "external_links": [
+        {
+          "url": "https://github.com/rutgertuit/prism",
+          "label": "github.com/rutgertuit/prism",
+          "type": "github"
+        }
+      ],
+      "publish_state": "live"
+    },
+    {
+      "id": "agent-game",
+      "collection": "technical",
+      "slug": "agent-game",
+      "title": "Agent Inclusive Sim",
+      "summary": "A Jiskefet-inspired turn-based simulator. Survive 30 turns of exponential AI upgrades and reach a $100B valuation. Born from the Agent Inclusive article.",
+      "body_path": "technical/agent-game.md",
+      "topic_tags": [
+        "interactive",
+        "simulation",
+        "tactical",
+        "agentic-ai",
+        "game",
+        "win95-register"
+      ],
+      "model_used": "claude-opus",
+      "model_version": "4.6",
+      "models_secondary": ["nano-banana"],
+      "created_by_role": "claude-code",
+      "created_at": "2026-05-25T00:00:00Z",
+      "last_reviewed": "2026-05-30T00:00:00Z",
+      "related_items": ["agent-inclusive", "technical-agentc"],
+      "external_links": [
+        {
+          "url": "https://rutgertuit.nl/technical/agent-game",
+          "label": "Play the sim",
+          "type": "demo"
+        }
+      ],
+      "publish_state": "live"
+    },
+    {
+      "id": "doctrine-tuit-doctrine",
+      "collection": "media-kit",
+      "slug": "doctrine-tuit-doctrine",
+      "title": "The Tuit Doctrine",
+      "summary": "YouTube is tv, social, search, and shopping in one. A four-surface framing of a single platform, used as the stance behind most of the site's writing on advertising and creator economy.",
+      "topic_tags": ["doctrine", "youtube", "advertising", "platform-strategy"],
+      "model_used": "claude-opus",
+      "model_version": "4.7",
+      "models_secondary": [],
+      "created_by_role": "hybrid",
+      "created_at": "2026-05-30T00:00:00Z",
+      "last_reviewed": "2026-05-30T00:00:00Z",
+      "related_items": ["creative-video-models", "multiplier-myth"],
+      "external_links": [
+        {
+          "url": "https://rutgertuit.nl/doctrine#tuit-doctrine",
+          "label": "The Tuit Doctrine (canonical)",
+          "type": "article"
+        }
+      ],
+      "publish_state": "live"
+    },
+    {
+      "id": "doctrine-jazz-swing",
+      "collection": "media-kit",
+      "slug": "doctrine-jazz-swing",
+      "title": "The Jazz Swing",
+      "summary": "AI provides the rigid beat. Humans provide the swing. A metaphor for working with current AI — the model contributes the metronomic beat, humans contribute taste and judgement.",
+      "topic_tags": ["doctrine", "ai-collaboration", "metaphor"],
+      "model_used": "claude-opus",
+      "model_version": "4.7",
+      "models_secondary": [],
+      "created_by_role": "hybrid",
+      "created_at": "2026-05-30T00:00:00Z",
+      "last_reviewed": "2026-05-30T00:00:00Z",
+      "related_items": ["multiplier-myth", "agent-inclusive"],
+      "external_links": [
+        {
+          "url": "https://rutgertuit.nl/doctrine#jazz-swing",
+          "label": "The Jazz Swing (canonical)",
+          "type": "article"
+        }
+      ],
+      "publish_state": "live"
+    },
+    {
+      "id": "doctrine-trusted-translator",
+      "collection": "media-kit",
+      "slug": "doctrine-trusted-translator",
+      "title": "The Trusted Translator",
+      "summary": "The role between the people who fear the machine and the people who oversell it. Translating between research demos and CFO meetings.",
+      "topic_tags": ["doctrine", "leadership", "translation"],
+      "model_used": "claude-opus",
+      "model_version": "4.7",
+      "models_secondary": [],
+      "created_by_role": "hybrid",
+      "created_at": "2026-05-30T00:00:00Z",
+      "last_reviewed": "2026-05-30T00:00:00Z",
+      "related_items": ["creative-interactivity", "technical-luminary", "technical-prism"],
+      "external_links": [
+        {
+          "url": "https://rutgertuit.nl/doctrine#trusted-translator",
+          "label": "The Trusted Translator (canonical)",
+          "type": "article"
+        }
+      ],
+      "publish_state": "live"
+    },
+    {
+      "id": "doctrine-conductor-of-change",
+      "collection": "media-kit",
+      "slug": "doctrine-conductor-of-change",
+      "title": "The Conductor of Change",
+      "summary": "Persona, not title. Creative soul × tech executive, holding the seams together. The conductor holds the tempo so the parts can speak to each other.",
+      "topic_tags": ["doctrine", "persona", "duality"],
+      "model_used": "claude-opus",
+      "model_version": "4.7",
+      "models_secondary": [],
+      "created_by_role": "hybrid",
+      "created_at": "2026-05-30T00:00:00Z",
+      "last_reviewed": "2026-05-30T00:00:00Z",
+      "related_items": [],
+      "external_links": [
+        {
+          "url": "https://rutgertuit.nl/doctrine#conductor-of-change",
+          "label": "The Conductor of Change (canonical)",
+          "type": "article"
+        }
+      ],
+      "publish_state": "live"
+    },
+    {
+      "id": "doctrine-prompted-then-chosen",
+      "collection": "media-kit",
+      "slug": "doctrine-prompted-then-chosen",
+      "title": "Prompted, then chosen",
+      "summary": "Nothing on this site was hand-touched. Every image, every line, every clip — prompted, then chosen. The production rule that makes the site an honest showcase of AI-assisted creativity.",
+      "topic_tags": ["doctrine", "production-rule", "transparency"],
+      "model_used": "claude-opus",
+      "model_version": "4.7",
+      "models_secondary": [],
+      "created_by_role": "hybrid",
+      "created_at": "2026-05-30T00:00:00Z",
+      "last_reviewed": "2026-05-30T00:00:00Z",
+      "related_items": [
+        "creative-character-sheet",
+        "creative-video-models",
+        "technical-bedtime-stories"
+      ],
+      "external_links": [
+        {
+          "url": "https://rutgertuit.nl/doctrine#prompted-then-chosen",
+          "label": "Prompted, then chosen (canonical)",
+          "type": "article"
+        },
+        {
+          "url": "https://rutgertuit.nl/credits",
+          "label": "Production credits",
+          "type": "article"
+        }
+      ],
+      "publish_state": "live"
+    },
+    {
+      "id": "weekly-01",
+      "collection": "media-kit",
+      "slug": "weekly-01",
+      "title": "Weekly 01 — The agentic ad stack lands. Now what.",
+      "summary": "Google Marketing Live 2026 shipped what's effectively an agent in the ad stack — Conversational Discovery Ads, AI Max for Search and Shopping, AI Brief, and a Universal Cart that closes the loop. Rutger walks Oracle and Frits through it.",
+      "topic_tags": ["podcast", "weekly", "google-marketing-live", "agentic-ads"],
+      "model_used": "elevenlabs-eleven-v3",
+      "model_version": "eleven_v3",
+      "models_secondary": ["claude-opus", "nano-banana"],
+      "created_by_role": "claude-code",
+      "created_at": "2026-05-30T00:00:00Z",
+      "last_reviewed": "2026-05-30T00:00:00Z",
+      "related_items": ["multiplier-myth"],
+      "external_links": [
+        {
+          "url": "https://rutgertuit.nl/weekly",
+          "label": "Listen on /weekly",
+          "type": "demo"
+        }
+      ],
+      "publish_state": "live"
+    }
+  ]
 }
