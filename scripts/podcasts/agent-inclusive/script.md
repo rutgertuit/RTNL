@@ -26,11 +26,11 @@ RUTGER: I knew the title would do this.
 
 ANGELA: Then why did you keep it.
 
-RUTGER: Because it bothered me too, and that's usually a sign the phrase is doing the right work.
+RUTGER: Because it bothered me too — and that's usually a sign the phrase is doing the right work.
 
 ANGELA: Hm.
 
-RUTGER: The piece argues that we have spent decades designing organisations around people — onboarding, escalation paths, performance reviews, the works — and the moment we drop an AI system into the same workflow, none of that scaffolding applies to it. So things break. The proposal is: build the scaffolding such that the next teammate, human or not, can sit down.
+RUTGER: So the piece argues that we've spent decades designing organisations around people — onboarding, escalation paths, performance reviews, the works — and the moment we drop an AI system into the same workflow, well, none of that scaffolding applies to it. So things break. The proposal is: build the scaffolding such that the next teammate, human or not, can sit down.
 
 ANGELA: Yes. I read that. My objection is not that you said it. My objection is that you said it like that.
 
@@ -38,7 +38,7 @@ RUTGER: Explain.
 
 ANGELA: "The next teammate, human or not." This kind of sentence — it sounds friendly. It sounds, in fact, very forward-thinking, very 2026. It is also the sentence I have heard, in slightly different German, before every restructuring I have lived through in the last fifteen years. "We are designing the team of the future." "The team of the future includes" — and then a slightly long pause — "new kinds of contributors." It always means the same thing in the end, Rutger. Some people who used to do work are now not doing that work.
 
-RUTGER: Yeah. I've sat in those rooms too. That's a fair read.
+RUTGER: Yeah. [sighs] I've sat in those rooms too. That's a fair read.
 
 ANGELA: Mm.
 
@@ -46,11 +46,11 @@ RUTGER: But not the only read.
 
 ANGELA: Tell me the other read.
 
-RUTGER: The other read is that the alternative — pretending the AI tools don't exist, or putting them in some unmanaged "innovation lab" off to the side — also costs jobs. Slower, less visibly, but more of them. Because by the time the team realises the work has migrated to the tools, the team didn't get a chance to migrate with it. The "Agent Inclusive" framing is supposed to force that conversation now, while the human team is still in the room.
+RUTGER: The other read is that the alternative — I mean, pretending the AI tools don't exist, or putting them in some unmanaged "innovation lab" off to the side — that also costs jobs. Slower, less visibly, but more of them. Because by the time the team realises the work has migrated to the tools… the team didn't get a chance to migrate with it. The "Agent Inclusive" framing is supposed to force that conversation now, while the human team is still in the room.
 
 ANGELA: Hm. Continue.
 
-RUTGER: The piece isn't about giving rights to agents. It's about giving the team a document. Three columns, really — who does what, where the agent and the human overlap, and who catches it when it breaks. So you can have a real conversation with the works council instead of a vague one.
+RUTGER: Look, the piece isn't about giving rights to agents. It's about giving the team a document. Three columns, really — who does what, where the agent and the human overlap, and who catches it when it breaks. So you can have a real conversation with the works council instead of a vague one.
 
 ANGELA: A document. With a clear ownership column.
 
@@ -60,7 +60,7 @@ ANGELA: Ownership of what, by whom, escalation to whom when it fails. Performanc
 
 RUTGER: Exactly.
 
-ANGELA: This — I will be honest with you — this I have not seen in the wild. Not once. Every implementation I have seen has been the IT team installs the tool, and then HR finds out three months later, when an employee says "I am being asked to spend half my day correcting a system that was not in my job description."
+ANGELA: This — I will be honest with you — this I have not seen in the wild. Not… once. Every implementation I have seen has been the IT team installs the tool, and then HR finds out three months later, when an employee says "I am being asked to spend half my day correcting a system that was not in my job description."
 
 RUTGER: That is the problem the piece is trying to make less common.
 
@@ -76,7 +76,7 @@ ANGELA: So if the title is the price of admission for the practice, fine. I will
 
 RUTGER: That is generous.
 
-ANGELA: That is not generous. That is pragmatic. I am German.
+ANGELA: [dryly] That is not generous. That is pragmatic. I am German.
 
 RUTGER: Of course.
 
@@ -98,7 +98,7 @@ RUTGER: That is the right question, and the article does not answer it well enou
 
 ANGELA: I noticed.
 
-RUTGER: Short version of the answer I should have written: the document I'm asking teams to make includes an explicit "the agent is wrong like this, and when it is wrong, escalate to this human." That role has to exist, on the org chart, by name. If you don't have that role, you don't have agent-inclusive design. You have agent-deployed design. Which is what you described — IT installs, HR cleans up.
+RUTGER: Right — short version of the answer I should have written: the document I'm asking teams to make includes an explicit "the agent is wrong like this, and when it is wrong, escalate to this human." That role has to exist, on the org chart, by name. If you don't have that role, you don't have agent-inclusive design. You have agent-deployed design. Which is what you described — IT installs, HR cleans up.
 
 ANGELA: Mm.
 
@@ -126,7 +126,7 @@ RUTGER: Was that the question, or was that an instruction?
 
 ANGELA: Both. As I said. I am German.
 
-RUTGER: [laughs] And that's the show. Here's the one thing I want to leave you with — forget the title, Angela's right about the title. The whole argument comes down to one line on an org chart: a named human who can write the brief, and catch the agent when it's confidently, politely wrong. No name in that box, you don't have agent-inclusive anything. You have a tool somebody installed.
+RUTGER: [laughs] And that's the show. Here's the one thing I want to leave you with — forget the title, Angela's right about the title. The whole argument comes down to one line on an org chart: a named human who can write the brief, and… catch the agent when it's confidently, politely wrong. No name in that box, you don't have agent-inclusive ANYTHING. You have a tool somebody installed.
 
 ANGELA: Write the document first.
 

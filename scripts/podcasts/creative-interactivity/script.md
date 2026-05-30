@@ -18,7 +18,7 @@ MARIE: One. With a follow-up.
 
 ORACLE: I have a deck. I always have a deck. I have brought it in spirit only — Rutger, I respect your no-screens policy on the podcast.
 
-RUTGER: We have screens. We just don't share them on audio.
+RUTGER: We have screens. We just don't, uh — share them on audio.
 
 ORACLE: A small mercy.
 
@@ -30,7 +30,7 @@ RUTGER: Go on.
 
 ORACLE: A slide is, before anything else, a unit of accountability. It is signed off, dated, distributed, archived, and — when it is eventually wrong — the meeting where it was approved can be reconstructed. You cannot do that with a live demo. A live demo is a *performance*. Performances are wonderful. They are not minutes.
 
-RUTGER: That's a fair distinction.
+RUTGER: Mm. That's a fair distinction.
 
 MARIE: Define accountability.
 
@@ -48,9 +48,9 @@ MARIE: I disagree that the slide is accountable. The slide is a record of a reco
 
 ORACLE: That is a very European distinction.
 
-MARIE: I am very European.
+MARIE: [dryly] I am very European.
 
-RUTGER: I want to defend Oracle for a moment. There is something he is right about. A slide is portable. You can email a slide. You can put a slide in a board pack. You cannot email a hover state.
+RUTGER: Look, I want to defend Oracle for a moment. There is something he is right about. A slide is portable. You can email a slide. You can put a slide in a board pack. You cannot email a hover state.
 
 ORACLE: Thank you, Rutger. I was beginning to feel ambushed.
 
@@ -58,13 +58,13 @@ MARIE: You were not ambushed. You were questioned.
 
 ORACLE: In my experience the second is a subset of the first.
 
-RUTGER: But — here is where I push back. The piece is not arguing that slides should go away. It is arguing that for *new concepts*, especially AI workflows, the deck loses the audience faster than the live tool would. The audience needs to *touch the idea*. Then we can write the slide together afterwards.
+RUTGER: But — here is where I push back. The piece is not arguing that slides should go away. I mean — it is arguing that for *new concepts*, especially AI workflows, the deck loses the audience faster than the live tool would. The audience needs to *touch the idea*. Then we can write the slide together afterwards.
 
 ORACLE: Yes. This part of the piece I do not actually disagree with. I just think it is fragile in the wild.
 
 RUTGER: Fragile how.
 
-ORACLE: A live demo only works if it works. If the wifi is shaky, if the API rate-limits you at minute three, if you forget the prompt you rehearsed — you have nothing. A slide does not have rate limits. A slide opens.
+ORACLE: A live demo only works if it works. If the wifi is shaky, if the API rate-limits you at minute three, if you forget the prompt you rehearsed — well, you have nothing. A slide does not have rate limits. A slide opens.
 
 RUTGER: That is a real cost.
 
@@ -98,9 +98,9 @@ RUTGER: Go.
 
 MARIE: The piece says interactivity is the new explanation. I want to know — what does interactivity stop explaining? Because every new format gives up something. The deck gave up motion. The video gave up density. What does the live demo give up.
 
-RUTGER: That is the right question. It is the one I kept circling and never quite pinned in the piece.
+RUTGER: That is the right question. It is the one I kept circling and… never quite pinned in the piece.
 
-ORACLE: I will give Rutger a moment to enjoy being caught out.
+ORACLE: [chuckles] I will give Rutger a moment to enjoy being caught out.
 
 RUTGER: [laughs] I will take the moment. Here is the honest answer. The live demo gives up the *frozen argument*. A deck has one real advantage — you cannot edit it once it is sent. The recipient reads the same nine words on slide seven that you wrote, in the order you wrote them. A live demo is rewritten every time you give it. Sometimes better, often worse, but it is never the same artefact twice.
 
@@ -128,7 +128,7 @@ RUTGER: Noted.
 
 ORACLE: I will be billing you for these insights, Rutger.
 
-RUTGER: I assumed. And I will pay it, because here is what we actually landed. The slide and the demo are not rivals — they are the trade-off. The demo lets the room *touch* the idea and walk out involved. The slide freezes the argument so it survives the walk to the next meeting. You give one up to get the other. That is the whole piece, and I needed both of you to say it out loud.
+RUTGER: [chuckles] I assumed. And I will pay it, because here is what we actually landed. The slide and the demo are not rivals — they are the trade-off. The demo lets the room *touch* the idea and walk out involved. The slide freezes the argument so it survives the walk to the next meeting. You give one up to get the other. That is the whole piece, and I needed both of you to say it out loud.
 
 MARIE: A demo to convince the room. A slide to convince the room they were not there.
 

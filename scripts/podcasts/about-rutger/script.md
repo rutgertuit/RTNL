@@ -10,13 +10,13 @@
 # Length target: ~6-7 min (~1200 words).
 # Tone: affectionate roast + genuine insight. Marie = SHORT lines only.
 
-ANGELA: He is not coming. He set this up and then he left. There is a folder. He would like us to go through the folder.
+ANGELA: He is not coming. He set this up, and then he left. There is a folder. He would like us to go through the folder.
 
-DINO: A folder. About himself. That he has asked us to discuss. While he is not here.
+DINO: A folder. About himself. That he has asked us to discuss… while he is not here.
 
-ORACLE: It is the most honest thing he has ever done. To build the jury, and then leave the room.
+ORACLE: It is the most honest thing he has ever done. To build the jury — and then leave the room.
 
-FRITS: [dryly] He built the jury. Let us be precise about that — we are in the folder too. I am a character he wrote for a game about an advertising agency.
+FRITS: [dryly] He built the jury. Let us be precise about that… we are in the folder too. I am a character he wrote for a game about an advertising agency.
 
 DINO: I am the dinosaur. Literally. The brief said "creative dinosaur."
 
@@ -26,7 +26,7 @@ ANGELA: And yet here we are. Page one. The bio.
 
 ORACLE: "Musician and tinkerer." That is the opening line of the long version.
 
-FRITS: He runs a piece of Google and the first word out of his own bio is "musician."
+FRITS: He runs a piece of Google… and the first word out of his own bio is "musician."
 
 DINO: In MY day you led with the title. You wore it like a medal at the bar.
 
@@ -38,7 +38,7 @@ ORACLE: — I am only saying that being this low-key takes effort. He has buried
 
 ANGELA: The bio says: musician, gamer, then marketing. In that order. Plan B became Plan A.
 
-FRITS: I respect the order. Most of these men pretend the work came first and the soul came second. He admits it was the other way around.
+FRITS: I respect the order. Most of these men pretend the work came first and the soul came second… he admits it was the other way around.
 
 DINO: It says he was a top-ranked Quake 2 player in nineteen ninety-eight.
 
@@ -46,13 +46,13 @@ MARIE: Verified?
 
 DINO: It is his own bio, Marie. Nothing in it is verified. That is the genre.
 
-FRITS: A World of Warcraft guild leader for five years. He frames it as "remote leadership and large-scale strategy."
+FRITS: A World of Warcraft guild leader for five years. He frames it as… "remote leadership and large-scale strategy."
 
 ORACLE: He is not wrong. Herding forty adults toward a dragon at the same time, on a Tuesday, is in fact the job.
 
-ANGELA: This is the part I underline. He keeps doing this — taking the unserious thing and finding the serious bone inside it. The kitchen. The jazz. The dragon.
+ANGELA: Right — this is the part I underline. He keeps doing this, taking the unserious thing and finding the serious bone inside it. The kitchen. The jazz. The dragon.
 
-DINO: The jazz. Let us discuss the jazz.
+DINO: The jazz. Let us… discuss the jazz.
 
 ORACLE: "AI provides the rigid beat. Humans provide the swing."
 
@@ -70,17 +70,17 @@ FRITS: There used to be a page for that line. He called it The Doctrine. Capital
 
 DINO: Capital D. The nerve.
 
-FRITS: And then he renamed it. It is called — "How I think." Lowercase. He demoted himself.
+FRITS: And then he renamed it. It is called… "How I think." Lowercase. He demoted himself.
 
 ORACLE: But the line is structurally sound. Four claims, one platform, no adjective wasted. I have built decks on far less.
 
 DINO: He has a whole piece arguing nobody should build the deck.
 
-ORACLE: [sighs] ...I am aware of the piece.
+ORACLE: [sighs] …I am aware of the piece.
 
 ANGELA: That is the Interactivity article. He argues the live demo beats the slide. He put two playable games on the page as the proof.
 
-DINO: One of which we are standing inside.
+DINO: One of which… we are standing inside.
 
 FRITS: We are exhibits. We are evidence in his own argument. The man cited us as a footnote.
 
@@ -90,15 +90,15 @@ ANGELA: The website itself. Six long pieces. A games section. A media kit. And o
 
 ORACLE: "Nothing on this site was hand-touched. Every image, every line, every clip — prompted, then chosen."
 
-FRITS: So he did not write us either. He prompted us. And then he chose us.
+FRITS: So he did not write us either. He prompted us… and then he chose us.
 
 DINO: He chose the dinosaur.
 
 ORACLE: He chose the dinosaur on purpose. That is the unsettling part.
 
-ANGELA: I find it honest. He is not hiding the machine. He is standing next to it, pointing at it.
+ANGELA: Mm. I find it honest. He is not hiding the machine — he is standing next to it, pointing at it.
 
-FRITS: There is a generation of us who spent forty years pretending the airbrush did not exist. He put the airbrush on the masthead.
+FRITS: There is a generation of us who spent forty years pretending the airbrush did not exist… he put the airbrush on the masthead.
 
 DINO: I still think it is showing off.
 
@@ -118,7 +118,7 @@ DINO: Because the title bores him.
 
 ORACLE: Because the title dates. The hobby compounds.
 
-FRITS: That is the smartest thing said in this room, and a strategy consultant said it.
+FRITS: [chuckles] That is the smartest thing said in this room — and a strategy consultant said it.
 
 ORACLE: I contain multitudes.
 
@@ -126,9 +126,9 @@ DINO: You contain slides.
 
 ANGELA: Closing thoughts. Frits.
 
-FRITS: He is a marketer who is suspicious of marketing — which is the only kind worth reading. I would have a glass of port with him. Once.
+FRITS: He is a marketer who is suspicious of marketing — which is the only kind worth reading. I would have a glass of port with him… once.
 
-DINO: He is twenty years younger than me and he learned the new tools instead of complaining about them. Which I find personally offensive, and quietly correct.
+DINO: He is twenty years younger than me, and he learned the new tools instead of complaining about them. Which I find personally offensive — and quietly correct.
 
 ORACLE: He is a translator. The rarest role. He stands between the people who fear the machine and the people who oversell it, and refuses to join either church.
 
@@ -136,7 +136,7 @@ MARIE: He labels his sources. Mostly.
 
 ANGELA: Mostly. We will allow it.
 
-FRITS: Are we done? He is going to listen to this.
+FRITS: Are we done…? He is going to listen to this.
 
 ANGELA: He is going to listen to this, choose the good parts, and keep them.
 
