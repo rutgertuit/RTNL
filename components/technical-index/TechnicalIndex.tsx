@@ -16,9 +16,11 @@ const PROJECTS = [
     id: "D · 02",
     name: "Shop Life",
     desc:
-      "Smart-family assistant for grocery + meal planning. Runs on a Pi5 with a small Whisper instance.",
-    tags: ["WHISPER", "PI5"],
+      "Voice-first family assistant for the car. Calendar, meal planning + Picnic ordering, and a deep-research / debate system. ElevenLabs voice in, WhatsApp out for approvals.",
+    tags: ["ELEVENLABS", "GEMINI", "PICNIC"],
     status: "open",
+    href: "/technical/shop-life",
+    internal: true,
   },
   {
     id: "D · 03",
