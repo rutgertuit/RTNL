@@ -16,6 +16,7 @@ export function Footer() {
             <Link href="/#technical">03 Technical / Deep End</Link>
             <Link href="/#media-kit">04 Media Kit</Link>
             <Link href="/weekly">05 Weekly</Link>
+            <Link href="/doctrine">06 Doctrine</Link>
           </div>
           <div className="rt-footer__meta-col">
             <div className="eyebrow">ELSEWHERE</div>
