@@ -38,7 +38,7 @@ RUTGER: Explain.
 
 ANGELA: "The next teammate, human or not." This kind of sentence — it sounds friendly. It sounds, in fact, very forward-thinking, very 2026. It is also the sentence I have heard, in slightly different German, before every restructuring I have lived through in the last fifteen years. "We are designing the team of the future." "The team of the future includes" — and then a slightly long pause — "new kinds of contributors." It always means the same thing in the end, Rutger. Some people who used to do work are now not doing that work.
 
-RUTGER: That is a fair read.
+RUTGER: Yeah. I've sat in those rooms too. That's a fair read.
 
 ANGELA: Mm.
 
@@ -50,7 +50,7 @@ RUTGER: The other read is that the alternative — pretending the AI tools don't
 
 ANGELA: Hm. Continue.
 
-RUTGER: The piece is — if I'm being precise — not about giving rights to agents. It's about giving the team a document. Who does what. What the agent's job is. What the human's job is. Where they overlap. So you can have a real conversation with the works council instead of a vague one.
+RUTGER: The piece isn't about giving rights to agents. It's about giving the team a document. Three columns, really — who does what, where the agent and the human overlap, and who catches it when it breaks. So you can have a real conversation with the works council instead of a vague one.
 
 ANGELA: A document. With a clear ownership column.
 
@@ -106,7 +106,7 @@ RUTGER: Better answer?
 
 ANGELA: Better answer. I would like that paragraph added to the article, please.
 
-RUTGER: Noted.
+RUTGER: [laughs] Done. It goes in.
 
 ANGELA: Question three.
 
@@ -125,3 +125,11 @@ ANGELA: Thank you.
 RUTGER: Was that the question, or was that an instruction?
 
 ANGELA: Both. As I said. I am German.
+
+RUTGER: [laughs] And that's the show. Here's the one thing I want to leave you with — forget the title, Angela's right about the title. The whole argument comes down to one line on an org chart: a named human who can write the brief, and catch the agent when it's confidently, politely wrong. No name in that box, you don't have agent-inclusive anything. You have a tool somebody installed.
+
+ANGELA: Write the document first.
+
+RUTGER: Write the document first. Angela — thank you. Genuinely.
+
+ANGELA: Mm. You may keep the title.
