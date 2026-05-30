@@ -58,20 +58,57 @@ node scripts/podcasts/_shared/render-podcast.mjs <slug> --remaster
 node scripts/podcasts/_shared/render-podcast.mjs --all --remaster
 ```
 
+## Voice + dialogue settings
+
+- **Rutger** uses his own **remixed voice clone** `dJEBU6SrnJhBI4rl8Xwn` (the
+  remix stabilises his accent across batches — a *designed* voice never sounded
+  like him). Guests: FRITS `zoiHymAGyFOFuS51xKG1`, DINO `3DEd8bTvQonz90PbbWXC`,
+  ORACLE `I1aZXfdukqudcrBcjAWi`, ANGELA `gZWyS8DEXz4sJeL2FPEZ`,
+  MARIE `ddUqaOAX9uaMFHJ1LLHg`.
+- **Stability `0.5` (Natural)** is the default — high enough that the remixed
+  clone holds its accent, low enough that the v3 audio tags still fire. (Robust
+  `1.0` would lock harder but mutes `[laughs]`/`[sighs]`; Creative `0.0` drifts.)
+- One shared **seed per episode** (derived from the slug, or pinned via
+  `_dialogue.seed`) is the only cross-batch consistency lever the dialogue
+  endpoint gives us, so batches are kept few and large (`MAX_DIALOGUE_CHARS`).
+
 ## Mastering chain
 
-Each rendered episode runs through this ffmpeg `-af` chain (mirrors the
-older Multiplier Myth pipeline):
+`concatAndMaster()` in `_shared/render-podcast.mjs` runs an ffmpeg
+`filter_complex`:
 
-1. `highpass=f=80` &mdash; kill mic rumble + room hum below 80 Hz
-2. `acompressor` light (3:1, -18 dB threshold) &mdash; even voice dynamics
-3. `acompressor` tighter (6:1, -12 dB threshold) &mdash; podcast presence
-4. `deesser` &mdash; tame harsh sibilance around 6 kHz
-5. `alimiter` &mdash; true-peak ceiling -1.5 dB
-6. `loudnorm` &mdash; broadcast target -16 LUFS / TP -1.5 / LRA 11
+1. **Voice chain** (`VOICE_CHAIN`): `highpass=80` → `acompressor` light (3:1) →
+   `acompressor` tight (6:1) → `deesser` → `alimiter` (TP -1.5) →
+   `atempo=VOICE_TEMPO`.
+2. **Tempo** (`VOICE_TEMPO`, default **0.93**) &mdash; slows delivery ~7% so it
+   isn't rushed and the gaps between sentences breathe. `atempo` **preserves
+   pitch** (the voice doesn't drop). Tune 0.90 (slower) … 0.96 (subtler).
+3. **Room tone** (`ROOM_TONE`, `ROOM_TONE_AMPLITUDE` default **0.006**) &mdash; a
+   faint band-limited brown-noise floor mixed under the voice (`amix
+   normalize=0`). Pure digital silence between turns / at batch seams is the
+   biggest "this is AI" tell; the floor bridges it. Tune amplitude up/down.
+4. **`loudnorm`** last &mdash; broadcast target -16 LUFS / TP -1.5 / LRA 11.
 
-If a tweak is needed, edit `MASTERING_CHAIN` in `_shared/render-podcast.mjs`
-and re-run `--remaster --all` &mdash; remasters are free (no API).
+Tempo + room-tone tweaks are **free**: edit the constants and re-run
+`--remaster --all` (no ElevenLabs calls).
+
+## Humanization recipe (delivery, not content)
+
+Scripts are written with natural-speech "imperfections" so the v3 render sounds
+like real people, not an AI roundtable. Apply **tastefully — under-do**:
+
+- **Backchannels / reactions**: make flat openers reactive
+  (`[chuckles] Read it? Three times, actually.`, `Right—`, `Mm.`).
+- **Hesitations**, sparingly (a few per speaker): `Uh,`, `I mean—`, `well,`,
+  `look,`.
+- **Em-dash (—)** for self-correction / abrupt thought-shift.
+- **Ellipsis (…)** for trailing/deliberate pauses &mdash; lean these toward the
+  older/deliberate characters (Frits, Dino) for cadence.
+- **ALL-CAPS** on ≤1-2 stressed words per speaker, total.
+- **v3 tags**: `[chuckles]` / `[sighs]` / `[laughs]` / `[dryly]` only, natural.
+  These fire at stability 0.5. **Never** `[pause]` / `[beat]` (not real tags —
+  use `…` / `—`). **Never** HTML entities like `&apos;` (they break TTS).
+- **Marie** stays SHORT — precision interjections only; never lengthen her.
 
 ## script.md format
 
