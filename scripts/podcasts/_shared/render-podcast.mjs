@@ -257,20 +257,47 @@ function runFfmpeg(args) {
  * `dualmono=true` on loudnorm so mono input is treated as stereo for the
  * LUFS calculation (ElevenLabs outputs mono).
  */
-const MASTERING_CHAIN = [
+// Slight global slow-down so the delivery doesn't feel rushed — atempo
+// preserves pitch (the voice doesn't drop), it just stretches the pace and
+// the gaps between sentences. 1.0 = unchanged; <1 = slower. 0.93 ≈ 7% slower.
+// Tune to taste (0.90 = more relaxed, 0.96 = barely-there).
+const VOICE_TEMPO = 0.93;
+
+// Voice chain WITHOUT loudnorm — loudnorm runs last, after the room-tone mix,
+// so the faint floor is included in the broadcast-loudness target.
+const VOICE_CHAIN = [
   "highpass=f=80",
   "acompressor=threshold=-18dB:ratio=3:attack=5:release=80:makeup=2",
   "acompressor=threshold=-12dB:ratio=6:attack=8:release=200:makeup=2",
   "deesser=i=0.4",
   "alimiter=level_in=1:level_out=0.96:limit=0.85:attack=5:release=50",
-  "loudnorm=I=-16:TP=-1.5:LRA=11:dual_mono=true",
+  `atempo=${VOICE_TEMPO}`,
 ].join(",");
+
+// Faint "room tone" floor. Pure digital silence between turns (and at the
+// hard seams where batches concatenate) is the single biggest tell that a
+// podcast is synthetic. A band-limited brown-noise bed, mixed well under the
+// voice, bridges those gaps so the track always has a believable room under
+// it. Tune ROOM_TONE_AMPLITUDE up/down to taste (higher = more audible floor).
+const ROOM_TONE_AMPLITUDE = 0.006; // ~ -44 dBFS pre-bandlimit; sits well under voice
+const ROOM_TONE = `anoisesrc=color=brown:r=44100:amplitude=${ROOM_TONE_AMPLITUDE},highpass=f=100,lowpass=f=7000`;
+
+const LOUDNORM = "loudnorm=I=-16:TP=-1.5:LRA=11:dual_mono=true";
 
 async function concatAndMaster(lineFiles, output) {
   // Build a temp concat listfile next to the output.
   const concatList = output + ".concat.txt";
   const listLines = lineFiles.map((p) => `file '${p.replace(/'/g, "'\\''")}'`).join("\n");
   await fs.writeFile(concatList, listLines, "utf8");
+  // [0:a] = concatenated voice → voice chain → [v]
+  // room-tone source → [n]
+  // amix (normalize=0 keeps each at its own level; duration=first trims the
+  // infinite noise to the voice length) → loudnorm to -16 LUFS.
+  const filter =
+    `[0:a]${VOICE_CHAIN}[v];` +
+    `${ROOM_TONE}[n];` +
+    `[v][n]amix=inputs=2:normalize=0:duration=first[mix];` +
+    `[mix]${LOUDNORM}[out]`;
   await runFfmpeg([
     "-y",
     "-f",
@@ -279,8 +306,10 @@ async function concatAndMaster(lineFiles, output) {
     "0",
     "-i",
     concatList,
-    "-af",
-    MASTERING_CHAIN,
+    "-filter_complex",
+    filter,
+    "-map",
+    "[out]",
     "-c:a",
     "libmp3lame",
     "-q:a",
