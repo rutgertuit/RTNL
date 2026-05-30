@@ -27,7 +27,7 @@ const howToLd = {
   totalTime: "PT3H",
   tool: [
     { "@type": "HowToTool", name: "Google Flow (Use Character feature)" },
-    { "@type": "HowToTool", name: "Nano Banana / Midjourney / Imagen 4 (reference-image conditioning)" },
+    { "@type": "HowToTool", name: "Nano Banana / Whisk / Imagen 4 (reference-image conditioning)" },
     { "@type": "HowToTool", name: "FLUX.1 [dev] + ComfyUI / Forge / Replicate LoRA trainer" },
   ],
   step: [
@@ -43,7 +43,7 @@ const howToLd = {
       position: 2,
       name: "Method 02 — Reference-shot pipeline, manually composited",
       text:
-        "Most control, moderate effort. Pick one anchor reference image. Use reference-conditioned generation (Midjourney --cref, Nano Banana reference attach, Imagen subject customization) to generate four to eight variants per angle. Cherry-pick the best of each. Composite the picks into a single multi-panel sheet. Two to four hours per character; produces a portable sheet usable across tools.",
+        "Most control, moderate effort. Pick one anchor reference image. Use reference-conditioned generation (Whisk subject references, Nano Banana reference attach, Imagen subject customization) to generate four to eight variants per angle. Cherry-pick the best of each. Composite the picks into a single multi-panel sheet. Two to four hours per character; produces a portable sheet usable across tools.",
     },
     {
       "@type": "HowToStep",
@@ -190,8 +190,8 @@ export default function CharacterSheetPage() {
               <p>
                 <strong>Most control. Moderate effort.</strong> When to use it: you want maximum
                 control over which &quot;version&quot; of the character becomes canonical, and you
-                want a sheet that is portable across multiple tools (<a href="https://www.midjourney.com" rel="noopener noreferrer" target="_blank">Midjourney</a> omni-reference <code>--oref</code>
-                , Nano Banana reference-attach, Imagen subject customization, Flux ControlNet, etc.).
+                want a sheet that is portable across multiple tools (<a href="https://labs.google/fx/tools/whisk" rel="noopener noreferrer" target="_blank">Whisk</a> subject references,
+                Nano Banana reference-attach, Imagen subject customization, Flux ControlNet, etc.).
               </p>
               <p>
                 <strong>This is the method I used for the portrait series on this site.</strong>{" "}
@@ -215,10 +215,10 @@ export default function CharacterSheetPage() {
                   adds a back-of-head shot and a low-angle hero shot.
                 </li>
                 <li>
-                  <strong>Generate each angle with reference conditioning.</strong> In Midjourney
-                  that is omni-reference (<code>--oref</code>, the 2025 successor to the older
-                  <code>--cref --cw 100</code>). In Nano Banana it is the reference-attach feature.
-                  In Imagen it is subject customization. Generate four to eight variants per angle.
+                  <strong>Generate each angle with reference conditioning.</strong> In Whisk
+                  that is the subject (and optional style) reference slots. In Nano Banana it is
+                  the reference-attach feature. In Imagen it is subject customization. Generate
+                  four to eight variants per angle.
                 </li>
                 <li>
                   <strong>Cherry-pick.</strong> For each angle, choose the variant where the face
@@ -243,7 +243,7 @@ export default function CharacterSheetPage() {
               <ul>
                 <li>
                   <em>Pro:</em> You control every panel. You can mix tools per angle — Nano
-                  Banana might nail your front shots while Midjourney nails the profile. The
+                  Banana might nail your front shots while Whisk nails the profile. The
                   resulting sheet is portable across any tool that accepts a reference image,
                   including ones that don&apos;t exist yet.
                 </li>
