@@ -1,5 +1,5 @@
 {
-  "_note": "Episode 05 — Rutger interviews the Creative Dinosaur (irritable Rotterdam art director, 30 years of the same concept). 1:1 format.",
+  "_note": "Episode 05 — Rutger interviews the Creative Dinosaur (irritable Rotterdam art director, 30 years of the same concept), with Saar (naïve glamour foil). 1:2 panel.",
   "RUTGER": {
     "voiceId": "j6so4swoRyQ5hVHEur0M",
     "model": "eleven_v3",
@@ -12,5 +12,9 @@
     "stability": 0.55,
     "similarity": 0.85,
     "style": 0.2
+  },
+  "SAAR": {
+    "voiceId": "xBPWZQ2gzFKIn63cFXfT",
+    "model": "eleven_v3"
   }
 }
