@@ -18,77 +18,127 @@
       "group": "articles",
       "title": "The Multiplier Myth — a conversation.",
       "summary": "Rutger and Oracle stress-test the central argument: AI is a multiplier only if you use it on the part of the work that compounds, not as a way to do the same job with fewer people.",
-      "cast": ["RUTGER", "ORACLE", "SAAR"],
-      "duration": "5:30",
+      "cast": [
+        "RUTGER",
+        "ORACLE",
+        "SAAR"
+      ],
+      "duration": "10:09",
       "src": "/audio/podcasts/multiplier-myth/ep01.mp3",
       "image": "/podcasts/multiplier-myth.png",
-      "backlink": { "href": "/business/multiplier-myth", "label": "The Multiplier Myth" }
+      "backlink": {
+        "href": "/business/multiplier-myth",
+        "label": "The Multiplier Myth"
+      }
     },
     {
       "slug": "thirty-minute-kitchen",
       "group": "articles",
       "title": "The Thirty-Minute Kitchen — with Frits.",
       "summary": "Frits the Nestor pushes back on the title, then agrees with most of the article anyway. The kitchen is the prep line, not the meal.",
-      "cast": ["RUTGER", "FRITS"],
-      "duration": "6:42",
+      "cast": [
+        "RUTGER",
+        "FRITS"
+      ],
+      "duration": "7:18",
       "src": "/audio/podcasts/thirty-minute-kitchen/ep01.mp3",
       "image": "/podcasts/thirty-minute-kitchen.png",
-      "backlink": { "href": "/business/thirty-minute-kitchen", "label": "The Thirty-Minute Kitchen" }
+      "backlink": {
+        "href": "/business/thirty-minute-kitchen",
+        "label": "The Thirty-Minute Kitchen"
+      }
     },
     {
       "slug": "agent-inclusive",
       "group": "articles",
       "title": "Agent Inclusive — with Angela.",
       "summary": "Angela the chief of staff, calm and procedural, walks through what \"Agent Inclusive\" actually means in a real org: keep one human in the room who can write a real brief.",
-      "cast": ["RUTGER", "ANGELA", "SAAR"],
-      "duration": "7:11",
+      "cast": [
+        "RUTGER",
+        "ANGELA",
+        "SAAR"
+      ],
+      "duration": "10:28",
       "src": "/audio/podcasts/agent-inclusive/ep01.mp3",
       "image": "/podcasts/agent-inclusive.png",
-      "backlink": { "href": "/business/agent-inclusive", "label": "Agent Inclusive" }
+      "backlink": {
+        "href": "/business/agent-inclusive",
+        "label": "Agent Inclusive"
+      }
     },
     {
       "slug": "creative-video-models",
       "group": "articles",
       "title": "The Evolution of Video Models — with Dino.",
       "summary": "Dino the creative dinosaur reluctantly acknowledges the lineage from Veo 2 to Omni. The article's four-lineage frame survives.",
-      "cast": ["RUTGER", "DINO", "SAAR"],
-      "duration": "5:51",
+      "cast": [
+        "RUTGER",
+        "DINO",
+        "SAAR"
+      ],
+      "duration": "8:31",
       "src": "/audio/podcasts/creative-video-models/ep01.mp3",
       "image": "/podcasts/creative-video-models.png",
-      "backlink": { "href": "/creative/video-models", "label": "The Evolution of Video Models" }
+      "backlink": {
+        "href": "/creative/video-models",
+        "label": "The Evolution of Video Models"
+      }
     },
     {
       "slug": "creative-interactivity",
       "group": "articles",
       "title": "Interactivity Is The New Explanation — a panel.",
       "summary": "Strategy Oracle defends slides. Marie keeps everyone definitionally honest. The article's argument lands with one notable caveat: live demos give up the frozen argument.",
-      "cast": ["RUTGER", "ORACLE", "MARIE"],
-      "duration": "5:35",
+      "cast": [
+        "RUTGER",
+        "ORACLE",
+        "MARIE"
+      ],
+      "duration": "6:13",
       "src": "/audio/podcasts/creative-interactivity/ep01.mp3",
       "image": "/podcasts/creative-interactivity.png",
-      "backlink": { "href": "/creative/interactivity", "label": "Interactivity Is The New Explanation" }
+      "backlink": {
+        "href": "/creative/interactivity",
+        "label": "Interactivity Is The New Explanation"
+      }
     },
     {
       "slug": "creative-character-sheet",
       "group": "articles",
       "title": "How to make a character sheet — a panel.",
       "summary": "Dino objects, Marie corrects, Rutger walks through the three-method tutorial without losing the thread. Reference-conditioning beats prompt-only.",
-      "cast": ["RUTGER", "DINO", "MARIE"],
-      "duration": "6:20",
+      "cast": [
+        "RUTGER",
+        "DINO",
+        "MARIE"
+      ],
+      "duration": "6:45",
       "src": "/audio/podcasts/creative-character-sheet/ep01.mp3",
       "image": "/podcasts/creative-character-sheet.png",
-      "backlink": { "href": "/creative/character-sheet", "label": "Character Sheet" }
+      "backlink": {
+        "href": "/creative/character-sheet",
+        "label": "Character Sheet"
+      }
     },
     {
       "slug": "about-rutger",
       "group": "specials",
       "title": "The file on Rutger — a panel, no host.",
       "summary": "Five invented guests go through the press clippings, the bios, and this website while the subject is out of the room — under the running joke that he prompted all of them into existence.",
-      "cast": ["FRITS", "DINO", "ORACLE", "ANGELA", "MARIE"],
-      "duration": "5:48",
+      "cast": [
+        "FRITS",
+        "DINO",
+        "ORACLE",
+        "ANGELA",
+        "MARIE"
+      ],
+      "duration": "6:38",
       "src": "/audio/podcasts/about-rutger/ep01.mp3",
       "image": "/podcasts/about-rutger.png",
-      "backlink": { "href": "/the-panel", "label": "The Panel (easter egg)" }
+      "backlink": {
+        "href": "/the-panel",
+        "label": "The Panel (easter egg)"
+      }
     }
   ]
 }

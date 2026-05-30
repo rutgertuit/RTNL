@@ -72,7 +72,7 @@ RUTGER: That's — almost. It's not really about boring versus beautiful. It's a
 
 SAAR: Mm … but will it do my FACE?
 
-DINO: [sighs]
+DINO: [sighs] Here we go.
 
 SAAR: No, seriously. This — Vivo. Can it do my face? Without me? Could I be in a commercial in Rotterdam while I'm in Ibiza? Can it do my Ibiza thing? The little — [laughs] — the thing I do.
 
