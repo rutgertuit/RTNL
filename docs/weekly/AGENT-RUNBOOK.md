@@ -25,6 +25,8 @@ This is the part that makes the show work and the part most likely to drift.
 Get it wrong and the show is a liability instead of a credibility-builder.
 
 **From the site (his persona — he leads with this, always):**
+- His *podcast* voice is specified in `docs/podcasts/rutger-voice.md` — relaxed
+  expert-peer, warmer than on-stage. Write RUTGER's lines to that profile.
 - "trusted translator", "technical creative" (modest, lowercase — no grand epithets).
 - The **four-surface YouTube view**: YouTube is tv, social, search, and shopping.
 - The **jazz-swing** metaphor: AI provides the rigid beat (data, efficiency,
