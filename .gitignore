@@ -17,6 +17,11 @@ __pycache__/
 .venv/
 venv/
 
+# Internal-only render outputs (character sheets used as image refs by
+# generate-podcast-portraits.py --comps). Sheets are references, not
+# deployed assets — the comps under public/podcasts/ are what ships.
+/drop/
+
 # Playwright + dev screenshots (local only)
 .playwright-mcp/
 hero*.png
