@@ -58,7 +58,7 @@ ORACLE: "AI provides the rigid beat. Humans provide the swing."
 
 FRITS: It is a good line.
 
-DINO: It is a TERRIBLE line. [pause] It is a wonderful line. I hate that it is a wonderful line.
+DINO: It is a TERRIBLE line… It is a wonderful line. I hate that it is a wonderful line.
 
 MARIE: Both can be true.
 
@@ -70,7 +70,7 @@ FRITS: There used to be a page for that line. He called it The Doctrine. Capital
 
 DINO: Capital D. The nerve.
 
-FRITS: And then he renamed it. It is called — [pause] — "How I think." Lowercase. He demoted himself.
+FRITS: And then he renamed it. It is called — "How I think." Lowercase. He demoted himself.
 
 ORACLE: But the line is structurally sound. Four claims, one platform, no adjective wasted. I have built decks on far less.
 

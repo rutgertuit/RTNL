@@ -104,7 +104,7 @@ DINO: The answer is that Pieter is going to learn Veo. Pieter is, in fact, learn
 
 RUTGER: I don't think that's dark. I think that's the whole thing, and we keep dressing it up as a debate about cinema so we don't have to say it plainly. It was never the Volvo spot. It was never the candle. It's whether the next Pieter — on the couch, in the flat, learning Veo tonight — has a way to eat while he figures out what he's actually good at. The survival job changed. The question underneath it didn't.
 
-DINO: [pause] You've been waiting the whole hour to say that.
+DINO: … You've been waiting the whole hour to say that.
 
 RUTGER: A little.
 
@@ -112,4 +112,4 @@ DINO: It was decent. Don't do it again.
 
 RUTGER: So the next Pieter eats.
 
-DINO: The next Pieter eats. Differently. On worse coffee than this, which is saying something. [beat] And in fifty years he'll be telling some idiot with a microphone that none of it was real craft — and he'll be wrong in exactly the way I'm wrong now. That's the job surviving. That's the part I respect.
+DINO: The next Pieter eats. Differently. On worse coffee than this, which is saying something … and in fifty years he'll be telling some idiot with a microphone that none of it was real craft — and he'll be wrong in exactly the way I'm wrong now. That's the job surviving. That's the part I respect.
