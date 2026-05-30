@@ -24,17 +24,17 @@ MARIE: I am radioactive.
 
 ANGELA: And yet here we are. Page one. The bio.
 
-ORACLE: "The Conductor of Change." That is the opening line of the long version.
+ORACLE: "Musician and tinkerer." That is the opening line of the long version.
 
-FRITS: He gave himself a nickname. In quotation marks. In his own bio.
+FRITS: He runs a piece of Google and the first word out of his own bio is "musician."
 
-DINO: In MY day you did not name yourself. The trade press named you — usually something cruel — and you carried it for life.
+DINO: In MY day you led with the title. You wore it like a medal at the bar.
 
-ORACLE: There is a tradition there. Coltrane did not call himself a sheet of sound. A critic did. The self-application of the epithet is, philosophically, a category error —
+ORACLE: There is a strategy there. He has worked very hard to look like he is not working hard. The casualness is engineered.
 
 ANGELA: Oracle.
 
-ORACLE: — I am moving on.
+ORACLE: — I am only saying that being this low-key takes effort. He has buried the most impressive thing on the page on purpose.
 
 ANGELA: The bio says: musician, gamer, then marketing. In that order. Plan B became Plan A.
 
@@ -66,9 +66,13 @@ DINO: Marie, that is the entire problem with him in one sentence.
 
 ANGELA: Press file. Adformatie, twenty twenty-four. The headline he is most quoted on — "YouTube is tv, social, search and shopping."
 
-FRITS: The Doctrine. He calls it the Tuit Doctrine. Again — naming his own doctrine.
+FRITS: There used to be a page for that line. He called it The Doctrine. Capital D.
 
-ORACLE: But structurally sound. Four claims, one platform, no adjective wasted. I have built decks on far less.
+DINO: Capital D. The nerve.
+
+FRITS: And then he renamed it. It is called — [pause] — "How I think." Lowercase. He demoted himself.
+
+ORACLE: But the line is structurally sound. Four claims, one platform, no adjective wasted. I have built decks on far less.
 
 DINO: He has a whole piece arguing nobody should build the deck.
 
