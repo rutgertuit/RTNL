@@ -60,17 +60,39 @@ node scripts/podcasts/_shared/render-podcast.mjs --all --remaster
 
 ## Voice + dialogue settings
 
-- **Rutger** uses his own **remixed voice clone** `dJEBU6SrnJhBI4rl8Xwn` (the
+- **Rutger** uses his own **remixed voice clone** `j6so4swoRyQ5hVHEur0M` (the
   remix stabilises his accent across batches — a *designed* voice never sounded
   like him). Guests: FRITS `zoiHymAGyFOFuS51xKG1`, DINO `3DEd8bTvQonz90PbbWXC`,
   ORACLE `I1aZXfdukqudcrBcjAWi`, ANGELA `gZWyS8DEXz4sJeL2FPEZ`,
-  MARIE `ddUqaOAX9uaMFHJ1LLHg`.
+  MARIE `ddUqaOAX9uaMFHJ1LLHg`, SAAR `xBPWZQ2gzFKIn63cFXfT`.
 - **Stability `0.5` (Natural)** is the default — high enough that the remixed
   clone holds its accent, low enough that the v3 audio tags still fire. (Robust
   `1.0` would lock harder but mutes `[laughs]`/`[sighs]`; Creative `0.0` drifts.)
 - One shared **seed per episode** (derived from the slug, or pinned via
   `_dialogue.seed`) is the only cross-batch consistency lever the dialogue
   endpoint gives us, so batches are kept few and large (`MAX_DIALOGUE_CHARS`).
+
+## Cast — Saar (the naïve glamour)
+
+A recurring comic foil. **Voice `xBPWZQ2gzFKIn63cFXfT`** — a famous, beautiful
+Dutch actress with a subtle, raspy, seductive delivery. The whole joke is
+**dramatic irony**: she *sounds* like the smartest, most alluring person in the
+room and is completely in the dark.
+
+- **Wrong follow-ups.** She asks the question that proves she missed the point.
+- **Misquotes / misattributes.** "So what you're saying is —" then mangles it.
+- **Literal / actress-world misreadings of jargon.** She filters everything
+  through showbiz: "agents" → *talent agents*; "character sheet" → an actor's
+  role breakdown; "Veo" → "Vivo". On-theme, never random.
+- **Oblivious & charming.** Unbothered by her own errors; name-drops her career.
+- **Effect:** the precise guests (Angela, Oracle, Dino) strain not to lose
+  patience; Rutger gently redirects. That tension is the comedy.
+
+**Guardrails:** Saar is *seasoning, not the lead* — a few beats per episode, not
+every line. Her errors must get corrected so the episode's actual argument still
+lands (she sets up clarity, she doesn't bury it). Keep her lines natural and
+TTS-safe; let the voice do the seductive work — don't narrate it. Mispronounce
+sparingly (one running gag per episode, e.g. "Vivo").
 
 ## Mastering chain
 

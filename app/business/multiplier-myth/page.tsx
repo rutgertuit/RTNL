@@ -37,36 +37,36 @@ export default function MultiplierMythPage() {
         { label: "The Multiplier Myth" },
       ]} />
       <PodcastTab
-        src="/audio/multiplier-myth-ep02.mp3"
+        src="/audio/podcasts/multiplier-myth/ep01.mp3"
         title="The Multiplier Myth — a conversation."
-        eyebrow="5:30 · LISTEN · SYNTHETIC AI VOICES"
-        subtitle="With Maya, who is allergic to corporate spirituality. Voices are synthetic; no real person was cloned."
-        duration="5:30"
-        tabLabel="LISTEN · 5:30"
+        eyebrow="LISTEN · AI VOICES"
+        subtitle="With Oracle — who argues the efficiency case, then concedes the part that compounds. Rutger is voiced by a clone of his own voice; Oracle is a synthetic character."
+        tabLabel="LISTEN"
       >
         <h3 className="rt-podcast-tab__essay-title">How this was made</h3>
         <p>
           Everything you&apos;re about to hear was made by AI, except the
           human approving each step. The article above came first — three
           weeks of thinking — then a language model wrote the dialog from
-          it using two character system prompts.
+          it, with Oracle briefed to argue the cost-cutter&apos;s case as
+          well as it can be argued, so the conclusion has to be earned
+          rather than assumed.
         </p>
         <p>
-          Maya&apos;s prompt was the interesting one: I fed the model a
-          four-thousand-word sociolinguistic analysis of Dutch humour
-          (<em>relativeren</em>, antonymic deadpan, the Calvinist aversion
-          to <em>verbeelding</em> &mdash; <em>doe maar gewoon, dan doe je al
-          gek genoeg</em>) and told it her job was to deflate me
-          whenever I drift toward manifesto. The voices are synthetic
-          ElevenLabs voices &mdash; fixed random seed per speaker so
-          consecutive lines don&apos;t drift accent. Both Maya and the
-          narrator are fictional characters; no real person&apos;s voice
-          was cloned, with or without consent.
+          The voices are ElevenLabs. Rutger is a clone of his own voice
+          &mdash; remixed until it holds a steady accent across the whole
+          conversation. Oracle is a synthetic character; no other real
+          person&apos;s voice was cloned. A fixed seed per episode keeps
+          the delivery consistent from one batch to the next.
         </p>
         <p>
-          The pipeline (parse the script, call the ElevenLabs REST API
-          per line, ffmpeg-master to −16 LUFS) is a Python script another
-          AI wrote.
+          The pipeline uses ElevenLabs&apos; Text-to-Dialogue model, so the
+          whole exchange is generated in one pass — real turn-taking,
+          interruptions, reactions — instead of lines synthesised in
+          isolation and glued together. The script is salted with the small
+          hesitations and backchannels real people use, then ffmpeg masters
+          it to −16 LUFS over a faint room-tone floor. It&apos;s all driven
+          by a Node script another AI wrote.
         </p>
         <ul className="rt-podcast-tab__stack" aria-label="Time economics">
           <li>

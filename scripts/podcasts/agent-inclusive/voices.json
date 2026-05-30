@@ -1,7 +1,7 @@
 {
-  "_note": "Episode 03 — Rutger interviews Angela Perkel (Mutti, German pragmatic HR). 1:1 format.",
+  "_note": "Episode 03 — Rutger interviews Angela Perkel (Mutti, German pragmatic HR), with Saar (naive glamour, thinks 'agents' = talent agents). Panel format.",
   "RUTGER": {
-    "voiceId": "dJEBU6SrnJhBI4rl8Xwn",
+    "voiceId": "j6so4swoRyQ5hVHEur0M",
     "model": "eleven_v3",
     "stability": 0.55,
     "similarity": 0.85
@@ -12,5 +12,9 @@
     "stability": 0.6,
     "similarity": 0.85,
     "style": 0.1
+  },
+  "SAAR": {
+    "voiceId": "xBPWZQ2gzFKIn63cFXfT",
+    "model": "eleven_v3"
   }
 }

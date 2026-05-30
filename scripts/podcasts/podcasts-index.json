@@ -17,10 +17,10 @@
       "slug": "multiplier-myth",
       "group": "articles",
       "title": "The Multiplier Myth — a conversation.",
-      "summary": "Rutger and Maya stress-test the central argument: AI is a multiplier only if you use it on the part of the work that compounds, not as a way to do the same job with fewer people.",
-      "cast": ["RUTGER", "MAYA"],
+      "summary": "Rutger and Oracle stress-test the central argument: AI is a multiplier only if you use it on the part of the work that compounds, not as a way to do the same job with fewer people.",
+      "cast": ["RUTGER", "ORACLE"],
       "duration": "5:30",
-      "src": "/audio/multiplier-myth-ep02.mp3",
+      "src": "/audio/podcasts/multiplier-myth/ep01.mp3",
       "image": "/podcasts/multiplier-myth.png",
       "backlink": { "href": "/business/multiplier-myth", "label": "The Multiplier Myth" }
     },
