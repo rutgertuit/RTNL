@@ -5302,3 +5302,12 @@ body { padding-top: 0; }
 @media (prefers-reduced-motion: reduce) {
   .sim-card.is-playing { animation: none; opacity: 0; }
 }
+
+/* /podcasts — stack the 1:1 group portrait above the episode body on
+   narrow viewports. Inline grid template handles wide layout; this
+   override flips columns to a single column under 720px. */
+@media (max-width: 720px) {
+  .rt-podcast-row {
+    grid-template-columns: 1fr !important;
+  }
+}
