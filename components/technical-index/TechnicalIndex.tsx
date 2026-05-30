@@ -59,11 +59,13 @@ const PROJECTS = [
   },
   {
     id: "D · 06",
-    name: "Homelab Stack",
+    name: "Homelab",
     desc:
-      "OPNsense + VLAN isolation + RTX 5090 / 5060 / Pi5 hermes. The hardware that runs all of the above.",
-    tags: ["OPNSENSE", "VLAN"],
+      "OPNsense + UniFi with six VLANs, plus a self-learning Homey Pro v18 climate controller (152 devices, 31 zones, BigQuery-backed thermal model that arbitrages against Tibber prices). The infrastructure layer everything else runs on.",
+    tags: ["OPNSENSE", "HOMEY PRO", "BIGQUERY"],
     status: "open",
+    href: "/technical/homelab",
+    internal: true,
   },
   {
     id: "D · 07",
