@@ -15,6 +15,7 @@ export function Footer() {
             <Link href="/#creative">02 Creative Playground</Link>
             <Link href="/#technical">03 Technical / Deep End</Link>
             <Link href="/#media-kit">04 Media Kit</Link>
+            <Link href="/weekly">05 Weekly</Link>
           </div>
           <div className="rt-footer__meta-col">
             <div className="eyebrow">ELSEWHERE</div>
