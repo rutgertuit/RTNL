@@ -1,0 +1,6 @@
+{
+  "_note": "Multiplier Myth — Rutger + Oracle. Oracle defends 'AI = do the same work with fewer people'; Rutger reframes to multiplying the work that compounds. Companion to /business/multiplier-myth.",
+  "RUTGER": { "voiceId": "3UDL95XpjDt8BT7uFojh", "model": "eleven_v3" },
+  "ORACLE": { "voiceId": "I1aZXfdukqudcrBcjAWi", "model": "eleven_v3" },
+  "_dialogue": { "stability": 0.5 }
+}
