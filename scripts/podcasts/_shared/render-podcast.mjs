@@ -143,7 +143,11 @@ function parseScript(raw) {
 
 const DIALOGUE_MODEL = "eleven_v3";
 // Live docs cap dialogue at ~2000 chars total across inputs; leave headroom.
-const MAX_DIALOGUE_CHARS = 1800;
+// Held at 1900 (just under the cap) so each episode renders in as few
+// independent generations as possible — fewer batches = less cross-batch
+// accent/voice drift, the main lever the dialogue endpoint gives us beyond
+// a shared seed + the (now accent-locked) voice itself.
+const MAX_DIALOGUE_CHARS = 1900;
 const DEFAULT_STABILITY = 0.5; // Natural
 const DEFAULT_TEXT_NORMALIZATION = "auto";
 
