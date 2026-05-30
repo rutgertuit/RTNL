@@ -94,22 +94,22 @@ RUTGER: But the craft of lighting a real flame is not gone.
 
 DINO: The craft of lighting a real flame is the same as the craft of carving a tobacco pipe. It still exists. There are still people who will pay for a pipe carved by hand. Just not many. And not enough to feed a junior pipe-carver in Den Bosch.
 
-RUTGER: That is the real argument, isn't it.
+RUTGER: Right — and that's the argument the piece is actually about, under the Veo demos. Not the lamp. Whether the next Pieter has a way to eat.
 
-DINO: That is the only argument that matters. Whether the *next* Pieter has a way to eat.
+DINO: That is the only argument that matters.
 
-RUTGER: And the answer is?
+RUTGER: So what's the answer?
 
 DINO: The answer is that Pieter is going to learn Veo. Pieter is, in fact, learning Veo right now, on his couch, in a Den Bosch flat that he can only afford because his mother died and left him the apartment. The next Pieter will be a Veo operator. The Pieter after that will be a prompt engineer who has never lit a real lamp. And in fifty years they will be lighting commercials we cannot imagine, using inputs we cannot imagine, and they will be entirely uninterested in our nostalgia.
 
-RUTGER: That is dark.
+RUTGER: I don't think that's dark. I think that's the whole thing, and we keep dressing it up as a debate about cinema so we don't have to say it plainly. It was never the Volvo spot. It was never the candle. It's whether the next Pieter — on the couch, in the flat, learning Veo tonight — has a way to eat while he figures out what he's actually good at. The survival job changed. The question underneath it didn't.
 
-DINO: That is honest.
+DINO: [pause] You've been waiting the whole hour to say that.
 
-RUTGER: I'm glad I had you in.
+RUTGER: A little.
 
-DINO: Are you.
+DINO: It was decent. Don't do it again.
 
-RUTGER: Mostly.
+RUTGER: So the next Pieter eats.
 
-DINO: Mostly. That I respect.
+DINO: The next Pieter eats. Differently. On worse coffee than this, which is saying something. [beat] And in fifty years he'll be telling some idiot with a microphone that none of it was real craft — and he'll be wrong in exactly the way I'm wrong now. That's the job surviving. That's the part I respect.
