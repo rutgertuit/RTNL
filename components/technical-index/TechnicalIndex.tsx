@@ -38,9 +38,11 @@ const PROJECTS = [
   {
     id: "D · 05",
     name: "AgentC Arena",
-    desc: "LLM head-to-head evaluation rig. Same prompt, four models, one human jury.",
-    tags: ["BENCHMARK"],
+    desc: "Multi-agent debate arena. Pro + Con researchers, Pro + Con debaters, a moderator, a judge. Four battle modes: debate, rap battle, roast, pitch-off. Three personality knobs.",
+    tags: ["GOOGLE ADK", "GEMINI", "WEBSOCKET"],
     status: "open",
+    href: "/technical/agentc",
+    internal: true,
   },
   {
     id: "GAME",
