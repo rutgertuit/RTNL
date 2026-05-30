@@ -9,7 +9,8 @@ const PROJECTS = [
       "Voice-first deep-research agent. Multi-phase pipeline (query analysis → study planning → iterative source-grounded research → claim validation → synthesis) that reads the result back aloud. Google ADK + Gemini + ElevenLabs on Cloud Run.",
     tags: ["GOOGLE ADK", "GEMINI", "ELEVENLABS"],
     status: "open",
-    href: "https://github.com/rutgertuit/Luminary",
+    href: "/technical/luminary",
+    internal: true,
   },
   {
     id: "D · 02",
@@ -183,12 +184,25 @@ export function TechnicalIndex() {
               );
             }
 
-            const externalHref = "href" in p ? (p as { href: string }).href : undefined;
-            if (externalHref) {
+            const linkedHref = "href" in p ? (p as { href: string }).href : undefined;
+            const isInternal = "internal" in p && (p as { internal?: boolean }).internal;
+            if (linkedHref && isInternal) {
+              return (
+                <Link
+                  key={p.id}
+                  href={linkedHref}
+                  className="rt-tile rt-tile--linked"
+                  data-corner={p.id.replace("D · ", "NODE-")}
+                >
+                  {content}
+                </Link>
+              );
+            }
+            if (linkedHref) {
               return (
                 <a
                   key={p.id}
-                  href={externalHref}
+                  href={linkedHref}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="rt-tile rt-tile--linked"
