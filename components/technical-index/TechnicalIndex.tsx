@@ -35,9 +35,11 @@ const PROJECTS = [
     id: "D · 04",
     name: "Bedtime Stories",
     desc:
-      "A local narrator with a curated character library. Lives on the homelab and is not exposed to the public internet.",
-    tags: ["VEO", "LOCAL TTS"],
-    status: "private",
+      "Dutch AI bedtime-story generator. Build a fantasy world with characters, configure age + arc + learning goals, get an illustrated multi-chapter story with parent reading aid and printable booklets. Public portfolio version + private family deployment.",
+    tags: ["NEXT.JS 16", "GEMINI 3.1 PRO", "IMAGEN 4"],
+    status: "open",
+    href: "/technical/bedtime-stories",
+    internal: true,
   },
   {
     id: "D · 05",
@@ -63,7 +65,7 @@ const PROJECTS = [
     tags: ["OPNSENSE", "VLAN"],
     status: "open",
   },
-] as const;
+];
 
 /**
  * Only highlight redaction markers when they are actually present in
