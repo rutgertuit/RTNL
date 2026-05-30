@@ -98,19 +98,15 @@ RUTGER: Go.
 
 MARIE: The piece says interactivity is the new explanation. I want to know — what does interactivity stop explaining? Because every new format gives up something. The deck gave up motion. The video gave up density. What does the live demo give up.
 
-RUTGER: Oh, that is a good question.
+RUTGER: That is the right question. It is the one I kept circling and never quite pinned in the piece.
 
-ORACLE: I will let Rutger flail for a moment.
+ORACLE: I will give Rutger a moment to enjoy being caught out.
 
-RUTGER: I am flailing. Give me a second.
-
-ORACLE: This is the most enjoyable moment of the recording.
-
-RUTGER: …I think the answer is: the live demo gives up the *frozen argument*. A deck has the advantage that you cannot edit it once it is sent. The recipient reads the same nine words on slide seven that you wrote. A live demo is rewritten every time you give it — sometimes for the better, often for the worse, but it is never the same artefact twice.
+RUTGER: [laughs] I will take the moment. Here is the honest answer. The live demo gives up the *frozen argument*. A deck has one real advantage — you cannot edit it once it is sent. The recipient reads the same nine words on slide seven that you wrote, in the order you wrote them. A live demo is rewritten every time you give it. Sometimes better, often worse, but it is never the same artefact twice.
 
 MARIE: Hmm. Yes. So the demo gains involvement, it loses fidelity of message.
 
-RUTGER: Yes. That is what I should have written.
+RUTGER: Exactly. That is the sentence the piece was missing.
 
 ORACLE: Marie, would you like a job at my firm.
 
@@ -132,12 +128,10 @@ RUTGER: Noted.
 
 ORACLE: I will be billing you for these insights, Rutger.
 
-RUTGER: I assumed.
+RUTGER: I assumed. And I will pay it, because here is what we actually landed. The slide and the demo are not rivals — they are the trade-off. The demo lets the room *touch* the idea and walk out involved. The slide freezes the argument so it survives the walk to the next meeting. You give one up to get the other. That is the whole piece, and I needed both of you to say it out loud.
 
-ORACLE: A fair rate. Five thousand five hundred per day. Today is a half-day. Slightly more, given the audio fee.
+MARIE: A demo to convince the room. A slide to convince the room they were not there.
 
-MARIE: That is a lot for one bumper sticker.
+ORACLE: …I am going to use that. On a slide.
 
-ORACLE: It is, on consideration, *three* bumper stickers.
-
-RUTGER: Thank you both.
+RUTGER: [laughs] Then it is yours. Send me the invoice — and the deck.
