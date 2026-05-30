@@ -345,6 +345,28 @@ CHARACTERS: list[Character] = [
             "painted register."
         ),
     ),
+    Character(
+        slug="saar",
+        display_name="Saar",
+        description="The naive glamour. Famous Dutch actress foil -- beautiful, seductive, and completely in the dark.",
+        subject_prompt=(
+            "Subject: 'Saar', a glamorous Dutch screen actress in her "
+            "late 30s to early 40s, famous and effortlessly beautiful. "
+            "Warm honey-blonde hair in loose soft waves catching the "
+            "light; luminous fair skin, high cheekbones, a wide "
+            "expressive mouth caught mid-charming-smile; large warm eyes "
+            "with a slightly vacant, delighted sparkle -- the look of "
+            "someone radiant and completely lost. Tasteful gold drop "
+            "earrings, an emerald silk wrap top, no logos. Personality "
+            "beat: a seductive, raspy-voiced star who looks like the "
+            "smartest, most alluring person in the room and understands "
+            "none of it -- obliviously confident. A WHOLLY FICTIONAL "
+            "character; do NOT depict any real, identifiable public "
+            "figure. Render in the dark editorial painted register, "
+            "deliberately distinct from the other women on the site "
+            "(not Angela Perkel, not Marie Furie)."
+        ),
+    ),
 ]
 
 
@@ -406,14 +428,15 @@ EPISODE_COMPS: list[EpisodeComp] = [
     ),
     EpisodeComp(
         slug="multiplier-myth",
-        cast_slugs=["rutger", "maya"],
-        description="Rutger and Maya stress-test the multiplier-myth argument.",
+        cast_slugs=["rutger", "oracle", "saar"],
+        description="Rutger and Oracle stress-test the multiplier-myth argument; Saar misreads it through showbiz.",
         scene_prompt=(
-            "Scene: two-shot. Rutger on the left, mid-sentence, leaning "
-            "slightly forward. Maya on the right, head tilted slightly, "
-            "the listening-while-drafting-the-counter-argument posture. "
-            "Mood: respectful, sharp, the friction of a rigour-foil "
-            "conversation -- neither of them is performing for the room."
+            "Scene: Rutger in the centre, mid-sentence, leaning slightly "
+            "forward. Oracle to one side, serenely certain, defending the "
+            "efficiency case. Saar to the other side -- the glamorous "
+            "actress, radiant and obliviously delighted, clearly about to "
+            "ask the wrong question. Mood: a sharp strategy conversation "
+            "with a beautiful wildcard who is not following any of it."
         ),
     ),
     EpisodeComp(
@@ -430,28 +453,31 @@ EPISODE_COMPS: list[EpisodeComp] = [
     ),
     EpisodeComp(
         slug="agent-inclusive",
-        cast_slugs=["rutger", "angela"],
-        description="Rutger and Angela on what 'agent inclusive' means in a real org.",
+        cast_slugs=["rutger", "angela", "saar"],
+        description="Rutger and Angela on what 'agent inclusive' means; Saar thinks it is about talent agents.",
         scene_prompt=(
-            "Scene: two-shot. Angela on the left, unflappable, the "
-            "steady gaze of a chief of staff. Her fuchsia blazer is the "
-            "only saturated colour in the composition. Rutger on the "
-            "right, looking slightly off-camera, the listening posture "
-            "of someone taking the point seriously. Mood: procedural "
-            "and calm -- the opposite of techno-utopian breathlessness."
+            "Scene: Angela on one side, unflappable, the steady gaze of a "
+            "chief of staff, her fuchsia blazer the only saturated colour. "
+            "Rutger in the centre, the listening posture of someone taking "
+            "the point seriously. Saar on the other side -- the glamorous "
+            "actress, warm and obliviously confident, as if she has just "
+            "steered the conversation back to her own career. Mood: "
+            "procedural calm, punctured by glamour."
         ),
     ),
     EpisodeComp(
         slug="creative-video-models",
-        cast_slugs=["rutger", "dino"],
-        description="Rutger and Dino on the four-lineage video-models frame.",
+        cast_slugs=["rutger", "dino", "saar"],
+        description="Rutger and Dino on the video-models frame; Saar frets, vainly, about being replaced.",
         scene_prompt=(
-            "Scene: two-shot. Dino on the left, arms folded just "
-            "visible at the bottom of the frame, faintly annoyed -- the "
-            "Senior Art Director's posture when someone mentions "
-            "generative video. Rutger on the right, mid-sentence, "
-            "patient. Mood: reluctant acknowledgement -- Dino is going "
-            "to agree with the article, eventually."
+            "Scene: Dino on one side, arms folded just visible at the "
+            "bottom of the frame, faintly annoyed -- the Senior Art "
+            "Director's posture when someone mentions generative video. "
+            "Rutger in the centre, patient, mid-sentence. Saar on the "
+            "other side -- the glamorous actress, radiant and worried in "
+            "a vain way, as if she has just asked whether the AI can do "
+            "her face. Mood: a reluctant craft veteran meets an oblivious "
+            "starlet."
         ),
     ),
     EpisodeComp(

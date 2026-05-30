@@ -57,6 +57,41 @@ const groupName = (id: Episode["group"]): string => {
 
 const all: Episode[] = [...weekly, ...others];
 
+// The recurring cast. Rutger is the only real person (real portrait, voiced by
+// a clone of his own voice); the guests are invented characters with synthetic
+// voices and AI-painted portraits.
+interface CastMember { name: string; role: string; bio: string; img: string }
+const CAST: CastMember[] = [
+  {
+    name: "Rutger", role: "Host", img: "/assets/portraits/01-studio.png",
+    bio: "The host — a technical creative who works where high-performance technology meets human creativity. The one real person here, voiced by a clone of his own voice.",
+  },
+  {
+    name: "Frits", role: "The Nestor", img: "/podcasts/cast/frits.png",
+    bio: "A Dutch creative director in his late sixties — weary, brilliant, quotes Mad Men in Dutch. The skeptic who pushes back on the title, then agrees with the article anyway.",
+  },
+  {
+    name: "Dino", role: "The Creative Dinosaur", img: "/podcasts/cast/dino.png",
+    bio: "A senior art director who has done the same concept for thirty years and refuses to learn what a hashtag is. Gloriously grumpy — and, annoyingly, usually right.",
+  },
+  {
+    name: "Oracle", role: "The Strategist", img: "/podcasts/cast/oracle.png",
+    bio: "A brand strategist who draws Venn diagrams nobody understands and quotes Heidegger during pitches. Serenely certain; has a deck for everything.",
+  },
+  {
+    name: "Angela", role: "The Chief of Staff", img: "/podcasts/cast/angela.png",
+    bio: "Unflappable, procedural, dry, German. Loves clear documentation. Her deadpan is the whole joke.",
+  },
+  {
+    name: "Marie", role: "The Compliance Researcher", img: "/podcasts/cast/marie.png",
+    bio: "Keeps everyone definitionally honest, in short precise interjections. Never a word wasted.",
+  },
+  {
+    name: "Saar", role: "The Actress", img: "/podcasts/cast/saar.png",
+    bio: "A famous Dutch actress with a gorgeous, raspy voice and no idea what anyone is talking about. Asks the wrong question — beautifully.",
+  },
+];
+
 // PodcastSeries JSON-LD — one umbrella series covering the whole corpus.
 const ld = {
   "@context": "https://schema.org",
@@ -178,6 +213,57 @@ export default function PodcastsPage() {
               </section>
             );
           })}
+
+          <section id="cast" aria-labelledby="cast-title" style={{ marginTop: "var(--space-7)" }}>
+            <div className="eyebrow" style={{ marginBottom: "var(--space-2)" }}>THE CAST</div>
+            <h2 id="cast-title" className="rt-tuit__stage-label" style={{ marginBottom: "var(--space-3)" }}>
+              Who you&apos;re listening to.
+            </h2>
+            <p style={{ margin: "0 0 var(--space-5)", maxWidth: "68ch" }}>
+              Rutger is the only real person — voiced by a clone of his own voice. Everyone
+              else is an invented character with a synthetic voice, and the painted portraits
+              are AI-generated, like everything on this site.
+            </p>
+            <ul
+              style={{
+                listStyle: "none",
+                padding: 0,
+                margin: 0,
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+                gap: "var(--space-5)",
+              }}
+            >
+              {CAST.map((m) => (
+                <li key={m.name}>
+                  <div
+                    style={{
+                      position: "relative",
+                      aspectRatio: "1 / 1",
+                      borderRadius: "var(--radius-md)",
+                      overflow: "hidden",
+                      marginBottom: "var(--space-3)",
+                    }}
+                  >
+                    <Image
+                      src={m.img}
+                      alt={`Portrait of ${m.name}`}
+                      fill
+                      sizes="(max-width: 720px) 50vw, 220px"
+                      style={{ objectFit: "cover" }}
+                    />
+                  </div>
+                  <div className="eyebrow" style={{ marginBottom: "var(--space-2)" }}>
+                    {m.role.toUpperCase()}
+                  </div>
+                  <h3 style={{ margin: "0 0 var(--space-2)" }}>{m.name}</h3>
+                  <p style={{ margin: 0, fontSize: "var(--fs-100)", color: "var(--color-fg-2)" }}>
+                    {m.bio}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </section>
         </div>
       </article>
       <Footer />
