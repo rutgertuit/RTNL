@@ -25,9 +25,11 @@ const PROJECTS = [
   {
     id: "D · 03",
     name: "Clout Cannon",
-    desc: "Social posting / scheduling tool — built to fail loudly, not silently.",
-    tags: ["BUN", "CRON"],
+    desc: "AI content factory for LinkedIn. Four-room workflow (ingredients → AI writing → visual generation → publish), twelve writing personas, six visual archetypes. .NET 8 + React 19 + Gemini.",
+    tags: [".NET 8", "REACT 19", "GEMINI"],
     status: "open",
+    href: "/technical/clout-cannon",
+    internal: true,
   },
   {
     id: "D · 04",
