@@ -5311,3 +5311,59 @@ body { padding-top: 0; }
     grid-template-columns: 1fr !important;
   }
 }
+
+/* /credits — by-asset-class block. dl-based meta grid per asset so each
+   row reads as a clean lineage card (output / where / model / template
+   / script). */
+.rt-credits__asset-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: var(--space-5);
+}
+.rt-credits__asset {
+  padding: var(--space-4) 0;
+  border-top: 1px solid var(--border-hairline);
+}
+.rt-credits__asset-output {
+  font-family: var(--font-serif);
+  font-size: var(--fs-300);
+  margin-bottom: var(--space-3);
+}
+.rt-credits__asset-meta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+}
+@media (min-width: 720px) {
+  .rt-credits__asset-meta {
+    grid-template-columns: 8rem minmax(0, 1fr);
+    column-gap: var(--space-4);
+    row-gap: var(--space-2);
+  }
+  .rt-credits__asset-meta > div {
+    display: contents;
+  }
+}
+.rt-credits__asset-meta dt {
+  font-family: var(--font-mono, "IBM Plex Mono", monospace);
+  font-size: var(--fs-50);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-fg-3);
+}
+.rt-credits__asset-meta dd {
+  margin: 0;
+  font-size: var(--fs-100);
+}
+.rt-credits__asset-meta code {
+  font-size: 0.9em;
+  word-break: break-all;
+}
+.rt-credits__asset-note {
+  margin: 0;
+  color: var(--color-fg-2);
+  font-size: var(--fs-90);
+}
