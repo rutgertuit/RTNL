@@ -5,6 +5,16 @@
   },
   "episodes": [
     {
+      "slug": "weekly-02",
+      "title": "YouTube commits to the living room. Now what.",
+      "date": "2026-05-30",
+      "duration": "pending",
+      "cast": ["RUTGER", "DINO", "ANGELA"],
+      "summary": "YouTube Brandcast 2026 announced Buy with Google Pay on connected TV, creator shows from Alex Cooper and Trevor Noah, and a Custom Sponsorships AI tool. Rutger walks Dino and Angela through how the checkout button is the Tuit Doctrine in hardware — the four surfaces finally converging in the living room — and lands a three-part framework for brands who want to act before the proof cases arrive at next year's upfront.",
+      "src": "/audio/podcasts/weekly-02/ep01.mp3",
+      "backlink": { "href": "/doctrine", "label": "The Tuit Doctrine" }
+    },
+    {
       "slug": "weekly-01",
       "title": "The agentic ad stack lands. Now what.",
       "date": "2026-05-30",
