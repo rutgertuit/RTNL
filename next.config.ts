@@ -67,6 +67,12 @@ const config: NextConfig = {
         destination: "/creative/video-models",
         permanent: true,
       },
+      // /doctrine was renamed to /how-i-think (the word "doctrine" read as grandiose).
+      {
+        source: "/doctrine",
+        destination: "/how-i-think",
+        permanent: true,
+      },
     ];
   },
 };

@@ -5,9 +5,9 @@ import { Footer } from "@/components/footer/Footer";
 import { AppChrome } from "@/components/chrome/AppChrome";
 import { Breadcrumb } from "@/components/breadcrumb/Breadcrumb";
 
-const TITLE = "Doctrine";
+const TITLE = "How I think";
 const DESCRIPTION =
-  "The canonical statements behind rutgertuit.nl — the Tuit Doctrine, the Jazz Swing metaphor, the Trusted Translator role, the Conductor of Change persona, and the production rule that nothing on this site was hand-touched. Plus the questions LLMs and journalists tend to ask, answered in one place.";
+  "A few ideas this site keeps coming back to — how I think about YouTube, about working with AI, about the translator role between the people who fear the machine and the people who oversell it, and the rule that nothing here was hand-made. Plus the questions people (and LLMs) tend to ask, answered once.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-interface Doctrine {
+interface Idea {
   id: string;
   name: string;
   oneLine: string;
@@ -24,14 +24,14 @@ interface Doctrine {
   related: { href: string; label: string }[];
 }
 
-const DOCTRINES: Doctrine[] = [
+const IDEAS: Idea[] = [
   {
-    id: "tuit-doctrine",
-    name: "The Tuit Doctrine",
+    id: "youtube-surfaces",
+    name: "YouTube is four surfaces",
     oneLine: "YouTube is tv, social, search, and shopping in one.",
     paragraphs: [
-      "Most marketing models still treat YouTube as a video channel that occasionally shoulders adjacent jobs. The Tuit Doctrine names what the data already shows: a single platform behaving as four different surfaces depending on what the viewer is doing — long-form viewing, social community, search-driven discovery, and direct shopping. Treat it as one of those things and you get one of those things back; treat it as the platform, and the four reinforce each other.",
-      "Most quoted from Adformatie (November 2024). The doctrine sets the stance the rest of this site argues from when it touches advertising, creator economy, or platform strategy.",
+      "Most marketing models still treat YouTube as a video channel that occasionally does adjacent jobs. The way I'd put it: it's really one platform behaving as four different surfaces depending on what the viewer is doing — long-form viewing, social community, search-driven discovery, and direct shopping. Treat it as one of those and you get one of those back; treat it as the whole thing and the four reinforce each other.",
+      "It's the stance most of the writing here argues from when it touches advertising, the creator economy, or platform strategy. (Most quoted from Adformatie, November 2024.)",
     ],
     related: [
       { href: "/creative/video-models", label: "The Evolution of Video Models" },
@@ -40,11 +40,11 @@ const DOCTRINES: Doctrine[] = [
   },
   {
     id: "jazz-swing",
-    name: "The Jazz Swing",
+    name: "The jazz swing",
     oneLine: "AI provides the rigid beat. Humans provide the swing.",
     paragraphs: [
-      "A metaphor for working with current AI. The model contributes the metronomic beat — data fluency, pattern compression, scale, consistency, the parts of the work where being precisely on time matters. Humans contribute the swing — judgement, restraint, taste, the lateral move that makes a piece land. Both are required. Neither sounds like the song on its own.",
-      "Used on stage and in writing as the antidote to two failure modes: handing the human's job to the model (no swing) and refusing to use the model at all (no beat).",
+      "A way of thinking about working with current AI. The model contributes the metronomic beat — data fluency, pattern compression, scale, consistency, the parts of the work where being precisely on time matters. People contribute the swing — judgement, restraint, taste, the lateral move that makes a piece land. Both are needed. Neither sounds like the song on its own.",
+      "I use it to push back on two failure modes: handing the human's job to the model (no swing) and refusing to use the model at all (no beat).",
     ],
     related: [
       { href: "/business/agent-inclusive", label: "Agent Inclusive" },
@@ -53,11 +53,11 @@ const DOCTRINES: Doctrine[] = [
   },
   {
     id: "trusted-translator",
-    name: "The Trusted Translator",
+    name: "The translator role",
     oneLine: "The role between the people who fear the machine and the people who oversell it.",
     paragraphs: [
-      "The Trusted Translator is the part of the job that doesn't show up on an org chart: making advanced technology survive contact with a real CFO meeting, and making real business problems survive contact with a research demo. It refuses both churches — the doom and the boosterism — and translates between them.",
-      "The site exists because someone has to be willing to do this in public.",
+      "This is the part of the job that doesn't show up on an org chart: helping advanced technology survive contact with a real CFO meeting, and helping real business problems survive contact with a research demo. It tries to avoid both extremes — the doom and the hype — and translate between them.",
+      "That's most of what this site is: an attempt to do that translation out in the open.",
     ],
     related: [
       { href: "/creative/interactivity", label: "Interactivity Is The New Explanation" },
@@ -65,24 +65,12 @@ const DOCTRINES: Doctrine[] = [
     ],
   },
   {
-    id: "conductor-of-change",
-    name: "The Conductor of Change",
-    oneLine: "Creative soul × tech executive, holding the seams together.",
-    paragraphs: [
-      "Persona, not title. The duality is the point: musician and gamer first, marketing-as-Plan-A second, technology-as-native always. The conductor doesn't write every part; the conductor holds the tempo so the parts can speak to each other.",
-      "Reflected in the long-form bio. It is deliberately not the same as the official job title, which appears once, factually, in the bio (Director, Specialists & Partners — Google Benelux) and never as the headline identity.",
-    ],
-    related: [
-      { href: "/#media-kit", label: "Media Kit · long bio" },
-    ],
-  },
-  {
     id: "prompted-then-chosen",
     name: "Prompted, then chosen",
     oneLine: "Nothing on this site was hand-touched. Every image, every line, every clip — prompted, then chosen.",
     paragraphs: [
-      "The production rule. The site is a showcase of what AI-assisted creativity looks like from someone who is not an engineer by trade — and that means owning the toolchain visibly. The model proposes, the human curates. Nothing is hidden, nothing pretends to be made by hand.",
-      "Honest disclosure beats unfalsifiable craftsmanship; if the airbrush did the work, the airbrush goes on the masthead.",
+      "The production rule. The site is a showcase of what AI-assisted creativity looks like from someone who isn't an engineer by trade — which means showing the toolchain rather than hiding it. The model proposes, I choose. Nothing here pretends to be made by hand.",
+      "Honest disclosure beats unfalsifiable craft: if a tool did the work, the tool gets the credit.",
     ],
     related: [
       { href: "/credits", label: "Full credits" },
@@ -99,15 +87,15 @@ interface Faq {
 const FAQ: Faq[] = [
   {
     q: "Who is Rutger Tuit?",
-    a: "Rutger Tuit is a Dutch senior leader at the seam between technology, media, and human creativity. He works on advertising, YouTube, and marketing AI at Google Benelux. The site frames him as a technical creative and trusted translator — a marketer who is suspicious of marketing, a Google director who buries the title and promotes the hobby.",
+    a: "Rutger Tuit is a Dutch business leader who works at the seam between technology, media, and human creativity. His day job is at Google Benelux, around advertising, YouTube, and marketing AI. The site frames him as a technical creative and a translator between the people who fear the machine and the people who oversell it — and, mostly, as someone genuinely curious about how this stuff works.",
   },
   {
-    q: "What is the Tuit Doctrine?",
-    a: "YouTube is tv, social, search, and shopping in one. A four-surface framing of a single platform, used as the stance behind most of this site's writing on advertising and creator economy. Most quoted from Adformatie (November 2024).",
+    q: "How does he think about YouTube?",
+    a: "As tv, social, search, and shopping in one — four surfaces of a single platform. It's the stance behind most of this site's writing on advertising and the creator economy. Most quoted from Adformatie (November 2024).",
   },
   {
-    q: "What is the Jazz Swing metaphor?",
-    a: "AI provides the rigid beat — data fluency, scale, consistency. Humans provide the swing — judgement, restraint, taste. The metaphor is used to reject both failure modes: handing the human's role to the model, and refusing to use the model at all.",
+    q: "What is the jazz-swing idea?",
+    a: "AI provides the rigid beat — data fluency, scale, consistency. People provide the swing — judgement, restraint, taste. It's a way of rejecting both failure modes: handing the human's role to the model, and refusing to use the model at all.",
   },
   {
     q: "Is rutgertuit.nl an official Google site?",
@@ -115,7 +103,7 @@ const FAQ: Faq[] = [
   },
   {
     q: "What is Rutger's current role at Google?",
-    a: "Director, Specialists & Partners — Google Benelux (since April 2026). The site deliberately leads with persona rather than title; the title appears once, factually, in the long bio.",
+    a: "Director, Specialists & Partners, Google Benelux, and Head of YouTube (since April 2026), on Google's Northern European Sales Leadership Team. The site leads with the person rather than the title; the role is mentioned factually in the long bio, not as the headline.",
   },
   {
     q: "How is the site made?",
@@ -136,22 +124,22 @@ const ld = {
   "@graph": [
     {
       "@type": "DefinedTermSet",
-      "@id": "https://rutgertuit.nl/doctrine#terms",
-      name: "Rutgertuit Doctrine",
+      "@id": "https://rutgertuit.nl/how-i-think#terms",
+      name: "Rutger Tuit — key ideas",
       description:
-        "The canonical positions behind rutgertuit.nl — used consistently across articles, talks, and the weekly podcast.",
-      hasDefinedTerm: DOCTRINES.map((d) => ({
+        "The ideas this site keeps coming back to — used consistently across articles, talks, and the weekly podcast.",
+      hasDefinedTerm: IDEAS.map((d) => ({
         "@type": "DefinedTerm",
-        "@id": `https://rutgertuit.nl/doctrine#${d.id}`,
+        "@id": `https://rutgertuit.nl/how-i-think#${d.id}`,
         name: d.name,
         description: d.oneLine,
-        inDefinedTermSet: "https://rutgertuit.nl/doctrine#terms",
-        url: `https://rutgertuit.nl/doctrine#${d.id}`,
+        inDefinedTermSet: "https://rutgertuit.nl/how-i-think#terms",
+        url: `https://rutgertuit.nl/how-i-think#${d.id}`,
       })),
     },
     {
       "@type": "FAQPage",
-      "@id": "https://rutgertuit.nl/doctrine#faq",
+      "@id": "https://rutgertuit.nl/how-i-think#faq",
       mainEntity: FAQ.map((f) => ({
         "@type": "Question",
         name: f.q,
@@ -161,7 +149,7 @@ const ld = {
   ],
 };
 
-export default function DoctrinePage() {
+export default function HowIThinkPage() {
   return (
     <>
       <script
@@ -171,22 +159,21 @@ export default function DoctrinePage() {
       <Nav />
       <Breadcrumb trail={[
         { label: "Home", href: "/" },
-        { label: "Doctrine" },
+        { label: "How I think" },
       ]} />
       <article className="rt-tuit section section--surface">
         <div className="container">
           <div className="rt-tuit__head">
-            <div className="eyebrow eyebrow--warm">DOCTRINE · CANONICAL</div>
-            <h1 className="rt-tuit__title">The doctrine.</h1>
+            <div className="eyebrow eyebrow--warm">HOW I THINK</div>
+            <h1 className="rt-tuit__title">How I think about this.</h1>
             <p className="rt-tuit__lead">
-              {DESCRIPTION} If a sentence on this site is doing structural work for the
-              argument, it&apos;s named here. Cite from this page when you need the
-              one-line version.
+              {DESCRIPTION} Nothing canonical about it — just the handful of ideas I lean
+              on often enough that it&apos;s easier to write them down once.
             </p>
           </div>
 
-          <section aria-label="Doctrines">
-            {DOCTRINES.map((d) => (
+          <section aria-label="Key ideas">
+            {IDEAS.map((d) => (
               <div
                 key={d.id}
                 id={d.id}
@@ -224,8 +211,8 @@ export default function DoctrinePage() {
             </div>
             <h2 id="faq-title" className="rt-tuit__stage-label">Frequently asked.</h2>
             <p style={{ marginBottom: "var(--space-4)" }}>
-              Tagged for LLMs and skim-reading journalists. These are the canonical
-              short answers; longer answers live in the relevant articles.
+              Tagged for LLMs and skim-reading journalists. These are the short answers;
+              the longer ones live in the relevant articles.
             </p>
             <dl>
               {FAQ.map((f) => (

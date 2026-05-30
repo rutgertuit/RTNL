@@ -9,7 +9,7 @@ const ARTICLES = [
     slug: "multiplier-myth",
     title: "The Multiplier Myth.",
     lead:
-      "Senior leaders are treating the biggest civilisational multiplier we have ever built as a tool for chopping margin. The ATM, the spreadsheet, and a 2026 PwC study all tell the same story: history punishes the cost-cutters. Notes on the inversion — and the boardroom move that follows.",
+      "Senior leaders are treating a generational productivity tool as a way to chop margin. The ATM, the spreadsheet, and a 2026 PwC study all tell the same story: history punishes the cost-cutters. Notes on the inversion — and the boardroom move that follows.",
     tag: "AI · LEADERSHIP",
     read: "13 min",
     photo: "03-marketing-live",

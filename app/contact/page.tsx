@@ -44,7 +44,7 @@ export default function ContactPage() {
         <div className="container">
           <div className="rt-tuit__head">
             <div className="eyebrow eyebrow--warm">CONTACT</div>
-            <h1 className="rt-tuit__title">Tell me what you&apos;re building.</h1>
+            <h1 className="rt-tuit__title">Say hello.</h1>
             <div className="rt-tuit__meta">
               <span>RESPONSE WINDOW · ~2 BUSINESS DAYS</span>
               <span>·</span>

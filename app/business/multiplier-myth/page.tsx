@@ -8,7 +8,7 @@ import { Breadcrumb } from "@/components/breadcrumb/Breadcrumb";
 
 const TITLE = "The Multiplier Myth";
 const DESCRIPTION =
-  "Senior leaders are treating the biggest civilisational multiplier we've ever built as a tool for chopping margin. History punishes the cost-cutters. Notes on the inversion and the boardroom move that follows.";
+  "Senior leaders are treating a powerful, general-purpose tool as a way to chop margin. History punishes the cost-cutters. Notes on the inversion and the boardroom move that follows.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -180,8 +180,8 @@ export default function MultiplierMythPage() {
                   a founder can&apos;t model what happens to their P&amp;L if three things shift
                   simultaneously. The bottleneck that wall represents is not a muscle and not a
                   memory; it is the limit of how many things one human can be paying attention to
-                  at the same time. And that bottleneck is, for the first time in human history,
-                  going up for sale.
+                  at the same time. And that bottleneck is, for the first time, something you can
+                  actually buy.
                 </p>
               </>
             ),
@@ -207,8 +207,8 @@ export default function MultiplierMythPage() {
                   can my people now reach that they couldn&apos;t last year?&quot;
                 </p>
                 <p>
-                  That single question reorientation — multiplier vs. margin — is, in my read, the
-                  single most expensive strategic mistake of the next ten years. And the
+                  That single question reorientation — multiplier vs. margin — is, in my read, one
+                  of the more expensive strategic mistakes on the table right now. And the
                   uncomfortable thing is that the evidence is sitting in plain sight, in three
                   different waves of technology, all telling the same story.
                 </p>
@@ -282,8 +282,7 @@ export default function MultiplierMythPage() {
                   count the markets the team can now enter because the cognitive bandwidth
                   constraint has finally moved. The brief becomes: what would we go after if the
                   limiting factor was not how many things our best people could hold in their heads
-                  at the same time? Because that limit, for the first time in human history, is no
-                  longer the limit.
+                  at the same time? Because that limit is no longer the limit.
                 </p>
                 <p>
                   Treating that shift as an OpEx exercise is like treating the automobile as a way
@@ -312,10 +311,9 @@ export default function MultiplierMythPage() {
                   I want to say this gently, because most of the people I&apos;m thinking about as
                   I write are people I respect and would happily disagree with over a drink. If
                   your organisation&apos;s AI strategy is built primarily on automating cost out of
-                  the bottom line, <em>you are not stuck in the traffic jam. You are the traffic
-                  jam.</em> The stagnation is not coming from the technology — the technology is
-                  moving faster than it has in any of our working lifetimes. It is coming from the
-                  limits of corporate imagination at the top of the org chart.
+                  the bottom line, <em>the bottleneck may be closer to home than the technology.</em> The
+                  technology is moving faster than it has in any of our working lifetimes; what&apos;s
+                  stuck is the corporate imagination at the top of the org chart.
                 </p>
                 <p>
                   The good news is that this is the easiest of the constraints to remove. It does

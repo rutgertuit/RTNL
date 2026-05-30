@@ -3,93 +3,116 @@ Three lengths. Pick whichever fits your format.
 Updated May 2026.
 
 ================================================================
-SHORT (≈ 60 words)
+SHORT (≈ 90 words)
 ================================================================
 
-Rutger Tuit is a senior brand and AI leader at Google, working at the seam
-between high-performance enterprise technology and human creativity. He
-works with Dutch-market CMOs and agency CEOs on translating macro AI
-shifts into actionable, organisationally honest strategy. Architect of
-the "Tuit Doctrine" (YouTube is tv, social, search and shopping) and the
-"Jazz Swing" metaphor for human creativity in an AI-accelerated ecosystem.
-
-
-================================================================
-MEDIUM (≈ 170 words)
-================================================================
-
-Rutger Tuit is a senior brand and AI leader at Google, standing at the
-intersection of technology, media, and human creativity. As a key member
-of Google's Benelux management team, he holds a dual mandate: commercial
-growth of YouTube (which he helped build into the leading streaming
-service in the Benelux) and chief evangelism for Google's AI
-transformation. His effectiveness comes from a 360-degree foundation
-across brand (KPN), agency (GroupM), ad-tech (Bannerconnect), and
-platform (Google) — translating fast-moving technical shifts into
-frameworks that survive contact with a real CFO meeting. He is the
-architect of the "Tuit Doctrine" (YouTube is tv, social, zoeken en
-shoppen) and addresses the creative industry's anxiety with his "Jazz
-Swing" metaphor: AI provides the rigid beat, humans provide the creative
-swing. Outside the executive day-job he is a musician, a homelab
-tinkerer, and an unapologetically nerdy practitioner of his own subject.
-The combination is the point.
+Rutger Tuit is a business leader who likes working where technology
+meets human creativity — figuring out the strategic reasons behind the
+technical detail, and helping the people who have to act on it. He picks
+up a new field well enough to spot where it's about to bump into the next
+one, and tries to flag that early. Right now that's in marketing: he's
+Director, Specialists & Partners at Google Benelux and Head of YouTube,
+and sits on Google's Northern European Sales Leadership Team. The way he
+likes to work — high trust, teams that are loosely coupled but agree on
+the goal, plenty of room to experiment — isn't really specific to
+marketing. This site is a personal project; the views here are his own.
 
 
 ================================================================
-LONG (≈ 460 words)
+MEDIUM (≈ 190 words)
 ================================================================
 
-Rutger Tuit ("The Conductor of Change") is a Senior Leader, Board Member,
-and strategic executive at Google, standing at the intersection of
-technology, media, and human creativity. As a prominent voice in Northern
-Europe's marketing-AI conversation, he shapes the future of digital
-marketing by guiding Google's partners and clients toward an "AI-first"
-world. His narrative does not begin in a traditional boardroom — it
-begins at the convergence of a musician's soul and a gamer's strategic
-mind. Born to two teachers, education and curiosity were the family
-trade, but he found his early fluency in the binary world of IT.
-Introduced to the Commodore 64 and 128 at a young age, he didn't just
-consume technology; he mastered its competitive edge — top-ranking Quake
-2 player by 1998, and World of Warcraft guild leader for five years until
-2010 — an experience that served as his first lesson in digital community
-management, remote leadership, and large-scale strategy. While this
-digital intensity built his technical foundation, his heart initially lay
-in music. A career in marketing was originally "Plan B" — a pragmatic way
-to finance his artistic aspirations — until he realised that the mix of
-technology, creativity and continuous change in marketing mirrored both
-the improvisation of music and the strategic rigour of competitive
-gaming. That realisation turned Plan B into the work. The duality forged
-his core identity as a "trusted translator," bridging the gaps between
-art and commerce, human creativity and machine intelligence; it lets him
-de-risk complex technology for the creative industry by framing
-disruption as a strategic advantage rather than a threat. As a key member
-of Google's Benelux management team, he holds a dual mandate: commercial
-growth of YouTube (which he helped build into the leading streaming
-service in the Benelux over his nearly decade-long tenure) and chief
-evangelism for Google's AI transformation as Head of Strategic
-Partnerships. He is the architect of the "Tuit Doctrine" — the strategic
-framework built on the mantra "YouTube is tv, social, zoeken en shoppen"
-— and addresses the creative industry's core anxiety with his "Jazz
-Swing" metaphor: AI provides the rigid beat (data, efficiency, scale),
-which liberates humans to provide the creative swing (judgement,
-artistry, and the human factor that makes the difference). His authority
-on the partner side comes from a 360-degree foundation built
-deliberately: brand-side at KPN, agency / media-buying at GroupM, ad-tech
-at Bannerconnect, then Google — guided by his personal rule "in elke
-rol-switch wil ik circa 20% vernieuwing" (in every role-switch, I want
-about 20% innovation). He is sought after at major cultural and creative
-conferences (Amsterdam Dance Event, ESNS) as well as business summits
-(Marketing Effie Live), is an author for Google's "Think with Google"
-platform, and is an active ecosystem cultivator shaping the next
-generation of AI-driven marketing tools.
+Rutger Tuit is a business leader who's defined more by how he works than
+by any one industry. He likes the spot where technology, media and human
+creativity overlap — the strategic "why" behind the technical "how" — and
+he's good at picking up a new field quickly enough to see where it's about
+to collide with the next one, then helping leaders get ahead of it. His
+read on the last decade is a pattern, not a marketing story: first
+organisations got to grips with big data, then video opened up through
+YouTube, and now everything is being rebuilt around AI — a shift that
+doesn't stop at marketing's door. He's a firm believer that innovation
+only really scales when there's trust: teams that are loosely coupled but
+completely agree on the goal, with room for people to do their best work.
+Right now that plays out in marketing — he's Director, Specialists &
+Partners at Google Benelux and Head of YouTube, on Google's Northern
+European Sales Leadership Team, working across Benelux agency
+partnerships, YouTube specialists, Creative Works, Search and Measurement.
+Away from the day job he's a musician and a homelab tinkerer who genuinely
+enjoys getting into the weeds of his own subject. This site is a personal
+project; the views here are his own.
+
+
+================================================================
+LONG (≈ 470 words)
+================================================================
+
+Rutger Tuit is a business leader who's defined more by how he works than
+by any one industry. He likes the place where technology, media and human
+creativity overlap, and his instinct is always to look for the strategic
+"why" underneath the technical "how". He picks up new fields quickly
+enough to see where they're about to run into each other — and he's at his
+most useful as a translator between them: between art and commerce,
+between human creativity and what machines can now do. The interesting
+stuff, he'd say, tends to live at the seams rather than inside any single
+discipline.
+
+None of that started in a boardroom. It started with a musician's ear and
+a gamer's head for systems. His parents were both teachers, so curiosity
+was the household default, but he found his feet early in computers — a
+Commodore 64, a lot of Quake 2, and years of running a World of Warcraft
+guild. (Mostly that was just fun; in hindsight it was also a first taste
+of online community and getting people to pull in the same direction.) His
+heart, though, was in music and audio. Marketing began as a side job — a
+way to pay for the music — until he got genuinely curious about it and
+realised the mix of technology, creativity and constant change scratched
+the same itch as making music and playing competitively. The side job
+became the work. Along the way he built up the full picture deliberately,
+from a few angles: brand-side at KPN, agency and media-buying at GroupM,
+ad-tech at Bannerconnect, then Google — guided by his own rule of thumb,
+"in elke rol-switch wil ik circa 20% vernieuwing" (in every role change I
+want roughly 20% that's new to me). That's mostly why he can hold the
+whole chain in view at once, across teams that don't always see each
+other.
+
+He tends to read the last decade as a pattern rather than a marketing
+story: first organisations got to grips with big data, then video opened
+up through YouTube, and now everything is being rebuilt around AI. That
+last shift doesn't stop at marketing's door — it changes how any industry
+makes things, decides and competes. His job, as he sees it, is to help
+leaders turn those big moves, and the creative and productivity unlock of
+generative AI, into plans that are honest about what an organisation can
+actually do — and that grow the business on both sides of the table.
+
+Right now that happens in marketing. He's Director, Specialists & Partners
+at Google Benelux and Head of YouTube, and sits on Google's Northern
+European Sales Leadership Team — working across Benelux agency
+partnerships, YouTube specialists, Creative Works, Search and Measurement,
+mostly with Dutch CMOs, agency CEOs and CTOs. He talks about YouTube as
+tv, social, search and shopping rolled into one, and about AI with a "jazz
+swing" picture: the machine keeps the rigid beat — data, efficiency, scale
+— which frees people up for the swing, the judgement and taste and the
+human bits that actually make the difference. He turns up now and then at
+cultural and business events around the region (Amsterdam Dance Event,
+ESNS, Marketing Effie Live) and writes the odd piece for Google's Think
+with Google.
+
+What he carries from one field to the next is really a way of working:
+lots of experimentation, a lot of faith in human creativity, and teams
+that are loosely coupled but completely agree on where they're heading.
+He's pretty convinced innovation only scales when there's real trust — the
+kind that quietly clears away silos and red tape. None of that is specific
+to marketing. Off the clock he's still a musician and a homelab tinkerer
+who likes getting properly into the weeds of whatever he's learning.
 
 
 ================================================================
 USAGE
 ================================================================
 
-Portraits: six 1440×1920 PNG files (01-studio through 06-stage).
+Portraits: six 1440×1920 PNG files (01-studio through 06-stage),
+AI-generated — label as such in print or editorial.
 All assets in this bundle may be used for editorial coverage,
 podcast art, and event programmes referencing Rutger Tuit.
 
+This is a personal site; views are Rutger's own, not his employer's.
 Updates: rutgertuit.nl/#media-kit

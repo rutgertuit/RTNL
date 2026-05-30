@@ -184,9 +184,9 @@ export default function AgentCPage() {
             <p className="rt-tuit__lead">
               Two researcher agents, two debater agents, a moderator, a
               judge. Configurable personalities. Four battle formats from
-              formal debate to roast. The point isn&apos;t the topic — the
-              point is what coherent argumentation actually requires from
-              a multi-agent system.
+              formal debate to roast. It&apos;s less about the topic than
+              about what it takes to get a multi-agent system to argue
+              coherently.
             </p>
             <ul className="rt-techwrite__meta">
               <li>

@@ -50,7 +50,7 @@ const ARTICLES: PressItem[] = [
     publication: "Adformatie",
     date: "November 2024",
     description:
-      "The Tuit Doctrine in print: YouTube as a multi-format platform combining TV, social media, search, and shopping. How brands succeed with comprehensive 360-degree campaigns on the platform.",
+      "YouTube as a multi-format platform combining TV, social media, search, and shopping. How brands succeed with comprehensive 360-degree campaigns on the platform.",
     url: "https://www.adformatie.nl/marketing/merkstrategie/rutger-tuit-youtube-is-tv-social-zoeken-en-shoppen",
   },
   {
@@ -250,22 +250,10 @@ const PULL_QUOTES: PullQuote[] = [
     url: "https://www.adformatie.nl/marketing/merkstrategie/rutger-tuit-youtube-is-tv-social-zoeken-en-shoppen",
   },
   {
-    publication: "Dutch Cowboys",
-    quote:
-      "YouTube ads are 2.4 times more effective than TV in driving demand and sales. Be present throughout the entire customer journey, not just during live events.",
-    url: "https://www.dutchcowboys.nl/advertising/youtube-festival-youtube-wil-de-televisie-overnemen",
-  },
-  {
     publication: "Marketing Tribune",
     quote:
       "The internet is being reinvented. We must focus on building relationships through transparent data practices.",
     url: "https://www.marketingtribune.nl/online/nieuws/2022/06/dossier-datastromen-rutger-tuit-van-google/index.xml",
-  },
-  {
-    publication: "Emerce",
-    quote:
-      "Advertisers are moving from linear TV to online video as a flexible alternative. The shift is from brand safety to brand suitability.",
-    url: "https://www.emerce.nl/nieuws/rutger-tuit-google-aandacht-verschuift-brand-suitability",
   },
 ];
 

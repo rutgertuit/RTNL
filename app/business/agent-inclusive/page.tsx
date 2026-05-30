@@ -265,7 +265,7 @@ export default function AgentInclusivePage() {
                   weeks later.
                 </p>
                 <p>
-                  The argument I am making is that our human top talent deserves the same
+                  The argument I am making is that our best people deserve the same
                   precision. State the exact role they are growing into. State the inputs they
                   will have. State the guardrails they are allowed to operate inside. State the
                   output the organisation expects from them at the end of the next two quarters,
@@ -317,7 +317,7 @@ export default function AgentInclusivePage() {
                 <p>
                   When the documentation is written cleanly, your senior people stop spending
                   30% of their week answering questions they have already answered four times.
-                  When the PDPs become build-plans, your top talent stops wondering whether they
+                  When the PDPs become build-plans, your best people stop wondering whether they
                   are being graded on a rubric nobody can articulate. When the team&apos;s
                   source files are treated as actual source files, the next agent you bring in
                   does not need a six-month integration project — it can read the room on day
@@ -331,7 +331,7 @@ export default function AgentInclusivePage() {
                   needed and rarely received.
                 </p>
                 <p>
-                  The tools are ready. The pipeline is open. The model that lands in production
+                  The tools are ready. The model that lands in production
                   six weeks from now will be materially better than the one we are working with
                   today, and the one six weeks after that will be better again. The bottleneck
                   is no longer the technology.
@@ -350,10 +350,10 @@ export default function AgentInclusivePage() {
                 </p>
                 <p style={{ marginTop: "var(--space-6)", padding: "var(--space-4)", background: "var(--color-bg-surface)", borderLeft: "2px solid var(--color-accent-warm)", fontStyle: "normal" }}>
                   <strong>Interactive Simulation:</strong> There is a working sim of this thesis at <Link href="/technical/agent-game">/technical/agent-game</Link> —
-                  survive 30 turns of exponential AI updates and try to hit $100B without falling into the documentation trap. Let me know how far you get.
+                  survive 30 turns of fast-moving AI updates and try to hit $100B without falling into the documentation trap. Let me know how far you get.
                 </p>
                 <p>
-                  <em>Let&apos;s build.</em>
+                  <em>Curious what you land on.</em>
                 </p>
               </>
             ),

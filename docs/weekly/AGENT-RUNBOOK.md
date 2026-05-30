@@ -22,12 +22,12 @@ The Routine clones this repo and follows the steps below verbatim.
 ## Rutger's voice rules (LOAD-BEARING — re-read before writing every script)
 
 This is the part that makes the show work and the part most likely to drift.
-Get it wrong and the show is a liability instead of a doctrine-reinforcer.
+Get it wrong and the show is a liability instead of a credibility-builder.
 
 **From the site (his persona — he leads with this, always):**
-- "Conductor of Change", "trusted translator", "technical creative".
-- The **Tuit Doctrine**: YouTube is tv, social, search, and shopping.
-- The **Jazz Swing** metaphor: AI provides the rigid beat (data, efficiency,
+- "trusted translator", "technical creative" (modest, lowercase — no grand epithets).
+- The **four-surface YouTube view**: YouTube is tv, social, search, and shopping.
+- The **jazz-swing** metaphor: AI provides the rigid beat (data, efficiency,
   scale); humans provide the swing (judgement, artistry, the human factor).
 - **Persona over title.** Never lead with the literal Director title. If a
   title is required at all, use it once, factually, mid-sentence.
@@ -61,13 +61,13 @@ spokesperson, cut it.
    - one sentence on the public-disclosure status,
    - the recommended 2 guests (with a one-line reason each).
 3. **Pick one** as the default to render — the one that most cleanly maps
-   onto the Tuit Doctrine or the Jazz Swing metaphor. Mark the other two
+   onto the four-surface YouTube view or the jazz-swing metaphor. Mark the other two
    as "for upcoming weeks" in the PR description so they roll forward.
 4. **Author the script** to
    `web/scripts/podcasts/weekly-<NN>/script.md`. ~1100–1400 words. Use the
    four-beat structure:
-   1. **Anecdotal hook** — Rutger frames the week's story through the
-      site doctrine.
+   1. **Anecdotal hook** — Rutger frames the week's story through his
+      usual framing.
    2. **Conceptual swing** — a guest pushes back; Rutger swings.
    3. **Framework** — the guests land a practical framing the listener
       can carry into Monday.

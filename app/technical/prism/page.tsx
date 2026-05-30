@@ -8,7 +8,7 @@ import { Breadcrumb } from "@/components/breadcrumb/Breadcrumb";
 const TITLE = "Prism";
 const TAGLINE = "Agentic creative-agency tooling for YouTube.";
 const DESCRIPTION =
-  "Prism turns static brand assets into platform-ready video variants (16:9 + 9:16 Shorts), localised, brand-compliance-checked, and ready to push to Google Ads. Designed so a single Client Service Director can run an end-to-end creative workflow that previously needed a full agency team. GCP-native, YouTube-first, Benelux mid-market focus for the MVP. 10 Cloud Run services + a Next.js cockpit + a Composer DAG live in the iamagency project, europe-west4.";
+  "Prism turns static brand assets into platform-ready video variants (16:9 + 9:16 Shorts), localised, brand-compliance-checked, and ready to push to Google Ads. Designed so a single Client Service Director can run more of the creative workflow that normally takes several people. GCP-native, YouTube-first, Benelux mid-market focus for the MVP. 10 Cloud Run services + a Next.js cockpit + a Composer DAG live in the iamagency project, europe-west4.";
 
 const REPO_URL = "https://github.com/rutgertuit/prism";
 
@@ -168,8 +168,8 @@ const DESIGN_CHOICES: DesignChoice[] = [
     body: "Every service action is wrapped through a shared audit-logging helper. The platform has a single audit shape, not 10 different per-service ones. Forensics work because the log shape is uniform.",
   },
   {
-    title: "Kanso Industrial Agency aesthetic",
-    body: "Industrial restraint, no decorative gradients, no compliance yellow. The interface reads as something a working CSD trusts at 18:30 on a deadline day. Quietness is the design choice.",
+    title: "Industrial, restrained aesthetic",
+    body: "Industrial restraint, no decorative gradients, no compliance yellow. The interface reads as something a working CSD trusts at 18:30 on a deadline day. It stays quiet on purpose.",
   },
 ];
 
@@ -236,8 +236,9 @@ export default function PrismPage() {
             <h1 className="rt-tuit__title">{TITLE}.</h1>
             <p className="rt-techwrite__tagline">{TAGLINE}</p>
             <p className="rt-tuit__lead">
-              A single Client Service Director, an end-to-end YouTube
-              creative workflow. Static brand assets in, platform-ready
+              A single Client Service Director running more of the
+              YouTube creative workflow that normally takes several
+              people. Static brand assets in, platform-ready
               16:9 + 9:16 video variants out, compliance-judged and
               campaign-ready. Built to compress the part of the agency
               workflow that doesn&apos;t need three meetings.
@@ -380,12 +381,12 @@ export default function PrismPage() {
 
           <section className="rt-techwrite__section">
             <div className="eyebrow">05 · DELIVERY MODEL</div>
-            <h2>Built by a multi-agent workflow.</h2>
+            <h2>Built with a multi-agent setup.</h2>
             <p>
               Prism is also a working example of how the project was
-              built. A Lead Architect dispatches specialist subagents
-              into git worktrees; a Verifier agent reviews every PR;
-              humans gate at module boundaries. Locked contracts live
+              built. Specialist agents work in separate git worktrees,
+              a review agent checks every PR, and I gate the merges at
+              module boundaries. Locked contracts live
               in <code>FOR_AGENTS.md</code>: what the audit shape must
               be, what the strict /healthz contract is, what the cost-
               cap projection rule says. The same agent discipline that
@@ -397,9 +398,9 @@ export default function PrismPage() {
           <section className="rt-techwrite__section rt-techwrite__section--closer">
             <div className="eyebrow eyebrow--warm">WHY THIS EXISTS</div>
             <p>
-              A YouTube-first creative workflow used to require a full
-              agency team — director, editor, dubber, compliance, ads
-              ops. Most of that team is doing mechanical work that
+              A YouTube-first creative workflow normally takes several
+              people — director, editor, dubber, compliance, ads
+              ops. A lot of that work is mechanical and
               shouldn&apos;t require a meeting. Prism absorbs the
               mechanical layer so the Client Service Director keeps
               the creative call — what we&apos;re saying, to whom,

@@ -9,7 +9,7 @@
       "title": "The Multiplier Myth",
       "summary": "AI is a multiplier only if you use it on the part of the work that compounds, not as a way to do the same job with fewer people.",
       "body_path": "business/multiplier-myth.md",
-      "topic_tags": ["leadership", "ai-strategy", "tuit-doctrine", "multiplier"],
+      "topic_tags": ["leadership", "ai-strategy", "youtube-platform", "multiplier"],
       "model_used": "claude-opus",
       "model_version": "4.6",
       "models_secondary": ["nano-banana", "elevenlabs-eleven-v3"],
@@ -20,7 +20,7 @@
         "agent-inclusive",
         "thirty-minute-kitchen",
         "weekly-01",
-        "doctrine-jazz-swing"
+        "jazz-swing"
       ],
       "external_links": [
         {
@@ -69,7 +69,7 @@
       "created_by_role": "hybrid",
       "created_at": "2026-05-23T00:00:00Z",
       "last_reviewed": "2026-05-30T00:00:00Z",
-      "related_items": ["multiplier-myth", "agent-game", "doctrine-jazz-swing"],
+      "related_items": ["multiplier-myth", "agent-game", "jazz-swing"],
       "external_links": [
         {
           "url": "https://rutgertuit.nl/business/agent-inclusive",
@@ -101,7 +101,7 @@
       "related_items": [
         "creative-character-sheet",
         "creative-interactivity",
-        "doctrine-prompted-then-chosen"
+        "prompted-then-chosen"
       ],
       "external_links": [
         {
@@ -128,7 +128,7 @@
       "last_reviewed": "2026-05-30T00:00:00Z",
       "related_items": [
         "creative-video-models",
-        "doctrine-prompted-then-chosen"
+        "prompted-then-chosen"
       ],
       "external_links": [
         {
@@ -155,7 +155,7 @@
       "last_reviewed": "2026-05-30T00:00:00Z",
       "related_items": [
         "creative-video-models",
-        "doctrine-trusted-translator"
+        "trusted-translator"
       ],
       "external_links": [
         {
@@ -195,7 +195,7 @@
         "technical-shop-life",
         "technical-agentc",
         "technical-bedtime-stories",
-        "doctrine-trusted-translator"
+        "trusted-translator"
       ],
       "external_links": [
         {
@@ -297,7 +297,7 @@
       "created_by_role": "claude-code",
       "created_at": "2026-05-30T00:00:00Z",
       "last_reviewed": "2026-05-30T00:00:00Z",
-      "related_items": ["technical-luminary", "doctrine-prompted-then-chosen"],
+      "related_items": ["technical-luminary", "prompted-then-chosen"],
       "external_links": [
         {
           "url": "https://github.com/rutgertuit/creature-team-stories",
@@ -402,7 +402,7 @@
       "related_items": [
         "technical-clout-cannon",
         "creative-video-models",
-        "doctrine-trusted-translator"
+        "trusted-translator"
       ],
       "external_links": [
         {
@@ -445,12 +445,12 @@
       "publish_state": "live"
     },
     {
-      "id": "doctrine-tuit-doctrine",
+      "id": "youtube-surfaces",
       "collection": "media-kit",
-      "slug": "doctrine-tuit-doctrine",
-      "title": "The Tuit Doctrine",
+      "slug": "youtube-surfaces",
+      "title": "YouTube is four surfaces",
       "summary": "YouTube is tv, social, search, and shopping in one. A four-surface framing of a single platform, used as the stance behind most of the site's writing on advertising and creator economy.",
-      "topic_tags": ["doctrine", "youtube", "advertising", "platform-strategy"],
+      "topic_tags": ["positioning","youtube", "advertising", "platform-strategy"],
       "model_used": "claude-opus",
       "model_version": "4.7",
       "models_secondary": [],
@@ -460,20 +460,20 @@
       "related_items": ["creative-video-models", "multiplier-myth"],
       "external_links": [
         {
-          "url": "https://rutgertuit.nl/doctrine#tuit-doctrine",
-          "label": "The Tuit Doctrine (canonical)",
+          "url": "https://rutgertuit.nl/how-i-think#youtube-surfaces",
+          "label": "YouTube is four surfaces (canonical)",
           "type": "article"
         }
       ],
       "publish_state": "live"
     },
     {
-      "id": "doctrine-jazz-swing",
+      "id": "jazz-swing",
       "collection": "media-kit",
-      "slug": "doctrine-jazz-swing",
+      "slug": "jazz-swing",
       "title": "The Jazz Swing",
       "summary": "AI provides the rigid beat. Humans provide the swing. A metaphor for working with current AI — the model contributes the metronomic beat, humans contribute taste and judgement.",
-      "topic_tags": ["doctrine", "ai-collaboration", "metaphor"],
+      "topic_tags": ["positioning","ai-collaboration", "metaphor"],
       "model_used": "claude-opus",
       "model_version": "4.7",
       "models_secondary": [],
@@ -483,7 +483,7 @@
       "related_items": ["multiplier-myth", "agent-inclusive"],
       "external_links": [
         {
-          "url": "https://rutgertuit.nl/doctrine#jazz-swing",
+          "url": "https://rutgertuit.nl/how-i-think#jazz-swing",
           "label": "The Jazz Swing (canonical)",
           "type": "article"
         }
@@ -491,12 +491,12 @@
       "publish_state": "live"
     },
     {
-      "id": "doctrine-trusted-translator",
+      "id": "trusted-translator",
       "collection": "media-kit",
-      "slug": "doctrine-trusted-translator",
+      "slug": "trusted-translator",
       "title": "The Trusted Translator",
       "summary": "The role between the people who fear the machine and the people who oversell it. Translating between research demos and CFO meetings.",
-      "topic_tags": ["doctrine", "leadership", "translation"],
+      "topic_tags": ["positioning","leadership", "translation"],
       "model_used": "claude-opus",
       "model_version": "4.7",
       "models_secondary": [],
@@ -506,7 +506,7 @@
       "related_items": ["creative-interactivity", "technical-luminary", "technical-prism"],
       "external_links": [
         {
-          "url": "https://rutgertuit.nl/doctrine#trusted-translator",
+          "url": "https://rutgertuit.nl/how-i-think#trusted-translator",
           "label": "The Trusted Translator (canonical)",
           "type": "article"
         }
@@ -514,35 +514,12 @@
       "publish_state": "live"
     },
     {
-      "id": "doctrine-conductor-of-change",
+      "id": "prompted-then-chosen",
       "collection": "media-kit",
-      "slug": "doctrine-conductor-of-change",
-      "title": "The Conductor of Change",
-      "summary": "Persona, not title. Creative soul × tech executive, holding the seams together. The conductor holds the tempo so the parts can speak to each other.",
-      "topic_tags": ["doctrine", "persona", "duality"],
-      "model_used": "claude-opus",
-      "model_version": "4.7",
-      "models_secondary": [],
-      "created_by_role": "hybrid",
-      "created_at": "2026-05-30T00:00:00Z",
-      "last_reviewed": "2026-05-30T00:00:00Z",
-      "related_items": [],
-      "external_links": [
-        {
-          "url": "https://rutgertuit.nl/doctrine#conductor-of-change",
-          "label": "The Conductor of Change (canonical)",
-          "type": "article"
-        }
-      ],
-      "publish_state": "live"
-    },
-    {
-      "id": "doctrine-prompted-then-chosen",
-      "collection": "media-kit",
-      "slug": "doctrine-prompted-then-chosen",
+      "slug": "prompted-then-chosen",
       "title": "Prompted, then chosen",
       "summary": "Nothing on this site was hand-touched. Every image, every line, every clip — prompted, then chosen. The production rule that makes the site an honest showcase of AI-assisted creativity.",
-      "topic_tags": ["doctrine", "production-rule", "transparency"],
+      "topic_tags": ["positioning","production-rule", "transparency"],
       "model_used": "claude-opus",
       "model_version": "4.7",
       "models_secondary": [],
@@ -556,7 +533,7 @@
       ],
       "external_links": [
         {
-          "url": "https://rutgertuit.nl/doctrine#prompted-then-chosen",
+          "url": "https://rutgertuit.nl/how-i-think#prompted-then-chosen",
           "label": "Prompted, then chosen (canonical)",
           "type": "article"
         },

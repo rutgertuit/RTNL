@@ -178,7 +178,7 @@ export function TalkToIt() {
       </p>
       <p className="rt-bi__bridge">
         That conversational comfort has a cost. Every turn is a fresh
-        inference pass on a model the size of a small country&apos;s GDP.
+        inference pass on a very large, expensive-to-run model.
         Section 5 makes that cost visible.
       </p>
     </section>

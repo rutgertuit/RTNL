@@ -1317,6 +1317,8 @@ html {
   margin: 0;
   max-width: 880px;
 }
+.rt-mk__bio > p { margin: 0; }
+.rt-mk__bio > p + p { margin-top: var(--space-4); }
 .rt-mk__bio--short  { font-size: var(--fs-300); color: var(--color-fg-1); line-height: var(--lh-lead); }
 .rt-mk__bio--medium { font-size: var(--fs-200); }
 .rt-mk__bio--long   { font-size: var(--fs-200); }

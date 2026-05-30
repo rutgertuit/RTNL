@@ -83,7 +83,7 @@ const LINEAGES: Lineage[] = [
     eyebrow: "UNIFIED MULTIMODAL TRANSFORMER · MAY 2026",
     name: "Gemini Omni · Flash now, Pro upcoming",
     honestTradeoff:
-      "Single-pass any-to-any generation, conversational editing, audio-visual sync from raw waveforms. Currently capped at 10-second clips. The single most useful AI video tool in May 2026, and the most limited in clip length.",
+      "Single-pass any-to-any generation, conversational editing, audio-visual sync from raw waveforms. Currently capped at 10-second clips. One of the most capable AI video tools as of May 2026, and the most limited in clip length.",
     pickFor:
       "Anything that needs more than one round of editing. Anything where audio drives visuals (or vice versa). Anything where the brief is closer to a conversation than a document. The default tool unless one of the other three lineages is specifically better for the job.",
     evolution: [

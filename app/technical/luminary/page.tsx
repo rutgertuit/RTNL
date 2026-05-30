@@ -370,9 +370,9 @@ export default function LuminaryPage() {
           <section className="rt-techwrite__section rt-techwrite__section--closer">
             <div className="eyebrow eyebrow--warm">WHY THIS EXISTS</div>
             <p>
-              Voice is the missing interface for deep research. Typing a
-              query into a chatbox is a bottleneck — most of the
-              high-leverage research I want to do happens when I&apos;m
+              For me, voice turned out to be a better way into deep research
+              than typing. Typing a query into a chatbox is a bottleneck —
+              most of the research I actually want to do happens when I&apos;m
               walking, driving, between meetings. Luminary is the version
               that lets me hand off a question in motion and get a
               source-grounded answer back as audio. The fact that it can

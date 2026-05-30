@@ -156,7 +156,7 @@ const ASSET_CREDITS: AssetCredit[] = [
     note: "Pair-programming session by session. The visible craft is in the small things — accessible breadcrumbs, OG cards per route, the 'height: auto !important' next/image fix, JSON-LD per route. Prompted, then chosen.",
   },
   {
-    output: "Prose (articles, FAQ answers, bios, /doctrine entries)",
+    output: "Prose (articles, FAQ answers, bios, /how-i-think entries)",
     where: "Everywhere there is text",
     model: "Drafted with Claude · edited by Rutger",
     promptTemplate: "docs/brand-voice-guideline.md (the Audience Test + Tuit Post structure)",
@@ -355,11 +355,9 @@ export default function CreditsPage() {
           <section className="rt-credits__section rt-credits__section--closer">
             <div className="eyebrow eyebrow--warm">CLOSING THANKS</div>
             <p>
-              And finally &mdash; to <em>everyone</em> using AI as a value
-              multiplier and not as a cost saver or a replacement. You
-              are the reason any of this is worth building. The tools
-              only matter in the hands of people who use them to do
-              more, not to do the same thing with fewer people.
+              And finally &mdash; to <em>everyone</em> using AI to do more
+              rather than to do the same thing with fewer people. That&apos;s
+              the part that makes this worth building.
             </p>
             <p className="rt-credits__signoff">
               &mdash; Rutger

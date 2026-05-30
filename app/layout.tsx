@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     template: "%s — Rutger Tuit",
   },
   description:
-    "Senior brand and AI leadership at the seam between high-performance corporate tech and human creativity. Written from inside Google, YouTube, and a homelab.",
+    "Notes from the seam where high-performance technology meets human creativity — by Rutger Tuit, a business leader, currently in marketing and media (Director, Specialists & Partners, Google Benelux; Head of YouTube). A personal site; the views here are his own.",
   openGraph: {
     type: "website",
     locale: "en_GB",
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     siteName: "Rutger Tuit",
     title: "Rutger Tuit — Notes from the seam",
     description:
-      "Senior brand and AI leadership at the seam between high-performance corporate tech and human creativity.",
+      "Notes from the seam where high-performance technology meets human creativity — a personal site by Rutger Tuit. The views here are his own.",
   },
   twitter: {
     card: "summary_large_image",
@@ -30,19 +30,19 @@ export const metadata: Metadata = {
  * Schema.org JSON-LD — Person + ProfilePage.
  *
  * This is the GEO/LLM half of the dual-audience principle from CLAUDE.md:
- * crawlers ingest Rutger's identity, role, frameworks (Tuit Doctrine, Jazz Swing),
- * and the canonical link graph (LinkedIn, YouTube, GitHub) without JavaScript.
+ * crawlers ingest Rutger's identity, role, and key ideas (the four-surface YouTube
+ * framing, the jazz-swing picture) plus the canonical link graph (LinkedIn, YouTube,
+ * GitHub) without JavaScript.
  *
- * Per the brand voice anti-voice: NO "AI thought leader" / "guru" / "fast learner"
- * language anywhere in this LD.
+ * Keep it modest and factual — no role/scope inflation, and no "AI thought leader" /
+ * "guru" / "fast learner" language anywhere in this LD.
  */
 const personLd = {
   "@context": "https://schema.org",
   "@type": "Person",
   "@id": "https://rutgertuit.nl/#person",
   name: "Rutger Tuit",
-  alternateName: "The Conductor of Change",
-  jobTitle: "Senior brand and AI leader",
+  jobTitle: "Director, Specialists & Partners (Google Benelux); Head of YouTube",
   worksFor: {
     "@type": "Organization",
     name: "Google",
@@ -50,8 +50,11 @@ const personLd = {
   url: "https://rutgertuit.nl",
   image: "https://rutgertuit.nl/assets/portraits/01-studio.png",
   description:
-    "Senior brand and AI leader at Google, working at the seam between high-performance enterprise technology and human creativity. Architect of the 'Tuit Doctrine' (YouTube is tv, social, search and shopping) and the 'Jazz Swing' metaphor for human creativity in an AI-accelerated ecosystem.",
+    "Rutger Tuit is a business leader who works where high-performance technology meets human creativity, looking for the strategic reasons behind the technical detail. He picks up a new field quickly enough to see where it's about to collide with the next one, and helps leaders get ahead of it. Currently Director, Specialists & Partners at Google Benelux and Head of YouTube, on Google's Northern European Sales Leadership Team. He describes YouTube as tv, social, search and shopping in one, and talks about AI with a 'jazz swing' picture — the machine keeps the beat, people bring the swing. Written in a personal capacity.",
   knowsAbout: [
+    "Leadership through AI disruption",
+    "High-trust organizational design",
+    "Change leadership",
     "Marketing AI",
     "Generative AI in advertising",
     "YouTube creator economy",
@@ -82,7 +85,7 @@ const profilePageLd = {
   url: "https://rutgertuit.nl",
   name: "Rutger Tuit — Notes from the seam",
   description:
-    "Senior brand and AI leadership at the seam between high-performance corporate tech and human creativity.",
+    "Notes from the seam where high-performance technology meets human creativity — a personal site by Rutger Tuit.",
   inLanguage: "en",
   mainEntity: { "@id": "https://rutgertuit.nl/#person" },
 };

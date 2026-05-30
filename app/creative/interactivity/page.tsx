@@ -116,8 +116,8 @@ export default function InteractivityPage() {
                   things you wouldn&apos;t have pointed out.
                 </p>
                 <p>
-                  The category-defining example here is{" "}
-                  <strong>Luminary</strong> — the deep-research agent class that runs
+                  A clear example here is{" "}
+                  <strong>Luminary</strong> — a deep-research agent that runs
                   open-ended discovery on your behalf, surfaces the receipts, and lets you
                   steer mid-flight. Used well, it is less a search engine and more a
                   research apprentice who keeps asking{" "}
@@ -198,7 +198,7 @@ export default function InteractivityPage() {
                   Their thing.
                 </p>
                 <p>
-                  This site is itself a long argument for that mode. Four examples
+                  This site leans on that mode in a few places. Four examples
                   available right here:
                 </p>
                 <ul>
